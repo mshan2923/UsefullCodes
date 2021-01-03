@@ -25,7 +25,7 @@ public class TestCollection : MonoBehaviour
     {
     }
 
-    public static Type GetTypeFromAssemblies(string TypeName)
+    public Type GetTypeFromAssemblies(string TypeName)
     {
         // null 반환 없이 Type이 얻어진다면 얻어진 그대로 반환.
         var type = Type.GetType(TypeName);
@@ -50,7 +50,7 @@ public class TestCollection : MonoBehaviour
 
         // 못 찾았음;;; 클래스 이름이 틀렸던가, 아니면 알 수 없는 문제 때문이겠지...
         return null;
-    }
+    }//TypeName = typeof(Type).FullName
 }
 
 
@@ -80,17 +80,4 @@ class TestCollectionInspector : Editor
         EditorGUILayout.HelpBox("Test", MessageType.None);
     }
     
-
-    void DrawList(SerializedProperty _list, string _labalName)
-    {
-        //리스트 갯수 표시
-        EditorGUILayout.PropertyField(_list.FindPropertyRelative("Array.size"), new GUIContent("리스트 갯수 표시"));
-        int Count = _list.arraySize;
-
-        if(_list.arraySize > 0)
-        for (int i = 0; i < Count; ++i)
-        {
-            EditorGUILayout.PropertyField(_list.GetArrayElementAtIndex(i), new GUIContent(_labalName + i));
-        }
-    }//출처: https://rbals1101.tistory.com/75 [프로그래밍 공부!!]
 }

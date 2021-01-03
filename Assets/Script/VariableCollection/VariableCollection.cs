@@ -29,12 +29,12 @@ public class VariableCollection
         [SerializeField]
         public List<string> Data;
         [SerializeField]
-        public List<System.Type> DataType;//String 으로 바꿔야 ProperyDrawer 에서 사용 가능
+        public List<string> DataType;//String 으로 바꿔야 ProperyDrawer 에서 사용 가능
 
         public CollectionList()
         {
             Data = new List<string>();
-            DataType = new List<Type>();
+            DataType = new List<string>();
         }
         public bool Set<T>(int index, T vaule)
         {
@@ -46,7 +46,7 @@ public class VariableCollection
                 if (index < Data.Count && index >= 0 && Data.Count != 0)
                 {
                     Data[index] = data;
-                    DataType[index] = typeof(T);
+                    DataType[index] = typeof(T).FullName;
                     return true;
                 }
                 else
@@ -64,7 +64,7 @@ public class VariableCollection
             Wrap<T> wrap = new Wrap<T>(vaule);
             string data = JsonUtility.ToJson(wrap);
             Data.Add(data);
-            DataType.Add(typeof(T));
+            DataType.Add(typeof(T).FullName);
         }
         public T Get<T>(int index)
         {
@@ -90,14 +90,14 @@ public class VariableCollection
         }
         public Type GetType(int index)
         {
-            return DataType[index];
+            return ConvertType(DataType[index]);
         }
         public int Find<T>(T vaule)
         {
             List<int> indexs = new List<int>();
             for(int i = 0; i < DataType.Count; i++)
             {
-                if(DataType[i] == typeof(T))
+                if(ConvertType(DataType[i]) == typeof(T))
                 {
                     //indexs.Add(i);
                     T temp = Get<T>(i); 
@@ -115,7 +115,7 @@ public class VariableCollection
             List<int> indexs = new List<int>();
             for (int i = 0; i < DataType.Count; i++)
             {
-                if (DataType[i] == typeof(T))
+                if (ConvertType(DataType[i]) == typeof(T))
                 {
                     indexs.Add(i);
                 }
@@ -123,11 +123,38 @@ public class VariableCollection
             return indexs;
         }
     }
+    public static Type ConvertType(string TypeName)
+    {
+        // null 반환 없이 Type이 얻어진다면 얻어진 그대로 반환.
+        var type = Type.GetType(TypeName);
+        if (type != null)
+            return type;
+
+        // 프로젝트에 분명히 포함된 클래스임에도 불구하고 Type이 찾아지지 않는다면,
+        // 실행중인 어셈블리를 모두 탐색 하면서 그 안에 찾고자 하는 Type이 있는지 검사.
+        var currentAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+        var referencedAssemblies = currentAssembly.GetReferencedAssemblies();
+        foreach (var assemblyName in referencedAssemblies)
+        {
+            var assembly = System.Reflection.Assembly.Load(assemblyName);
+            if (assembly != null)
+            {
+                // 찾았다 요놈!!!
+                type = assembly.GetType(TypeName);
+                if (type != null)
+                    return type;
+            }
+        }
+
+        // 못 찾았음;;; 클래스 이름이 틀렸던가, 아니면 알 수 없는 문제 때문이겠지...
+        return null;
+    }//TypeName = typeof(Type).FullName
 }
 
 [CustomPropertyDrawer(typeof(VariableCollection.CollectionList))]
 public class CollectionListProperty : PropertyDrawer
 {
+    float DrawHeight = 0;
     public override bool CanCacheInspectorGUI(SerializedProperty property)
     {
         return base.CanCacheInspectorGUI(property);
@@ -136,7 +163,8 @@ public class CollectionListProperty : PropertyDrawer
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
         float temp = base.GetPropertyHeight(property, label);
-        temp += GetArrayHeight(property, "Data", 25, 0);
+        temp += GetArrayHeight(property, "Data", 25, 25);
+        temp += GetArrayHeight(property, "DataType", 25, 25);
 
         return temp;
     }
@@ -152,16 +180,16 @@ public class CollectionListProperty : PropertyDrawer
         //base.OnGUI(position, property, label);
         EditorGUI.BeginProperty(position, label, property);
 
-        EditorGUI.PropertyField(position, property.FindPropertyRelative("Data"), new GUIContent());
-        if(property.FindPropertyRelative("DataType") != null)
-        {
-            EditorGUI.PropertyField(position, property.FindPropertyRelative("DataType"), new GUIContent());
-        }
-        else
-        {
-            Debug.LogWarning("DataType is null??");
-        }
-        //해당 타입으로 변환해서 보여주는거....
+        DrawHeight = position.y;
+        var DataRect = new Rect(position.x, DrawHeight, position.width, position.height);
+        DrawHeight += GetArrayHeight(property, "Data", 25, 25);
+        var TypeRect = new Rect(position.x, DrawHeight, position.width, position.height);
+
+        EditorGUI.PropertyField(DataRect, property.FindPropertyRelative("Data"), GUIContent.none);
+        EditorGUI.PropertyField(TypeRect, property.FindPropertyRelative("DataType"), GUIContent.none);
+
+        Debug.Log("Data : " + " / " + property.FindPropertyRelative("Data").displayName);
+        Debug.Log("Type : " + " / " + property.FindPropertyRelative("DataType").displayName);
 
         EditorGUI.EndProperty();
 
@@ -174,10 +202,57 @@ public class CollectionListProperty : PropertyDrawer
         for(int i = 0; i < Count; i++)
         {
             string text = property.FindPropertyRelative("Data").GetArrayElementAtIndex(i).stringValue;
-            //Type type = property.FindPropertyRelative("DataType").GetArrayElementAtIndex(i).name.GetType();
-            Debug.Log(property.FindPropertyRelative("DataType") + " // " + text);
+            string type = property.FindPropertyRelative("DataType").GetArrayElementAtIndex(i).stringValue;
             
+            Debug.Log(VariableCollection.ConvertType(type) + " : " + text);
         }
         //property.FindPropertyRelative("Data").GetArrayElementAtIndex(0);
     }
+    public void CreateDataField(string type, string Data , Rect rect)
+    {
+        Type LType = VariableCollection.ConvertType(type);
+
+        switch (Type.GetTypeCode(LType))
+        {
+            case TypeCode.Boolean:
+                //return EditorGUI.PropertyField(rect,);
+                break;
+            case TypeCode.Byte:
+                break;
+            case TypeCode.Char:
+                break;
+            case TypeCode.DateTime:
+                break;
+            case TypeCode.DBNull:
+                break;
+            case TypeCode.Decimal:
+                break;
+            case TypeCode.Double:
+                break;
+            case TypeCode.Empty:
+                break;
+            case TypeCode.Int16:
+                break;
+            case TypeCode.Int32:
+                break;
+            case TypeCode.Int64:
+                break;
+            case TypeCode.Object:
+                break;
+            case TypeCode.SByte:
+                break;
+            case TypeCode.Single:
+                break;
+            case TypeCode.String:
+                break;
+            case TypeCode.UInt16:
+                break;
+            case TypeCode.UInt32:
+                break;
+            case TypeCode.UInt64:
+                break;
+            default:
+                break;
+        }
+    }//어디에 타입별로 프로퍼티필드 만든는거 있었는데??
 }
