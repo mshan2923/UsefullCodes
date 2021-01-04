@@ -9,120 +9,6 @@ using UnityEngine.UIElements;
 [System.Serializable]
 public class VariableCollection
 {
-    [System.Serializable]
-    class Wrap<T>
-    {
-        [SerializeField]
-        T data;
-
-        public Wrap(T data)
-        {
-            this.data = data;
-        }
-
-        public T Get { get => data; }
-    }//이렇게 감싸주면 배열,리스트 등을 직렬화가능 
-
-    [System.Serializable]
-    public class CollectionList
-    {
-        [SerializeField]
-        public List<string> Data;
-        [SerializeField]
-        public List<string> DataType;//String 으로 바꿔야 ProperyDrawer 에서 사용 가능
-
-        public CollectionList()
-        {
-            Data = new List<string>();
-            DataType = new List<string>();
-        }
-        public bool Set<T>(int index, T vaule)
-        {
-            Wrap<T> wrap = new Wrap<T>(vaule);
-            string data = JsonUtility.ToJson(wrap);
-
-            if(!string.IsNullOrEmpty(data))
-            {
-                if (index < Data.Count && index >= 0 && Data.Count != 0)
-                {
-                    Data[index] = data;
-                    DataType[index] = typeof(T).FullName;
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }else
-            {
-                return false;
-            }
-
-        }
-        public void Add<T>(T vaule)
-        {
-            Wrap<T> wrap = new Wrap<T>(vaule);
-            string data = JsonUtility.ToJson(wrap);
-            Data.Add(data);
-            DataType.Add(typeof(T).FullName);
-        }
-        public T Get<T>(int index)
-        {
-            if(index < Data.Count && index >= 0 && Data.Count != 0)
-            {
-                T vaule = JsonUtility.FromJson<Wrap<T>>(Data[index]).Get;
-                return vaule;
-            }else
-            {
-                return default;
-            }
-        }
-        public List<T> Gets<T>()
-        {
-            var indexs = GetEqualTypes<T>();
-            List<T> Vaules = new List<T>();
-            for(int i = 0; i < indexs.Count; i++)
-            {
-                Vaules.Add(Get<T>(i));
-            }
-
-            return Vaules;
-        }
-        public Type GetType(int index)
-        {
-            return ConvertType(DataType[index]);
-        }
-        public int Find<T>(T vaule)
-        {
-            List<int> indexs = new List<int>();
-            for(int i = 0; i < DataType.Count; i++)
-            {
-                if(ConvertType(DataType[i]) == typeof(T))
-                {
-                    //indexs.Add(i);
-                    T temp = Get<T>(i); 
-                    if(vaule.Equals(temp))
-                    {
-                        return i;
-                    }
-                }
-            }
-
-            return -1;
-        }
-        public List<int> GetEqualTypes<T>()
-        {
-            List<int> indexs = new List<int>();
-            for (int i = 0; i < DataType.Count; i++)
-            {
-                if (ConvertType(DataType[i]) == typeof(T))
-                {
-                    indexs.Add(i);
-                }
-            }
-            return indexs;
-        }
-    }
     public static Type ConvertType(string TypeName)
     {
         // null 반환 없이 Type이 얻어진다면 얻어진 그대로 반환.
@@ -151,7 +37,190 @@ public class VariableCollection
     }//TypeName = typeof(Type).FullName
 }
 
-[CustomPropertyDrawer(typeof(VariableCollection.CollectionList))]
+[System.Serializable]
+public class Wrap<T>
+{
+    [SerializeField]
+    T data;
+
+    public Wrap(T data)
+    {
+        this.data = data;
+    }
+
+    public T Get { get => data; }
+}//이렇게 감싸주면 배열,리스트 등을 직렬화가능 
+[System.Serializable]
+public class CollectionList
+{
+    [SerializeField]
+    public List<string> Data;
+    [SerializeField]
+    public List<string> DataType;//String 으로 바꿔야 ProperyDrawer 에서 사용 가능
+
+    public CollectionList()
+    {
+        Data = new List<string>();
+        DataType = new List<string>();
+    }
+    public bool Set<T>(int index, T vaule)
+    {
+        Wrap<T> wrap = new Wrap<T>(vaule);
+        string data = JsonUtility.ToJson(wrap);
+
+        if (!string.IsNullOrEmpty(data))
+        {
+            if (index < Data.Count && index >= 0 && Data.Count != 0)
+            {
+                Data[index] = data;
+                DataType[index] = typeof(T).FullName;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+    public void Add<T>(T vaule)
+    {
+        Wrap<T> wrap = new Wrap<T>(vaule);
+        string data = JsonUtility.ToJson(wrap);
+        Data.Add(data);
+        DataType.Add(typeof(T).FullName);
+    }
+    public void ForceAdd(string TypeName, string Vauletext)
+    {
+        Data.Add(Vauletext);
+        DataType.Add(TypeName);
+    }
+    public T Get<T>(int index)
+    {
+        if (index < Data.Count && index >= 0 && Data.Count != 0)
+        {
+            T vaule = JsonUtility.FromJson<Wrap<T>>(Data[index]).Get;
+            return vaule;
+        }
+        else
+        {
+            return default;
+        }
+    }
+    public List<T> Gets<T>()
+    {
+        var indexs = GetEqualTypes<T>();
+        List<T> Vaules = new List<T>();
+        for (int i = 0; i < indexs.Count; i++)
+        {
+            Vaules.Add(Get<T>(i));
+        }
+
+        return Vaules;
+    }
+    public Type GetType(int index)
+    {
+        return ConvertType(DataType[index]);
+    }
+    public int Find<T>(T vaule)
+    {
+        List<int> indexs = new List<int>();
+        for (int i = 0; i < DataType.Count; i++)
+        {
+            if (ConvertType(DataType[i]) == typeof(T))
+            {
+                //indexs.Add(i);
+                T temp = Get<T>(i);
+                if (vaule.Equals(temp))
+                {
+                    return i;
+                }
+            }
+        }
+
+        return -1;
+    }
+    public List<int> GetEqualTypes<T>()
+    {
+        List<int> indexs = new List<int>();
+        for (int i = 0; i < DataType.Count; i++)
+        {
+            if (ConvertType(DataType[i]) == typeof(T))
+            {
+                indexs.Add(i);
+            }
+        }
+        return indexs;
+    }
+
+    public Type ConvertType(string TypeName)
+    {
+        // null 반환 없이 Type이 얻어진다면 얻어진 그대로 반환.
+        var type = Type.GetType(TypeName);
+        if (type != null)
+            return type;
+
+        // 프로젝트에 분명히 포함된 클래스임에도 불구하고 Type이 찾아지지 않는다면,
+        // 실행중인 어셈블리를 모두 탐색 하면서 그 안에 찾고자 하는 Type이 있는지 검사.
+        var currentAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+        var referencedAssemblies = currentAssembly.GetReferencedAssemblies();
+        foreach (var assemblyName in referencedAssemblies)
+        {
+            var assembly = System.Reflection.Assembly.Load(assemblyName);
+            if (assembly != null)
+            {
+                // 찾았다 요놈!!!
+                type = assembly.GetType(TypeName);
+                if (type != null)
+                    return type;
+            }
+        }
+
+        // 못 찾았음;;; 클래스 이름이 틀렸던가, 아니면 알 수 없는 문제 때문이겠지...
+        return null;
+    }//TypeName = typeof(Type).FullName
+
+}
+
+[CustomEditor(typeof(CollectionList))]
+public class CollectionListEditor : Editor
+{
+    SerializedProperty DataProperty;
+    SerializedProperty TypeProperty;
+
+    CollectionList collectionList;
+
+    private void OnEnable()
+    {
+        OverrideEnable();
+    }
+    public virtual void OverrideEnable()
+    {
+        DataProperty = serializedObject.FindProperty("Data");
+        TypeProperty = serializedObject.FindProperty("DataType");
+
+        //collectionList = (CollectionList)target; // Not Work Fuuuuuuuuuuuck
+        {
+            for(int i = 0; i < DataProperty.arraySize; i++)
+            {
+                collectionList.ForceAdd(TypeProperty.GetArrayElementAtIndex(i).stringValue, DataProperty.GetArrayElementAtIndex(i).stringValue);
+            }
+        }//Manual Set collectionList
+
+    }
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+        EditorGUILayout.PropertyField(DataProperty, GUIContent.none);
+        EditorGUILayout.PropertyField(TypeProperty, GUIContent.none);
+    }
+}
+/*
+[CustomPropertyDrawer(typeof(CollectionList))]
 public class CollectionListProperty : PropertyDrawer
 {
     float DrawHeight = 0;
@@ -208,51 +277,67 @@ public class CollectionListProperty : PropertyDrawer
         }
         //property.FindPropertyRelative("Data").GetArrayElementAtIndex(0);
     }
-    public void CreateDataField(string type, string Data , Rect rect)
+    public void CreateDataField(string type, string Data, Rect rect , SerializedProperty property)
     {
         Type LType = VariableCollection.ConvertType(type);
+        SerializedProperty TypeProp = property.serializedObject.FindProperty(type);
 
-        switch (Type.GetTypeCode(LType))
+        switch (TypeProp.propertyType)
         {
-            case TypeCode.Boolean:
-                //return EditorGUI.PropertyField(rect,);
+            case SerializedPropertyType.Generic:
                 break;
-            case TypeCode.Byte:
+            case SerializedPropertyType.Integer:
                 break;
-            case TypeCode.Char:
+            case SerializedPropertyType.Boolean:
                 break;
-            case TypeCode.DateTime:
+            case SerializedPropertyType.Float:
                 break;
-            case TypeCode.DBNull:
+            case SerializedPropertyType.String:
                 break;
-            case TypeCode.Decimal:
+            case SerializedPropertyType.Color:
                 break;
-            case TypeCode.Double:
+            case SerializedPropertyType.ObjectReference:
                 break;
-            case TypeCode.Empty:
+            case SerializedPropertyType.LayerMask:
                 break;
-            case TypeCode.Int16:
+            case SerializedPropertyType.Enum:
                 break;
-            case TypeCode.Int32:
+            case SerializedPropertyType.Vector2:
                 break;
-            case TypeCode.Int64:
+            case SerializedPropertyType.Vector3:
                 break;
-            case TypeCode.Object:
+            case SerializedPropertyType.Vector4:
                 break;
-            case TypeCode.SByte:
+            case SerializedPropertyType.Rect:
                 break;
-            case TypeCode.Single:
+            case SerializedPropertyType.ArraySize:
                 break;
-            case TypeCode.String:
+            case SerializedPropertyType.Character:
                 break;
-            case TypeCode.UInt16:
+            case SerializedPropertyType.AnimationCurve:
                 break;
-            case TypeCode.UInt32:
+            case SerializedPropertyType.Bounds:
                 break;
-            case TypeCode.UInt64:
+            case SerializedPropertyType.Gradient:
+                break;
+            case SerializedPropertyType.Quaternion:
+                break;
+            case SerializedPropertyType.ExposedReference:
+                break;
+            case SerializedPropertyType.FixedBufferSize:
+                break;
+            case SerializedPropertyType.Vector2Int:
+                break;
+            case SerializedPropertyType.Vector3Int:
+                break;
+            case SerializedPropertyType.RectInt:
+                break;
+            case SerializedPropertyType.BoundsInt:
+                break;
+            case SerializedPropertyType.ManagedReference:
                 break;
             default:
                 break;
         }
-    }//어디에 타입별로 프로퍼티필드 만든는거 있었는데??
-}
+    }
+}*/

@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class TestCollection : MonoBehaviour
 {
-    public VariableCollection.CollectionList collection = new VariableCollection.CollectionList();
+    public CollectionList collection = new CollectionList();
     // Start is called before the first frame update
     void Start()
     {
