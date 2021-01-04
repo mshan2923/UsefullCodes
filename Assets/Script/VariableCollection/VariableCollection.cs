@@ -1,10 +1,8 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
-using System;
-using UnityEngine.UIElements;
+using static VariableCollection;
 
 [System.Serializable]
 public class VariableCollection
@@ -35,6 +33,17 @@ public class VariableCollection
         // 못 찾았음;;; 클래스 이름이 틀렸던가, 아니면 알 수 없는 문제 때문이겠지...
         return null;
     }//TypeName = typeof(Type).FullName
+
+    public static T UnRapping<T>(string vaule)
+    {
+        return JsonUtility.FromJson<Wrap<T>>(vaule).Get;
+    }
+    public static string Rapping<T>(T vaule)
+    {
+        Wrap<T> wrap = new Wrap<T>(vaule);
+        return JsonUtility.ToJson(wrap);
+    }
+
 }
 
 [System.Serializable]
@@ -98,6 +107,19 @@ public class CollectionList
     {
         Data.Add(Vauletext);
         DataType.Add(TypeName);
+    }
+    public bool ForceSet(string TypeName, int index, string VauleText)
+    {
+        if (index < Data.Count && index >= 0 && Data.Count != 0)
+        {
+            Data[index] = VauleText;
+            DataType[index] = TypeName;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     public T Get<T>(int index)
     {
@@ -217,6 +239,92 @@ public class CollectionListEditor : Editor
         base.OnInspectorGUI();
         EditorGUILayout.PropertyField(DataProperty, GUIContent.none);
         EditorGUILayout.PropertyField(TypeProperty, GUIContent.none);
+
+        //collectionList 변경사항 적용
+
+    }
+    public void DataField(SerializedProperty Prop , string DataName, string TypeName, CollectionList collectionList, int index)
+    {
+        SerializedProperty LProp = Prop.serializedObject.FindProperty(DataName).GetArrayElementAtIndex(index);
+        SerializedProperty TypeProp = Prop.serializedObject.FindProperty(TypeName).GetArrayElementAtIndex(index);
+
+        //Lprop 값 Unboxing 해야됨
+        //VariableCollection.Unboxing<>();
+
+        switch (LProp.propertyType)
+        {
+            case SerializedPropertyType.Generic:
+                break;
+            case SerializedPropertyType.Integer:
+                //LProp.intValue = EditorGUILayout.IntField(LProp.intValue);
+                //collectionList.Set<int>(index, LProp.intValue);
+
+                //LProp.stringValue = VariableCollection.Rapping(EditorGUILayout.IntField(VariableCollection.UnRapping<int>(LProp.stringValue)));
+                LProp.stringValue = Rapping(EditorGUILayout.IntField(UnRapping<int>(LProp.stringValue)));
+                collectionList.ForceSet(TypeProp.stringValue, index, LProp.stringValue);
+                break;
+            case SerializedPropertyType.Boolean:
+                //LProp.boolValue = EditorGUILayout.Toggle(LProp.boolValue);
+                //collectionList.Set(index, LProp.boolValue);
+                break;
+            case SerializedPropertyType.Float:
+                //LProp.floatValue = EditorGUILayout.FloatField(LProp.floatValue);
+                //collectionList.Set(index, LProp.floatValue);
+                break;
+            case SerializedPropertyType.String:
+                //LProp.stringValue = EditorGUILayout.TextField(LProp.stringValue);
+                //collectionList.Set(index, LProp.stringValue);
+                break;
+            case SerializedPropertyType.Color:
+                //LProp.colorValue = EditorGUILayout.ColorField(LProp.colorValue);
+                //collectionList.Set(index, LProp.colorValue);
+                break;
+            case SerializedPropertyType.ObjectReference:
+
+                //LProp.objectReferenceValue = EditorGUILayout.ObjectField(LProp.objectReferenceValue, Type);
+
+                break;
+            case SerializedPropertyType.LayerMask:
+                break;
+            case SerializedPropertyType.Enum:
+                break;
+            case SerializedPropertyType.Vector2:
+                break;
+            case SerializedPropertyType.Vector3:
+                break;
+            case SerializedPropertyType.Vector4:
+                break;
+            case SerializedPropertyType.Rect:
+                break;
+            case SerializedPropertyType.ArraySize:
+                break;
+            case SerializedPropertyType.Character:
+                break;
+            case SerializedPropertyType.AnimationCurve:
+                break;
+            case SerializedPropertyType.Bounds:
+                break;
+            case SerializedPropertyType.Gradient:
+                break;
+            case SerializedPropertyType.Quaternion:
+                break;
+            case SerializedPropertyType.ExposedReference:
+                break;
+            case SerializedPropertyType.FixedBufferSize:
+                break;
+            case SerializedPropertyType.Vector2Int:
+                break;
+            case SerializedPropertyType.Vector3Int:
+                break;
+            case SerializedPropertyType.RectInt:
+                break;
+            case SerializedPropertyType.BoundsInt:
+                break;
+            case SerializedPropertyType.ManagedReference:
+                break;
+            default:
+                break;
+        }//https://dev-youngil.tistory.com/1 참고
     }
 }
 /*
@@ -340,4 +448,4 @@ public class CollectionListProperty : PropertyDrawer
                 break;
         }
     }
-}*/
+}*///PropertyDrawer
