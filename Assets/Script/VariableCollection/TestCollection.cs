@@ -12,6 +12,7 @@ public class TestCollection : MonoBehaviour
     {
         collection.Add<int>(10);
         collection.Add<string>("Testing");
+        collection.Add<Color>(Color.white);
 
         print(collection.Get<int>(0));
         print(collection.Get<string>(1));

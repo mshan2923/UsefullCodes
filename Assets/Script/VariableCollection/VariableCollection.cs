@@ -33,6 +33,63 @@ public class VariableCollection
         // 못 찾았음;;; 클래스 이름이 틀렸던가, 아니면 알 수 없는 문제 때문이겠지...
         return null;
     }//TypeName = typeof(Type).FullName
+    public static SerializedPropertyType ConvertTypeEnum(string TypeName)
+    {
+        SerializedPropertyType TypeEnum = SerializedPropertyType.Generic;
+
+        if(typeof(int).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.Integer;
+        if (typeof(bool).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.Boolean;
+        if (typeof(float).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.Float;
+        if (typeof(string).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.String;
+        if (typeof(Color).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.Color;
+        if (typeof(GameObject).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.ObjectReference;//아닐지도?
+        if (typeof(LayerMask).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.LayerMask;
+        if (typeof(Enum).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.Enum;
+        if (typeof(Vector2).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.Vector2;
+        if (typeof(Vector3).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.Vector3;
+        if (typeof(Vector4).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.Vector4;//10
+        if (typeof(Rect).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.Rect;
+        if (typeof(Array).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.ArraySize;//될려나??
+        //if (typeof(Character).Name.Equals(TypeName))
+        //    TypeEnum = SerializedPropertyType.Character;//???
+        if (typeof(AnimationCurve).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.AnimationCurve;
+        if (typeof(Bounds).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.Bounds;
+        if (typeof(Gradient).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.Gradient;
+        if (typeof(Quaternion).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.Quaternion;
+        //if (typeof(ExposedReference).Name.Equals(TypeName))
+        //    TypeEnum = SerializedPropertyType.ExposedReference;
+        if (typeof(Buffer).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.FixedBufferSize;//???
+        if (typeof(Vector2Int).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.Vector2Int;//20
+        if (typeof(Vector3Int).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.Vector3Int;
+        if (typeof(RectInt).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.RectInt;
+        if (typeof(BoundsInt).Name.Equals(TypeName))
+            TypeEnum = SerializedPropertyType.BoundsInt;
+        //if (typeof().Name.Equals(TypeName))
+        //    TypeEnum = SerializedPropertyType.ManagedReference;
+
+        return TypeEnum;
+    }
 
     public static T UnRapping<T>(string vaule)
     {
@@ -451,7 +508,7 @@ public class CollectionListProperty : PropertyDrawer
 
         for(int i = 0; i < property.FindPropertyRelative("Data").arraySize; i++)
         {
-            CreateDataField(property.FindPropertyRelative("DataType"), property.FindPropertyRelative("Data"), i, property);
+            CreateDataField(property.FindPropertyRelative("DataType"), property.FindPropertyRelative("Data"), i);
         }
         //GetData(position, property);//useLess
     }
@@ -468,15 +525,18 @@ public class CollectionListProperty : PropertyDrawer
         }
         //property.FindPropertyRelative("Data").GetArrayElementAtIndex(0);
     }
-    public void CreateDataField(SerializedProperty TypeProp, SerializedProperty DataProp, int index, SerializedProperty property)
+    public void CreateDataField(SerializedProperty TypeProp, SerializedProperty DataProp, int index, string LabelText = "Index ")
     {
         SerializedProperty DataPropSlot = DataProp.GetArrayElementAtIndex(index);
         SerializedProperty TypePropSlot = TypeProp.GetArrayElementAtIndex(index);
         Type LType = ConvertType(TypePropSlot.stringValue);
 
-        Debug.Log("Type : " + LType.Name);//어....자료형 이름으로 분류 해야하나?
+        var TypeEnum = ConvertTypeEnum(LType.Name);
+        Debug.Log("Type : " + LType.Name + " | " + TypeEnum.ToString());
+        string title = LabelText + index;
 
-        switch (TypePropSlot.propertyType)
+        //TypePropSlot.propertyType
+        switch (TypeEnum)
         {
             case SerializedPropertyType.Generic:
                 EditorGUILayout.TextArea(DataPropSlot.stringValue + " + Genernic");
@@ -487,62 +547,62 @@ public class CollectionListProperty : PropertyDrawer
                     //collectionList.Set<int>(index, LProp.intValue);
 
                     //LProp.stringValue = VariableCollection.Rapping(EditorGUILayout.IntField(VariableCollection.UnRapping<int>(LProp.stringValue)));
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.IntField(UnRapping<int>(DataPropSlot.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.IntField(title, UnRapping<int>(DataPropSlot.stringValue)));
                     break;
                 }
             case SerializedPropertyType.Boolean:
                 {
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Toggle(UnRapping<bool>(DataPropSlot.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Toggle(title, UnRapping<bool>(DataPropSlot.stringValue)));
                     break;
                 }
             case SerializedPropertyType.Float:
                 {
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.FloatField(UnRapping<float>(DataPropSlot.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.FloatField(title, UnRapping<float>(DataPropSlot.stringValue)));
                     break;
                 }
             case SerializedPropertyType.String:
                 {
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.TextField(UnRapping<string>(DataPropSlot.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.TextField(title, UnRapping<string>(DataPropSlot.stringValue)));
                     break;
                 }
             case SerializedPropertyType.Color:
                 {
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.ColorField(UnRapping<Color>(DataPropSlot.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.ColorField(title, UnRapping<Color>(DataPropSlot.stringValue)));
                     break;
                 }
             case SerializedPropertyType.ObjectReference:
                 {
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.ObjectField(UnRapping<UnityEngine.Object>(DataPropSlot.stringValue), typeof(GameObject), true));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.ObjectField(title, UnRapping<UnityEngine.Object>(DataPropSlot.stringValue), typeof(GameObject), true));
                     break;
                 }
             case SerializedPropertyType.LayerMask:
                 {
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.LayerField(UnRapping<LayerMask>(DataPropSlot.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.LayerField(title, UnRapping<LayerMask>(DataPropSlot.stringValue)));
                     break;
                 }
             case SerializedPropertyType.Enum:
                 {
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.EnumFlagsField(UnRapping<Enum>(DataPropSlot.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.EnumFlagsField(title, UnRapping<Enum>(DataPropSlot.stringValue)));
                     break;
                 }
             case SerializedPropertyType.Vector2:
                 {
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Vector2Field("", UnRapping<Vector2>(DataPropSlot.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Vector2Field(title, UnRapping<Vector2>(DataPropSlot.stringValue)));
                     break;
                 }
             case SerializedPropertyType.Vector3:
                 {
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Vector3Field("", UnRapping<Vector3>(DataPropSlot.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Vector3Field(title, UnRapping<Vector3>(DataPropSlot.stringValue)));
                     break;
                 }
             case SerializedPropertyType.Vector4:
                 {
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Vector4Field("", UnRapping<Vector4>(DataPropSlot.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Vector4Field(title, UnRapping<Vector4>(DataPropSlot.stringValue)));
                     break;
                 }
             case SerializedPropertyType.Rect:
                 {
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.RectField(UnRapping<Rect>(DataPropSlot.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.RectField(title, UnRapping<Rect>(DataPropSlot.stringValue)));
                     break;
                 }
             case SerializedPropertyType.ArraySize:
@@ -561,17 +621,17 @@ public class CollectionListProperty : PropertyDrawer
                 }//Not Support
             case SerializedPropertyType.AnimationCurve:
                 {
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.CurveField(UnRapping<AnimationCurve>(DataPropSlot.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.CurveField(title, UnRapping<AnimationCurve>(DataPropSlot.stringValue)));
                     break;
                 }
             case SerializedPropertyType.Bounds:
                 {
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.BoundsField(UnRapping<Bounds>(DataPropSlot.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.BoundsField(title, UnRapping<Bounds>(DataPropSlot.stringValue)));
                     break;
                 }
             case SerializedPropertyType.Gradient:
                 {
-                    DataPropSlot.stringValue = Rapping(EditorGUILayout.GradientField(UnRapping<Gradient>(DataPropSlot.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.GradientField(title, UnRapping<Gradient>(DataPropSlot.stringValue)));
                     break;
                 }
 
