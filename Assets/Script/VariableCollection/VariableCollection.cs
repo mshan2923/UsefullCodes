@@ -116,7 +116,11 @@ public class CollectionList
             DataType[index] = TypeName;
             return true;
         }
-        else
+        else if(index == Data.Count)
+        {
+            ForceAdd(TypeName, VauleText);
+            return true;
+        }else
         {
             return false;
         }
@@ -208,6 +212,7 @@ public class CollectionList
 
 }
 
+/*
 [CustomEditor(typeof(CollectionList))]
 public class CollectionListEditor : Editor
 {
@@ -216,118 +221,192 @@ public class CollectionListEditor : Editor
 
     CollectionList collectionList;
 
-    private void OnEnable()
+    public void OnEnable()
     {
-        OverrideEnable();
+        collectionList = new CollectionList();
+        GetCollectionList();
     }
-    public virtual void OverrideEnable()
+    public void GetCollectionList()
     {
-        DataProperty = serializedObject.FindProperty("Data");
-        TypeProperty = serializedObject.FindProperty("DataType");
+        //Debug.Log(serializedObject.FindProperty("collection").FindPropertyRelative("Data").GetArrayElementAtIndex(0).stringValue);
+        
+        DataProperty = serializedObject.FindProperty("collection").FindPropertyRelative("Data");
+        TypeProperty = serializedObject.FindProperty("collection").FindPropertyRelative("DataType");
 
         //collectionList = (CollectionList)target; // Not Work Fuuuuuuuuuuuck
+        if(DataProperty != null)
         {
             for(int i = 0; i < DataProperty.arraySize; i++)
             {
-                collectionList.ForceAdd(TypeProperty.GetArrayElementAtIndex(i).stringValue, DataProperty.GetArrayElementAtIndex(i).stringValue);
+                collectionList.ForceSet(TypeProperty.GetArrayElementAtIndex(i).stringValue, i, DataProperty.GetArrayElementAtIndex(i).stringValue);
             }
         }//Manual Set collectionList
 
     }
     public override void OnInspectorGUI()
     {
-        base.OnInspectorGUI();
+        GetCollectionList();
+
+        if (collectionList != null)
+            Debug.Log("collectionList : " + collectionList.Data.Count);
+        else
+            Debug.Log("collectionList : Null");
+
+        //base.OnInspectorGUI();
         EditorGUILayout.PropertyField(DataProperty, GUIContent.none);
         EditorGUILayout.PropertyField(TypeProperty, GUIContent.none);
 
+        for(int i = 0; i < collectionList.Data.Count; i++)
+        {
+            DataField(DataProperty, TypeProperty, collectionList, i);
+        }
         //collectionList 변경사항 적용
 
     }
-    public void DataField(SerializedProperty Prop , string DataName, string TypeName, CollectionList collectionList, int index)
+    public void DataField(SerializedProperty DataProp , SerializedProperty TypeProp, CollectionList collectionList, int index)
     {
-        SerializedProperty LProp = Prop.serializedObject.FindProperty(DataName).GetArrayElementAtIndex(index);
-        SerializedProperty TypeProp = Prop.serializedObject.FindProperty(TypeName).GetArrayElementAtIndex(index);
+        SerializedProperty DataPropSlot = DataProp.GetArrayElementAtIndex(index);
+        SerializedProperty TypePropSlot = TypeProp.GetArrayElementAtIndex(index);
+        string TypeName = TypePropSlot.stringValue;
 
-        //Lprop 값 Unboxing 해야됨
-        //VariableCollection.Unboxing<>();
+        //ConvertType(TypePropSlot.stringValue)//Type형 인데...
+        //SerializedProperty temp = serializedObject.FindProperty(ConvertType(TypePropSlot.stringValue).FullName);
+        //SerializedProperty temp = 
 
-        switch (LProp.propertyType)
+        //Debug.Log(TypePropSlot.propertyType + " + " + temp.propertyType);
+        switch(ConvertType(TypePropSlot.stringValue).GetProperties()[0].PropertyType)
+        {
+
+        }
+
+
+        Debug.Log(TypePropSlot.propertyType);
+        switch (TypePropSlot.propertyType)
         {
             case SerializedPropertyType.Generic:
+                EditorGUILayout.TextArea(DataPropSlot.stringValue + " + Genernic");
                 break;
             case SerializedPropertyType.Integer:
-                //LProp.intValue = EditorGUILayout.IntField(LProp.intValue);
-                //collectionList.Set<int>(index, LProp.intValue);
+                {
+                    //LProp.intValue = EditorGUILayout.IntField(LProp.intValue);
+                    //collectionList.Set<int>(index, LProp.intValue);
 
-                //LProp.stringValue = VariableCollection.Rapping(EditorGUILayout.IntField(VariableCollection.UnRapping<int>(LProp.stringValue)));
-                LProp.stringValue = Rapping(EditorGUILayout.IntField(UnRapping<int>(LProp.stringValue)));
-                collectionList.ForceSet(TypeProp.stringValue, index, LProp.stringValue);
-                break;
+                    //LProp.stringValue = VariableCollection.Rapping(EditorGUILayout.IntField(VariableCollection.UnRapping<int>(LProp.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.IntField(UnRapping<int>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Boolean:
-                //LProp.boolValue = EditorGUILayout.Toggle(LProp.boolValue);
-                //collectionList.Set(index, LProp.boolValue);
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Toggle(UnRapping<bool>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Float:
-                //LProp.floatValue = EditorGUILayout.FloatField(LProp.floatValue);
-                //collectionList.Set(index, LProp.floatValue);
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.FloatField(UnRapping<float>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.String:
-                //LProp.stringValue = EditorGUILayout.TextField(LProp.stringValue);
-                //collectionList.Set(index, LProp.stringValue);
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.TextField(UnRapping<string>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Color:
-                //LProp.colorValue = EditorGUILayout.ColorField(LProp.colorValue);
-                //collectionList.Set(index, LProp.colorValue);
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.ColorField(UnRapping<Color>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.ObjectReference:
-
-                //LProp.objectReferenceValue = EditorGUILayout.ObjectField(LProp.objectReferenceValue, Type);
-
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.ObjectField(UnRapping<UnityEngine.Object>(DataPropSlot.stringValue), typeof(GameObject), true));
+                    break;
+                }
             case SerializedPropertyType.LayerMask:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.LayerField(UnRapping<LayerMask>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Enum:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.EnumFlagsField(UnRapping<Enum>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Vector2:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Vector2Field("", UnRapping<Vector2>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Vector3:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Vector3Field("", UnRapping<Vector3>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Vector4:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Vector4Field("", UnRapping<Vector4>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Rect:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.RectField(UnRapping<Rect>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.ArraySize:
-                break;
+                {
+                    for(int i = 0; i < DataPropSlot.arraySize; i++)
+                    {
+                        DataField(DataPropSlot, TypePropSlot, collectionList, i);
+                    }
+                    break;
+                }//될지 모르겠음 ---------
             case SerializedPropertyType.Character:
-                break;
+                {
+                    //??먼지 모르겠음
+                    EditorGUILayout.TextArea(DataPropSlot.stringValue + " + Need Fix");
+                    break;
+                }//Not Support
             case SerializedPropertyType.AnimationCurve:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.CurveField(UnRapping<AnimationCurve>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Bounds:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.BoundsField(UnRapping<Bounds>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Gradient:
-                break;
-            case SerializedPropertyType.Quaternion:
-                break;
-            case SerializedPropertyType.ExposedReference:
-                break;
-            case SerializedPropertyType.FixedBufferSize:
-                break;
-            case SerializedPropertyType.Vector2Int:
-                break;
-            case SerializedPropertyType.Vector3Int:
-                break;
-            case SerializedPropertyType.RectInt:
-                break;
-            case SerializedPropertyType.BoundsInt:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.GradientField(UnRapping<Gradient>(DataPropSlot.stringValue)));
+                    break;
+                }
+
+            #region Not Support
+            case SerializedPropertyType.Quaternion:                
+            case SerializedPropertyType.ExposedReference:                
+            case SerializedPropertyType.FixedBufferSize:               
+            case SerializedPropertyType.Vector2Int:                
+            case SerializedPropertyType.Vector3Int:                
+            case SerializedPropertyType.RectInt:                
+            case SerializedPropertyType.BoundsInt:                
             case SerializedPropertyType.ManagedReference:
-                break;
+                {
+                    EditorGUILayout.TextArea(DataPropSlot.stringValue + " + Not Support Type");
+                    break;
+                }
+            #endregion
+
             default:
-                break;
+                {
+                    EditorGUILayout.TextArea(DataPropSlot.stringValue + " + Unknown Type");
+                    break;
+                }
         }//https://dev-youngil.tistory.com/1 참고
+
+        collectionList.ForceSet(TypeName, index, DataPropSlot.stringValue);
     }
 }
-/*
+*/
+
 [CustomPropertyDrawer(typeof(CollectionList))]
 public class CollectionListProperty : PropertyDrawer
 {
@@ -370,7 +449,11 @@ public class CollectionListProperty : PropertyDrawer
 
         EditorGUI.EndProperty();
 
-        GetData(position, property);
+        for(int i = 0; i < property.FindPropertyRelative("Data").arraySize; i++)
+        {
+            CreateDataField(property.FindPropertyRelative("DataType"), property.FindPropertyRelative("Data"), i, property);
+        }
+        //GetData(position, property);//useLess
     }
 
     public void GetData(Rect position, SerializedProperty property)
@@ -385,67 +468,133 @@ public class CollectionListProperty : PropertyDrawer
         }
         //property.FindPropertyRelative("Data").GetArrayElementAtIndex(0);
     }
-    public void CreateDataField(string type, string Data, Rect rect , SerializedProperty property)
+    public void CreateDataField(SerializedProperty TypeProp, SerializedProperty DataProp, int index, SerializedProperty property)
     {
-        Type LType = VariableCollection.ConvertType(type);
-        SerializedProperty TypeProp = property.serializedObject.FindProperty(type);
+        SerializedProperty DataPropSlot = DataProp.GetArrayElementAtIndex(index);
+        SerializedProperty TypePropSlot = TypeProp.GetArrayElementAtIndex(index);
+        Type LType = ConvertType(TypePropSlot.stringValue);
 
-        switch (TypeProp.propertyType)
+        Debug.Log("Type : " + LType.Name);//어....자료형 이름으로 분류 해야하나?
+
+        switch (TypePropSlot.propertyType)
         {
             case SerializedPropertyType.Generic:
+                EditorGUILayout.TextArea(DataPropSlot.stringValue + " + Genernic");
                 break;
             case SerializedPropertyType.Integer:
-                break;
+                {
+                    //LProp.intValue = EditorGUILayout.IntField(LProp.intValue);
+                    //collectionList.Set<int>(index, LProp.intValue);
+
+                    //LProp.stringValue = VariableCollection.Rapping(EditorGUILayout.IntField(VariableCollection.UnRapping<int>(LProp.stringValue)));
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.IntField(UnRapping<int>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Boolean:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Toggle(UnRapping<bool>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Float:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.FloatField(UnRapping<float>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.String:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.TextField(UnRapping<string>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Color:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.ColorField(UnRapping<Color>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.ObjectReference:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.ObjectField(UnRapping<UnityEngine.Object>(DataPropSlot.stringValue), typeof(GameObject), true));
+                    break;
+                }
             case SerializedPropertyType.LayerMask:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.LayerField(UnRapping<LayerMask>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Enum:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.EnumFlagsField(UnRapping<Enum>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Vector2:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Vector2Field("", UnRapping<Vector2>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Vector3:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Vector3Field("", UnRapping<Vector3>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Vector4:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.Vector4Field("", UnRapping<Vector4>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Rect:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.RectField(UnRapping<Rect>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.ArraySize:
-                break;
+                {
+                    for (int i = 0; i < DataPropSlot.arraySize; i++)
+                    {
+                        //DataField(DataPropSlot, TypePropSlot, collectionList, i);
+                    }
+                    break;
+                }//될지 모르겠음 ---------
             case SerializedPropertyType.Character:
-                break;
+                {
+                    //??먼지 모르겠음
+                    EditorGUILayout.TextArea(DataPropSlot.stringValue + " + Need Fix");
+                    break;
+                }//Not Support
             case SerializedPropertyType.AnimationCurve:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.CurveField(UnRapping<AnimationCurve>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Bounds:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.BoundsField(UnRapping<Bounds>(DataPropSlot.stringValue)));
+                    break;
+                }
             case SerializedPropertyType.Gradient:
-                break;
+                {
+                    DataPropSlot.stringValue = Rapping(EditorGUILayout.GradientField(UnRapping<Gradient>(DataPropSlot.stringValue)));
+                    break;
+                }
+
+            #region Not Support
             case SerializedPropertyType.Quaternion:
-                break;
             case SerializedPropertyType.ExposedReference:
-                break;
             case SerializedPropertyType.FixedBufferSize:
-                break;
             case SerializedPropertyType.Vector2Int:
-                break;
             case SerializedPropertyType.Vector3Int:
-                break;
             case SerializedPropertyType.RectInt:
-                break;
             case SerializedPropertyType.BoundsInt:
-                break;
             case SerializedPropertyType.ManagedReference:
-                break;
+                {
+                    EditorGUILayout.TextArea(DataPropSlot.stringValue + " + Not Support Type");
+                    break;
+                }
+            #endregion
+
             default:
-                break;
+                {
+                    EditorGUILayout.TextArea(DataPropSlot.stringValue + " + Unknown Type");
+                    break;
+                }
         }
     }
-}*///PropertyDrawer
+}//PropertyDrawer

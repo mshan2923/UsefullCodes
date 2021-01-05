@@ -62,6 +62,7 @@ class TestCollectionInspector : Editor
 
     private void OnEnable()
     {
+        //base.OnEnable();
         property = serializedObject.FindProperty("collection");
         collection = target as TestCollection;
     }
