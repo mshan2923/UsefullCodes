@@ -330,6 +330,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   collection:
     Data: []
+    DataType: []
 --- !u!4 &1980552411
 Transform:
   m_ObjectHideFlags: 0
