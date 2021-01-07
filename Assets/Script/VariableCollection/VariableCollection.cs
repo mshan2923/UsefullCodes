@@ -37,6 +37,7 @@ public class VariableCollection
     {
         Type textType = null;
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        if(!string.IsNullOrEmpty(TypeName))
         foreach (var assembly in assemblies)
         {
             textType = assembly.GetType(TypeName);
@@ -48,6 +49,10 @@ public class VariableCollection
     public static SerializedPropertyType ConvertTypeEnum(string TypeName)
     {
         SerializedPropertyType TypeEnum = SerializedPropertyType.Generic;
+        if(string.IsNullOrEmpty(TypeName))
+        {
+            return SerializedPropertyType.Generic;
+        }
 
         if(typeof(int).Name.Equals(TypeName))
             TypeEnum = SerializedPropertyType.Integer;
@@ -780,7 +785,7 @@ public class CollectionListProperty : PropertyDrawer
     SerializedProperty DataProp;
     SerializedProperty TypeProp;
 
-    float DrawHeight = 0;
+    //float DrawHeight = 0;
 
     string TempTypeEnumKey = "TempTypeEnumKey";
     string TempIndexKey = "TempIndexKey";
@@ -846,7 +851,7 @@ public class CollectionListProperty : PropertyDrawer
             {
                 for (int i = 0; i < DataProp.arraySize; i++)
                 {
-                    CreateDataField(TypeProp, DataProp, i);
+                    DataInputField(TypeProp, DataProp, i);
                 }
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
@@ -868,7 +873,7 @@ public class CollectionListProperty : PropertyDrawer
                     }
                     //if(TempIndex >= 0)
                     {
-                        TempVaule = DataField((SerializedPropertyType)TempTypeEnum, TempVaule, TempIndex + 1, "");
+                        TempVaule = DataField(LTypeName, TempVaule, TempIndex + 1, "");
                     }
                     if (GUILayout.Button("Add") && !string.IsNullOrEmpty(LTypeName))
                     {
@@ -917,7 +922,7 @@ public class CollectionListProperty : PropertyDrawer
         }
         //property.FindPropertyRelative("Data").GetArrayElementAtIndex(0);
     }
-    public void CreateDataField(SerializedProperty TypeProp, SerializedProperty DataProp, int index, string LabelText = "Index ")
+    public void DataInputField(SerializedProperty TypeProp, SerializedProperty DataProp, int index, string LabelText = "Index ")
     {
         SerializedProperty DataPropSlot = null;
         SerializedProperty TypePropSlot = null;
@@ -938,7 +943,7 @@ public class CollectionListProperty : PropertyDrawer
         GUILayoutOption[] layoutOption = null;
         //layoutOption = new GUILayoutOption[] { GUILayout.Width(200) };
 
-        DataPropSlot.stringValue = DataField(TypeEnum, DataPropSlot.stringValue, index, LabelText, layoutOption);
+        DataPropSlot.stringValue = DataField(TypePropSlot.stringValue, DataPropSlot.stringValue, index, LabelText, false, layoutOption);
 
         if(TypeEnum == SerializedPropertyType.Generic)
         {
@@ -948,39 +953,30 @@ public class CollectionListProperty : PropertyDrawer
             }
             if(LType.IsEnum)
             {
-                var Temp = Enum.GetValues(LType).GetValue(0);
-                //DataPropSlot.stringValue = Rapping(EditorGUILayout.EnumFlagsField(title, (Enum)Temp, layoutOption));
-                var Ldata = Enum.Parse(LType, EditorGUILayout.EnumFlagsField(title, (Enum)Temp, layoutOption).ToString());
-                //Debug.Log("testing : " + Rapping((Enum)Ldata) + " // ");
+                int LEnumIndex = UnRapping<int>(DataPropSlot.stringValue);
+                var LEnum = (Enum)Enum.GetValues(LType).GetValue(LEnumIndex);//Enum
 
-                int Lindex = -1;
-                for(int i = 0; i < Enum.GetNames(LType).Length; i++)
+                var Ldata = Enum.Parse(LType, EditorGUILayout.EnumPopup(title, LEnum, layoutOption).ToString());
+                LEnumIndex = (int)Convert.ChangeType(Ldata, typeof(int));//Enum - EnumType => int
+
+                if(LEnumIndex >= 0)
                 {
-                    if(Ldata == Enum.GetNames(LType).GetValue(i))
-                    {
-                        Lindex = i;
-                    }
+                    DataPropSlot.stringValue = Rapping<int>(LEnumIndex);
                 }
-
-                if(Lindex >= 0)
-                {
-
-                }
-                //Enum.Parse(LType, EditorGUILayout.EnumFlagsField(title, (Enum)Temp, layoutOption))
-                //UnRapping<LType>(DataText)
-                Debug.Log("testing : " + Enum.GetNames(LType).GetValue(0) + " // " + Lindex);
             }//Data쪽은 int , DataType은 해당 열거형 타입
             if (LType.IsClass)
             {
 
             }
-        }
+        }//이것도 DataField에 추가하면 안됨
     }
-    public string DataField(SerializedPropertyType TypeEnum, string DataText, int index, string LabelText = "Index ", params GUILayoutOption[] layoutOption)
+    public string DataField(string TypeFullName, string DataText, int index, string LabelText = "Index ", bool ErrorField = true, params GUILayoutOption[] layoutOption)
     {
+        Type LType = ConvertTypeAssmbly(TypeFullName);
+        SerializedPropertyType TypeEnum = SerializedPropertyType.Generic;
+        if (LType != null)
+            TypeEnum = ConvertTypeEnum(LType.Name);
 
-        //Type LType = ConvertType(TypeText);
-        //var TypeEnum = ConvertTypeEnum(LType.Name);
         string title = "";
         if (!string.IsNullOrEmpty(LabelText))
             title = LabelText + index;
@@ -990,7 +986,10 @@ public class CollectionListProperty : PropertyDrawer
         switch (TypeEnum)
         {
             case SerializedPropertyType.Generic:
-                EditorGUILayout.LabelField("Not Support / Generic");
+                if(ErrorField)
+                {
+                    EditorGUILayout.LabelField("Not Support / Generic");
+                }
                 break;
             #region done
             case SerializedPropertyType.Integer:
@@ -1033,11 +1032,19 @@ public class CollectionListProperty : PropertyDrawer
                     break;
                 }
             case SerializedPropertyType.Enum:
-                {
-                    if(UnRapping<Enum>(DataText) != null)
+                {/*
+                    int LEnumIndex = UnRapping<int>(DataText);
+                    var LEnum = (Enum)Enum.GetValues(LType).GetValue(LEnumIndex);//Enum
+
+                    var Ldata = Enum.Parse(LType, EditorGUILayout.EnumPopup(title, LEnum, layoutOption).ToString());
+                    LEnumIndex = (int)Convert.ChangeType(Ldata, typeof(int));//Enum - EnumType => int
+
+                    if (LEnumIndex >= 0)
                     {
-                        DataText = Rapping(EditorGUILayout.EnumFlagsField(title, UnRapping<Enum>(DataText), layoutOption));
-                    }
+                        DataText = Rapping<int>(LEnumIndex);
+                    }*/
+                    if (ErrorField)
+                        EditorGUILayout.LabelField("Add To Script");
                     break;
                 }
             case SerializedPropertyType.Vector2:
@@ -1067,13 +1074,15 @@ public class CollectionListProperty : PropertyDrawer
                     {
                         //DataField(DataPropSlot, TypePropSlot, collectionList, i);
                     }
-                    EditorGUILayout.LabelField("Add To Script");
+                    if(ErrorField)
+                        EditorGUILayout.LabelField("Add To Script");
                     break;
-                }//-------------아직 지원X
+                }//-------------아직 지원X // Add To Script
             case SerializedPropertyType.Character:
                 {
                     //??먼지 모르겠음
-                    EditorGUILayout.LabelField("Not Support");
+                    if(ErrorField)
+                        EditorGUILayout.LabelField("Not Support");
                     break;
                 }//Not Support
             case SerializedPropertyType.AnimationCurve:
@@ -1098,8 +1107,11 @@ public class CollectionListProperty : PropertyDrawer
                 }
             case SerializedPropertyType.ExposedReference:
             case SerializedPropertyType.FixedBufferSize:
-                EditorGUILayout.LabelField("Not Support");
-                break;
+                {
+                    if(ErrorField)
+                        EditorGUILayout.LabelField("Not Support");
+                    break;
+                }
             case SerializedPropertyType.Vector2Int:
                 {
                     DataText = Rapping(EditorGUILayout.Vector2IntField(title, UnRapping<Vector2Int>(DataText), layoutOption));
@@ -1122,12 +1134,14 @@ public class CollectionListProperty : PropertyDrawer
                 }
             case SerializedPropertyType.ManagedReference:
                 {
-                    EditorGUILayout.LabelField("Not Support");
+                    if(ErrorField)
+                        EditorGUILayout.LabelField("Not Support");
                     break;
                 }//Not Support
             default:
                 {
-                    EditorGUILayout.TextArea("Unknown Type");
+                    if(ErrorField)
+                        EditorGUILayout.TextArea("Unknown Type");
                     break;
                 }
         }
