@@ -33,6 +33,18 @@ public class VariableCollection
         // 못 찾았음;;; 클래스 이름이 틀렸던가, 아니면 알 수 없는 문제 때문이겠지...
         return null;
     }//TypeName = typeof(Type).FullName
+    public static Type ConvertTypeAssmbly(string TypeName)
+    {
+        Type textType = null;
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        foreach (var assembly in assemblies)
+        {
+            textType = assembly.GetType(TypeName);
+            if (textType != null)
+                break;
+        }
+        return textType;
+    }
     public static SerializedPropertyType ConvertTypeEnum(string TypeName)
     {
         SerializedPropertyType TypeEnum = SerializedPropertyType.Generic;
@@ -901,7 +913,7 @@ public class CollectionListProperty : PropertyDrawer
             string text = property.FindPropertyRelative("Data").GetArrayElementAtIndex(i).stringValue;
             string type = property.FindPropertyRelative("DataType").GetArrayElementAtIndex(i).stringValue;
             
-            Debug.Log(VariableCollection.ConvertType(type) + " : " + text);
+            Debug.Log(ConvertTypeAssmbly(type) + " : " + text);
         }
         //property.FindPropertyRelative("Data").GetArrayElementAtIndex(0);
     }
@@ -915,16 +927,54 @@ public class CollectionListProperty : PropertyDrawer
             TypePropSlot = TypeProp.GetArrayElementAtIndex(index);
         }
 
-        Type LType = ConvertType(TypePropSlot.stringValue);
-
+        Type LType = ConvertTypeAssmbly(TypePropSlot.stringValue);
         var TypeEnum = ConvertTypeEnum(LType.Name);
-        //Debug.Log("Type : " + LType.Name + " | " + TypeEnum.ToString());
+        //Debug.Log("DataType : " + Type.GetType(TypePropSlot.stringValue));//Color Type Return Null
+
+        //Debug.Log(ConvertTypeAssmbly(TypePropSlot.stringValue));
+
         string title = LabelText + index;
 
         GUILayoutOption[] layoutOption = null;
         //layoutOption = new GUILayoutOption[] { GUILayout.Width(200) };
 
         DataPropSlot.stringValue = DataField(TypeEnum, DataPropSlot.stringValue, index, LabelText, layoutOption);
+
+        if(TypeEnum == SerializedPropertyType.Generic)
+        {
+            if(LType.IsArray)
+            {
+
+            }
+            if(LType.IsEnum)
+            {
+                var Temp = Enum.GetValues(LType).GetValue(0);
+                //DataPropSlot.stringValue = Rapping(EditorGUILayout.EnumFlagsField(title, (Enum)Temp, layoutOption));
+                var Ldata = Enum.Parse(LType, EditorGUILayout.EnumFlagsField(title, (Enum)Temp, layoutOption).ToString());
+                //Debug.Log("testing : " + Rapping((Enum)Ldata) + " // ");
+
+                int Lindex = -1;
+                for(int i = 0; i < Enum.GetNames(LType).Length; i++)
+                {
+                    if(Ldata == Enum.GetNames(LType).GetValue(i))
+                    {
+                        Lindex = i;
+                    }
+                }
+
+                if(Lindex >= 0)
+                {
+
+                }
+                //Enum.Parse(LType, EditorGUILayout.EnumFlagsField(title, (Enum)Temp, layoutOption))
+                //UnRapping<LType>(DataText)
+                Debug.Log("testing : " + Enum.GetNames(LType).GetValue(0) + " // " + Lindex);
+            }//Data쪽은 int , DataType은 해당 열거형 타입
+            if (LType.IsClass)
+            {
+
+            }
+        }
     }
     public string DataField(SerializedPropertyType TypeEnum, string DataText, int index, string LabelText = "Index ", params GUILayoutOption[] layoutOption)
     {
@@ -940,7 +990,7 @@ public class CollectionListProperty : PropertyDrawer
         switch (TypeEnum)
         {
             case SerializedPropertyType.Generic:
-                EditorGUILayout.LabelField("Not Support");
+                EditorGUILayout.LabelField("Not Support / Generic");
                 break;
             #region done
             case SerializedPropertyType.Integer:
