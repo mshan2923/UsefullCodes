@@ -894,14 +894,10 @@ public class CollectionListProperty : PropertyDrawer
                 DataInputFold = EditorGUILayout.BeginFoldoutHeaderGroup(DataInputFold, ("Data Input Field" + "  /  Length : " + DataProp.arraySize));
                 if (DataInputFold)
                 {
-<<<<<<< HEAD
                     for (int i = 0; i < DataProp.arraySize; i++)
                     {
-                        CreateDataField(TypeProp, DataProp, i);
+                        DataInputField(TypeProp, DataProp, i);
                     }
-=======
-                    DataInputField(TypeProp, DataProp, i);
->>>>>>> 5ac559d62fbea924a16503dcbc2c7c6f434c9552
                 }
                 EditorGUILayout.EndFoldoutHeaderGroup();
 
@@ -912,7 +908,6 @@ public class CollectionListProperty : PropertyDrawer
                 if (AddRemoveFold)
                 {
                     {
-<<<<<<< HEAD
                         EditorGUILayout.BeginHorizontal();
                         TempTypeEnum = (int)(SerializedPropertyType)EditorGUILayout.EnumPopup((SerializedPropertyType)TempTypeEnum);
                         string LTypeName = ConvertTypeName((SerializedPropertyType)TempTypeEnum);
@@ -923,7 +918,7 @@ public class CollectionListProperty : PropertyDrawer
                         }
                         //if(TempIndex >= 0)
                         {
-                            TempVaule = DataField((SerializedPropertyType)TempTypeEnum, TempVaule, TempIndex + 1, "");
+                            TempVaule = DataField(LTypeName, TempVaule, TempIndex + 1, "");
                         }
                         if (GUILayout.Button("Add") && !string.IsNullOrEmpty(LTypeName))
                         {
@@ -940,11 +935,6 @@ public class CollectionListProperty : PropertyDrawer
                         PlayerPrefs.SetInt(TempIndexKey, TempIndex);
                         PlayerPrefs.SetString(TempVauleKey, TempVaule);
                     }//Add Data
-=======
-                        TempVaule = DataField(LTypeName, TempVaule, TempIndex + 1, "");
-                    }
-                    if (GUILayout.Button("Add") && !string.IsNullOrEmpty(LTypeName))
->>>>>>> 5ac559d62fbea924a16503dcbc2c7c6f434c9552
                     {
                         EditorGUILayout.BeginHorizontal();
 
