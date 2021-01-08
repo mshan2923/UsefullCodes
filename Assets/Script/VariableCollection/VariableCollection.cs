@@ -164,7 +164,14 @@ public class VariableCollection
 
     public static T UnRapping<T>(string vaule)
     {
-        return JsonUtility.FromJson<Wrap<T>>(vaule).Get;
+        if(typeof(Wrap<T>) != null)
+        {
+            return JsonUtility.FromJson<Wrap<T>>(vaule).Get;
+        }
+        else
+        {
+            return default;
+        }
     }
     public static string Rapping<T>(T vaule)
     {
@@ -791,11 +798,15 @@ public class CollectionListProperty : PropertyDrawer
 
     bool DataInputFold = false;
     bool AddRemoveFold = false;
+
+    UnityEditorInternal.ReorderableList list;
+    int SelectIndex = 0;
+
+    #region NotUse
     public override bool CanCacheInspectorGUI(SerializedProperty property)
     {
         return base.CanCacheInspectorGUI(property);
     }
-
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
         float temp = base.GetPropertyHeight(property, label);
@@ -810,7 +821,8 @@ public class CollectionListProperty : PropertyDrawer
         int size = Mathf.Clamp(Local.arraySize, 1, Local.arraySize) + 1;//최소 2칸 , 갯수가 1개이상 - 갯수 + 1
         return Local.isExpanded ? size * indexSize + Default : Default;
     }
-    
+    #endregion
+
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         //base.OnGUI(position, property, label);
@@ -825,84 +837,150 @@ public class CollectionListProperty : PropertyDrawer
             //EditorGUI.PropertyField(DataRect, property.FindPropertyRelative("Data"), GUIContent.none);
             //EditorGUI.PropertyField(TypeRect, property.FindPropertyRelative("DataType"), GUIContent.none);
         }//EditorGUI
+
         DataProp = property.FindPropertyRelative("Data");
         TypeProp = property.FindPropertyRelative("DataType");
 
-        TempTypeEnum = PlayerPrefs.GetInt(TempTypeEnumKey);
-        TempIndex = PlayerPrefs.GetInt(TempIndexKey);
-        TempVaule = PlayerPrefs.GetString(TempVauleKey);
+        if(list == null)
+        {
+            list = new UnityEditorInternal.ReorderableList(property.serializedObject, DataProp)
+            {
+                drawHeaderCallback = DrawHeader,
+                drawElementCallback = DrawListItems
+            };
 
-        EditorGUILayout.PropertyField(DataProp, GUIContent.none);
-        EditorGUILayout.PropertyField(TypeProp, GUIContent.none);
+            list.onSelectCallback = list =>
+            {
+                SelectIndex = list.index;
+            };
+            list.onReorderCallback = list =>
+            {
+                Debug.Log("Select " + SelectIndex + " / ReOrder " + list.index);
+            };
+            list.onRemoveCallback = list =>
+            {
+                Debug.Log("Remove " + SelectIndex);
+                DataProp.DeleteArrayElementAtIndex(SelectIndex);
+                TypeProp.DeleteArrayElementAtIndex(SelectIndex);
+            };
+            list.onAddCallback = list =>
+            {
 
-        //EditorGUI.EndProperty();
+            };
 
-        //Data 인덱스 교체시 DataType 도
-        //Data , DataType 으로 추가, 삭제시 문제
+        }//Spawn ReOrderableList => 매 프래임마다 초기화 돼서 + 인덱스 교체 적용 + CreateDataField 통합 가능
+        list.DoLayoutList();
 
         {
-            DataInputFold = EditorGUILayout.BeginFoldoutHeaderGroup(DataInputFold, ("Data Input Field" + "  /  Length : " + DataProp.arraySize));
-            if (DataInputFold)
+            
+            TempTypeEnum = PlayerPrefs.GetInt(TempTypeEnumKey);
+            TempIndex = PlayerPrefs.GetInt(TempIndexKey);
+            TempVaule = PlayerPrefs.GetString(TempVauleKey);
+
+            EditorGUILayout.PropertyField(DataProp, GUIContent.none);
+            EditorGUILayout.PropertyField(TypeProp, GUIContent.none);
+
+            //EditorGUI.EndProperty();
+
+            //Data 인덱스 교체시 DataType 도
+            //Data , DataType 으로 추가, 삭제시 문제
+
             {
-                for (int i = 0; i < DataProp.arraySize; i++)
+                DataInputFold = EditorGUILayout.BeginFoldoutHeaderGroup(DataInputFold, ("Data Input Field" + "  /  Length : " + DataProp.arraySize));
+                if (DataInputFold)
                 {
-                    CreateDataField(TypeProp, DataProp, i);
+                    for (int i = 0; i < DataProp.arraySize; i++)
+                    {
+                        CreateDataField(TypeProp, DataProp, i);
+                    }
                 }
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
+                EditorGUILayout.EndFoldoutHeaderGroup();
 
-        }//Data Input Field--------------------------------------------
+            }//Data Input Field--------------------------------------------
 
-        {
-            AddRemoveFold = EditorGUILayout.BeginFoldoutHeaderGroup(AddRemoveFold, "Add / Remove");
-            if (AddRemoveFold)
             {
+                AddRemoveFold = EditorGUILayout.BeginFoldoutHeaderGroup(AddRemoveFold, "Add / Remove");
+                if (AddRemoveFold)
                 {
-                    EditorGUILayout.BeginHorizontal();
-                    TempTypeEnum = (int)(SerializedPropertyType)EditorGUILayout.EnumPopup((SerializedPropertyType)TempTypeEnum);
-                    string LTypeName = ConvertTypeName((SerializedPropertyType)TempTypeEnum);
-
-                    if (string.IsNullOrEmpty(TempVaule))
                     {
-                        TempVaule = Rapping((SerializedPropertyType)TempTypeEnum);
-                    }
-                    //if(TempIndex >= 0)
-                    {
-                        TempVaule = DataField((SerializedPropertyType)TempTypeEnum, TempVaule, TempIndex + 1, "");
-                    }
-                    if (GUILayout.Button("Add") && !string.IsNullOrEmpty(LTypeName))
-                    {
-                        DataProp.arraySize += 1;
-                        TypeProp.arraySize += 1;
-                        DataProp.GetArrayElementAtIndex(DataProp.arraySize - 1).stringValue = TempVaule;//Rapping(null) 필요, TempVaule 직렬화 
-                        TypeProp.GetArrayElementAtIndex(TypeProp.arraySize - 1).stringValue = LTypeName;//TypeEnum To Type
-                        TempIndex = DataProp.arraySize - 1;
-                    }
+                        EditorGUILayout.BeginHorizontal();
+                        TempTypeEnum = (int)(SerializedPropertyType)EditorGUILayout.EnumPopup((SerializedPropertyType)TempTypeEnum);
+                        string LTypeName = ConvertTypeName((SerializedPropertyType)TempTypeEnum);
 
-                    EditorGUILayout.EndHorizontal();
+                        if (string.IsNullOrEmpty(TempVaule))
+                        {
+                            TempVaule = Rapping((SerializedPropertyType)TempTypeEnum);
+                        }
+                        //if(TempIndex >= 0)
+                        {
+                            TempVaule = DataField((SerializedPropertyType)TempTypeEnum, TempVaule, TempIndex + 1, "");
+                        }
+                        if (GUILayout.Button("Add") && !string.IsNullOrEmpty(LTypeName))
+                        {
+                            DataProp.arraySize += 1;
+                            TypeProp.arraySize += 1;
+                            DataProp.GetArrayElementAtIndex(DataProp.arraySize - 1).stringValue = TempVaule;//Rapping(null) 필요, TempVaule 직렬화 
+                            TypeProp.GetArrayElementAtIndex(TypeProp.arraySize - 1).stringValue = LTypeName;//TypeEnum To Type
+                            TempIndex = DataProp.arraySize - 1;
+                        }
 
-                    PlayerPrefs.SetInt(TempTypeEnumKey, TempTypeEnum);
-                    PlayerPrefs.SetInt(TempIndexKey, TempIndex);
-                    PlayerPrefs.SetString(TempVauleKey, TempVaule);
-                }//Add Data
+                        EditorGUILayout.EndHorizontal();
+
+                        PlayerPrefs.SetInt(TempTypeEnumKey, TempTypeEnum);
+                        PlayerPrefs.SetInt(TempIndexKey, TempIndex);
+                        PlayerPrefs.SetString(TempVauleKey, TempVaule);
+                    }//Add Data
+                    {
+                        EditorGUILayout.BeginHorizontal();
+
+                        TempIndex = EditorGUILayout.IntField(TempIndex);
+                        if (GUILayout.Button("Remove") && DataProp.arraySize > TempIndex && TempIndex >= 0)
+                        {
+                            DataProp.DeleteArrayElementAtIndex(TempIndex);
+                            TypeProp.DeleteArrayElementAtIndex(TempIndex);
+                            TempIndex--;
+                        }
+
+                        EditorGUILayout.EndHorizontal();
+
+                        PlayerPrefs.SetInt(TempIndexKey, TempIndex);
+                    }//Remove Data
+                }
+                EditorGUILayout.EndFoldoutHeaderGroup();
+            }//Add / Remove
+            
+            {/*
+            if (DataProp.arraySize == TypeProp.arraySize)
+            {
+                //DataProp.serializedObject.hasModifiedProperties//값 변경
+                //DataProp.serializedObject.UpdateIfRequiredOrScript()//변경 , 선택등
+                //https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/ //커스텀 ReOrderable으로 
+                
+
+                if (DataProp.serializedObject.UpdateIfRequiredOrScript()) 
                 {
-                    EditorGUILayout.BeginHorizontal();
-
-                    TempIndex = EditorGUILayout.IntField(TempIndex);
-                    if (GUILayout.Button("Remove") && DataProp.arraySize > TempIndex && TempIndex >= 0)
+                    if(DataProp.serializedObject.hasModifiedProperties)
                     {
-                        DataProp.DeleteArrayElementAtIndex(TempIndex);
-                        TypeProp.DeleteArrayElementAtIndex(TempIndex);
-                        TempIndex--;
+
+                    }else
+                    {
+                        Debug.Log("Drag Index");
                     }
-
-                    EditorGUILayout.EndHorizontal();
-
-                    PlayerPrefs.SetInt(TempIndexKey, TempIndex);
-                }//Remove Data
+                }
+                
             }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-        }//Add / Remove
+            else if (DataProp.arraySize > TypeProp.arraySize)
+            {
+                DataProp.DeleteArrayElementAtIndex(DataProp.arraySize - 1);
+            }
+            else if (DataProp.arraySize < TypeProp.arraySize)
+            {
+                TypeProp.DeleteArrayElementAtIndex(TypeProp.arraySize - 1);
+            }*/
+            }//ReOrderable 로 바뀌면서 필요 없음 + Disable
+        }
+
+        property.serializedObject.ApplyModifiedProperties();//Apply Vaule
     }
 
     public void GetData(Rect position, SerializedProperty property)
@@ -1132,5 +1210,19 @@ public class CollectionListProperty : PropertyDrawer
                 }
         }
         return DataText;
+    }
+
+    void DrawListItems(Rect rect, int index, bool isActive, bool isfocused)
+    {
+        var element = DataProp.GetArrayElementAtIndex(index);
+        rect.height -= 4;
+        rect.y += 2;
+        EditorGUI.PropertyField(rect, element);
+        //EditorGUILayout.PropertyField(element);
+    }
+    void DrawHeader(Rect rect)
+    {
+        string name = "Vaule";
+        EditorGUI.LabelField(rect, name);
     }
 }//PropertyDrawer

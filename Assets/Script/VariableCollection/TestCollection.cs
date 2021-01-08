@@ -15,10 +15,6 @@ public class TestCollection : MonoBehaviour
         collection.Add<Color>(Color.white);
         collection.Add<ViewTool>(ViewTool.FPS);
 
-
-        print(collection.Get<int>(0));
-        print(collection.Get<string>(1));
-
         print(GetTypeFromAssemblies(typeof(int).FullName));
 
     }
