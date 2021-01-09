@@ -12,16 +12,19 @@ public class TestCollection : MonoBehaviour
     {
         collection.Add<int>(10);
         collection.Add<string>("Testing");
-        collection.Add<Color>(Color.white);
         collection.Add<ViewTool>(ViewTool.FPS);
+        collection.Add<List<int>>(new List<int>() { 0, 1});
+        collection.Add<int[]>(new int[] { 2, 3 });
 
-        print(GetTypeFromAssemblies(typeof(int).FullName));
 
+        int[] Test = new int[] { 2, 3 };
+        Debug.Log("///" + JsonUtility.ToJson(Test));
     }
 
     // Update is called once per frame
     void Update()
     {
+        
     }
 
     public Type GetTypeFromAssemblies(string TypeName)

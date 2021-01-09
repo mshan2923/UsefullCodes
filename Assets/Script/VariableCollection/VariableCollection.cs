@@ -437,7 +437,7 @@ public class Wrap<T>
     }
 
     public T Get { get => data; }
-}//이렇게 감싸주면 배열,리스트 등을 직렬화가능 
+}//이렇게 감싸주면 배열,리스트 등을 직렬화가능 //https://birthbefore.tistory.com/11 이걸로 커스텀 직렬화
 [System.Serializable]
 public class CollectionList
 {
@@ -842,7 +842,7 @@ public class CollectionListProperty : PropertyDrawer
             //EditorGUI.PropertyField(DataRect, property.FindPropertyRelative("Data"), GUIContent.none);
             //EditorGUI.PropertyField(TypeRect, property.FindPropertyRelative("DataType"), GUIContent.none);
         }//EditorGUI
-
+        
         DataProp = property.FindPropertyRelative("Data");
         TypeProp = property.FindPropertyRelative("DataType");
 
@@ -857,10 +857,12 @@ public class CollectionListProperty : PropertyDrawer
             list.onSelectCallback = list =>
             {
                 SelectIndex = list.index;
+
             };
             list.onReorderCallback = list =>
             {
-                Debug.Log("Select " + SelectIndex + " / ReOrder " + list.index);
+                //ReOrder(SelectIndex, list.index);
+                TypeProp.MoveArrayElement(SelectIndex, list.index);
             };
             list.onRemoveCallback = list =>
             {
@@ -873,181 +875,308 @@ public class CollectionListProperty : PropertyDrawer
 
             };
 
-        }//Spawn ReOrderableList => 매 프래임마다 초기화 돼서 + 인덱스 교체 적용 + CreateDataField 통합 가능
+        }//Spawn ReOrderableList => 매 프래임마다 초기화 돼서 + 인덱스 교체 적용
         list.DoLayoutList();
 
+        TempTypeEnum = PlayerPrefs.GetInt(TempTypeEnumKey);
+        TempIndex = PlayerPrefs.GetInt(TempIndexKey);
+        TempVaule = PlayerPrefs.GetString(TempVauleKey);
+
+        //EditorGUI.EndProperty();
+
         {
-            
-            TempTypeEnum = PlayerPrefs.GetInt(TempTypeEnumKey);
-            TempIndex = PlayerPrefs.GetInt(TempIndexKey);
-            TempVaule = PlayerPrefs.GetString(TempVauleKey);
-
-            EditorGUILayout.PropertyField(DataProp, GUIContent.none);
-            EditorGUILayout.PropertyField(TypeProp, GUIContent.none);
-
-            //EditorGUI.EndProperty();
-
-            //Data 인덱스 교체시 DataType 도
-            //Data , DataType 으로 추가, 삭제시 문제
-
-            {
-                DataInputFold = EditorGUILayout.BeginFoldoutHeaderGroup(DataInputFold, ("Data Input Field" + "  /  Length : " + DataProp.arraySize));
+                DataInputFold = EditorGUILayout.BeginFoldoutHeaderGroup(DataInputFold, ("Debug Data Field" + "  /  Length : " + DataProp.arraySize));
                 if (DataInputFold)
                 {
-                    for (int i = 0; i < DataProp.arraySize; i++)
-                    {
-                        DataInputField(TypeProp, DataProp, i);
-                    }
-                }
-                EditorGUILayout.EndFoldoutHeaderGroup();
-
-            }//Data Input Field--------------------------------------------
-
-            {
-                AddRemoveFold = EditorGUILayout.BeginFoldoutHeaderGroup(AddRemoveFold, "Add / Remove");
-                if (AddRemoveFold)
+                for (int i = 0; i < DataProp.arraySize; i++)
                 {
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        TempTypeEnum = (int)(SerializedPropertyType)EditorGUILayout.EnumPopup((SerializedPropertyType)TempTypeEnum);
-                        string LTypeName = ConvertTypeName((SerializedPropertyType)TempTypeEnum);
+                    EditorGUILayout.BeginHorizontal();
 
-                        if (string.IsNullOrEmpty(TempVaule))
-                        {
-                            TempVaule = Rapping((SerializedPropertyType)TempTypeEnum);
-                        }
-                        //if(TempIndex >= 0)
-                        {
-                            TempVaule = DataField(LTypeName, TempVaule, TempIndex + 1, "");
-                        }
-                        if (GUILayout.Button("Add") && !string.IsNullOrEmpty(LTypeName))
-                        {
-                            DataProp.arraySize += 1;
-                            TypeProp.arraySize += 1;
-                            DataProp.GetArrayElementAtIndex(DataProp.arraySize - 1).stringValue = TempVaule;//Rapping(null) 필요, TempVaule 직렬화 
-                            TypeProp.GetArrayElementAtIndex(TypeProp.arraySize - 1).stringValue = LTypeName;//TypeEnum To Type
-                            TempIndex = DataProp.arraySize - 1;
-                        }
+                    EditorGUILayout.TextArea(DataProp.GetArrayElementAtIndex(i).stringValue, GUILayout.Width(200));
+                    EditorGUILayout.TextArea(TypeProp.GetArrayElementAtIndex(i).stringValue);
 
-                        EditorGUILayout.EndHorizontal();
-
-                        PlayerPrefs.SetInt(TempTypeEnumKey, TempTypeEnum);
-                        PlayerPrefs.SetInt(TempIndexKey, TempIndex);
-                        PlayerPrefs.SetString(TempVauleKey, TempVaule);
-                    }//Add Data
-                    {
-                        EditorGUILayout.BeginHorizontal();
-
-                        TempIndex = EditorGUILayout.IntField(TempIndex);
-                        if (GUILayout.Button("Remove") && DataProp.arraySize > TempIndex && TempIndex >= 0)
-                        {
-                            DataProp.DeleteArrayElementAtIndex(TempIndex);
-                            TypeProp.DeleteArrayElementAtIndex(TempIndex);
-                            TempIndex--;
-                        }
-
-                        EditorGUILayout.EndHorizontal();
-
-                        PlayerPrefs.SetInt(TempIndexKey, TempIndex);
-                    }//Remove Data
+                    EditorGUILayout.EndHorizontal();
                 }
+            }
                 EditorGUILayout.EndFoldoutHeaderGroup();
-            }//Add / Remove
-            
-            {/*
-            if (DataProp.arraySize == TypeProp.arraySize)
-            {
-                //DataProp.serializedObject.hasModifiedProperties//값 변경
-                //DataProp.serializedObject.UpdateIfRequiredOrScript()//변경 , 선택등
-                //https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/ //커스텀 ReOrderable으로 
                 
+        }//Test Data Field--------------------------------------------
 
-                if (DataProp.serializedObject.UpdateIfRequiredOrScript()) 
+        {
+            AddRemoveFold = EditorGUILayout.BeginFoldoutHeaderGroup(AddRemoveFold, "Add / Remove");
+            if (AddRemoveFold)
+            {
                 {
-                    if(DataProp.serializedObject.hasModifiedProperties)
-                    {
+                    EditorGUILayout.BeginHorizontal();
+                    TempTypeEnum = (int)(SerializedPropertyType)EditorGUILayout.EnumPopup((SerializedPropertyType)TempTypeEnum);
+                    string LTypeName = ConvertTypeName((SerializedPropertyType)TempTypeEnum);
 
-                    }else
+                    if (string.IsNullOrEmpty(TempVaule))
                     {
-                        Debug.Log("Drag Index");
+                        TempVaule = Rapping((SerializedPropertyType)TempTypeEnum);
                     }
-                }
-                
+                    //if(TempIndex >= 0)
+                    {
+                        TempVaule = DataField(LTypeName, TempVaule, TempIndex + 1, "");
+                    }
+                    if (GUILayout.Button("Add") && !string.IsNullOrEmpty(LTypeName))
+                    {
+                        DataProp.arraySize += 1;
+                        TypeProp.arraySize += 1;
+                        DataProp.GetArrayElementAtIndex(DataProp.arraySize - 1).stringValue = TempVaule;//Rapping(null) 필요, TempVaule 직렬화 
+                        TypeProp.GetArrayElementAtIndex(TypeProp.arraySize - 1).stringValue = LTypeName;//TypeEnum To Type
+                        TempIndex = DataProp.arraySize - 1;
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+
+                    PlayerPrefs.SetInt(TempTypeEnumKey, TempTypeEnum);
+                    PlayerPrefs.SetInt(TempIndexKey, TempIndex);
+                    PlayerPrefs.SetString(TempVauleKey, TempVaule);
+                }//Add Data
+                {
+                    EditorGUILayout.BeginHorizontal();
+
+                    TempIndex = EditorGUILayout.IntField(TempIndex);
+                    if (GUILayout.Button("Remove") && DataProp.arraySize > TempIndex && TempIndex >= 0)
+                    {
+                        DataProp.DeleteArrayElementAtIndex(TempIndex);
+                        TypeProp.DeleteArrayElementAtIndex(TempIndex);
+                        TempIndex--;
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+
+                    PlayerPrefs.SetInt(TempIndexKey, TempIndex);
+                }//Remove Data
             }
-            else if (DataProp.arraySize > TypeProp.arraySize)
-            {
-                DataProp.DeleteArrayElementAtIndex(DataProp.arraySize - 1);
-            }
-            else if (DataProp.arraySize < TypeProp.arraySize)
-            {
-                TypeProp.DeleteArrayElementAtIndex(TypeProp.arraySize - 1);
-            }*/
-            }//ReOrderable 로 바뀌면서 필요 없음 + Disable
-        }
+            EditorGUILayout.EndFoldoutHeaderGroup();
+        }//Add / Remove
 
         property.serializedObject.ApplyModifiedProperties();//Apply Vaule
     }
 
-    public void GetData(Rect position, SerializedProperty property)
-    {
-        int Count = property.FindPropertyRelative("Data").arraySize;
-        for(int i = 0; i < Count; i++)
-        {
-            string text = property.FindPropertyRelative("Data").GetArrayElementAtIndex(i).stringValue;
-            string type = property.FindPropertyRelative("DataType").GetArrayElementAtIndex(i).stringValue;
-            
-            Debug.Log(ConvertTypeAssmbly(type) + " : " + text);
-        }
-        //property.FindPropertyRelative("Data").GetArrayElementAtIndex(0);
-    }
-    public void DataInputField(SerializedProperty TypeProp, SerializedProperty DataProp, int index, string LabelText = "Index ")
+    public void DataReOrderField(Rect rect, int index, string LabelText = "Index ")
     {
         SerializedProperty DataPropSlot = null;
         SerializedProperty TypePropSlot = null;
-        if (index >= 0)
+        if (index >= 0 && DataProp.arraySize > index)
         {
             DataPropSlot = DataProp.GetArrayElementAtIndex(index);
             TypePropSlot = TypeProp.GetArrayElementAtIndex(index);
         }
+        string DataText = DataPropSlot.stringValue;
 
         Type LType = ConvertTypeAssmbly(TypePropSlot.stringValue);
         var TypeEnum = ConvertTypeEnum(LType.Name);
-        //Debug.Log("DataType : " + Type.GetType(TypePropSlot.stringValue));//Color Type Return Null
-
-        //Debug.Log(ConvertTypeAssmbly(TypePropSlot.stringValue));
 
         string title = LabelText + index;
 
-        GUILayoutOption[] layoutOption = null;
-        //layoutOption = new GUILayoutOption[] { GUILayout.Width(200) };
-
-        DataPropSlot.stringValue = DataField(TypePropSlot.stringValue, DataPropSlot.stringValue, index, LabelText, false, layoutOption);
-
-        if(TypeEnum == SerializedPropertyType.Generic)
+        //DataPropSlot.stringValue = DataField(TypePropSlot.stringValue, DataPropSlot.stringValue, index, LabelText, false, layoutOption);//EditorGUI로 위치 직접 지정해야함
+        switch (TypeEnum)
         {
-            if(LType.IsArray)
-            {
+            case SerializedPropertyType.Generic:
+                //EditorGUI.LabelField(rect, "Not Support / Generic");                
+                break;
+            #region done
+            case SerializedPropertyType.Integer:
+                {
+                    //LProp.intValue = EditorGUILayout.IntField(LProp.intValue);
+                    //collectionList.Set<int>(index, LProp.intValue);
 
-            }
-            if(LType.IsEnum)
+                    //LProp.stringValue = VariableCollection.Rapping(EditorGUILayout.IntField(VariableCollection.UnRapping<int>(LProp.stringValue)));
+                    DataText = Rapping(EditorGUI.IntField(rect, title, UnRapping<int>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Boolean:
+                {
+                    DataText = Rapping(EditorGUI.Toggle(rect, title, UnRapping<bool>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Float:
+                {
+                    DataText = Rapping(EditorGUI.FloatField(rect, title, UnRapping<float>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.String:
+                {
+                    DataText = Rapping(EditorGUI.TextField(rect, title, UnRapping<string>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Color:
+                {
+                    DataText = Rapping(EditorGUI.ColorField(rect, title, UnRapping<Color>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.ObjectReference:
+                {
+                    DataText = Rapping(EditorGUI.ObjectField(rect, title, UnRapping<GameObject>(DataText), typeof(GameObject), true));
+                    break;
+                }//GameObject OR Object ?
+            case SerializedPropertyType.LayerMask:
+                {
+                    DataText = Rapping(EditorGUI.LayerField(rect, title, UnRapping<LayerMask>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Enum:
+                {/*
+                    int LEnumIndex = UnRapping<int>(DataText);
+                    var LEnum = (Enum)Enum.GetValues(LType).GetValue(LEnumIndex);//Enum
+
+                    var Ldata = Enum.Parse(LType, EditorGUILayout.EnumPopup(title, LEnum, layoutOption).ToString());
+                    LEnumIndex = (int)Convert.ChangeType(Ldata, typeof(int));//Enum - EnumType => int
+
+                    if (LEnumIndex >= 0)
+                    {
+                        DataText = Rapping<int>(LEnumIndex);
+                    }*/
+                    //EditorGUI.LabelField(rect, "Add To Script");
+                    break;
+                }
+            case SerializedPropertyType.Vector2:
+                {
+                    DataText = Rapping(EditorGUI.Vector2Field(rect, title, UnRapping<Vector2>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Vector3:
+                {
+                    DataText = Rapping(EditorGUI.Vector3Field(rect, title, UnRapping<Vector3>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Vector4:
+                {
+                    DataText = Rapping(EditorGUI.Vector4Field(rect, title, UnRapping<Vector4>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Rect:
+                {
+                    DataText = Rapping(EditorGUI.RectField(rect, title, UnRapping<Rect>(DataText)));
+                    break;
+                }
+            #endregion
+            case SerializedPropertyType.ArraySize:
+                {
+                    //for (int i = 0; i < DataPropSlot.arraySize; i++)
+                    {
+                        //DataField(DataPropSlot, TypePropSlot, collectionList, i);
+                    }
+                    EditorGUI.LabelField(rect, "Add To Script");
+                    break;
+                }//-------------아직 지원X // Add To Script
+            case SerializedPropertyType.Character:
+                {
+                    //??먼지 모르겠음
+                    EditorGUI.LabelField(rect, "Not Support");
+                    break;
+                }//Not Support
+            case SerializedPropertyType.AnimationCurve:
+                {
+                    DataText = Rapping(EditorGUI.CurveField(rect, title, UnRapping<AnimationCurve>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Bounds:
+                {
+                    DataText = Rapping(EditorGUI.BoundsField(rect, UnRapping<Bounds>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Gradient:
+                {
+                    DataText = Rapping(EditorGUI.GradientField(rect, title, UnRapping<Gradient>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Quaternion:
+                {
+                    DataText = Rapping(EditorGUI.Vector4Field(rect, title, UnRapping<Vector4>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.ExposedReference:
+            case SerializedPropertyType.FixedBufferSize:
+                {
+                    EditorGUI.LabelField(rect, "Not Support");
+                    break;
+                }
+            case SerializedPropertyType.Vector2Int:
+                {
+                    DataText = Rapping(EditorGUI.Vector2IntField(rect, title, UnRapping<Vector2Int>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Vector3Int:
+                {
+                    DataText = Rapping(EditorGUI.Vector3IntField(rect, title, UnRapping<Vector3Int>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.RectInt:
+                {
+                    DataText = Rapping(EditorGUI.RectIntField(rect, title, UnRapping<RectInt>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.BoundsInt:
+                {
+                    DataText = Rapping(EditorGUI.BoundsIntField(rect, title, UnRapping<BoundsInt>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.ManagedReference:
+                {
+                    EditorGUI.LabelField(rect, "Not Support");
+                    break;
+                }//Not Support
+            default:
+                {
+                    EditorGUI.TextArea(rect, "Unknown Type");
+                    break;
+                }
+        }
+
+        if (TypeEnum == SerializedPropertyType.Generic)
+        {
+            if (LType.IsArray)
+            {
+                //Debug.Log("---Array | " + ConvertTypeAssmbly(TypePropSlot.stringValue).GetElementType());
+                EditorGUI.LabelField(rect, ConvertTypeAssmbly(TypePropSlot.stringValue).GetElementType() + "[] -  Not Support");
+                //DataField();//Type[] 형을 UnRapping ,,, 항상 이게 문제인데
+
+            }//힘들어 너무 노가다야
+            else 
+            if (LType.IsEnum)
             {
                 int LEnumIndex = UnRapping<int>(DataPropSlot.stringValue);
-                var LEnum = (Enum)Enum.GetValues(LType).GetValue(LEnumIndex);//Enum
-
-                var Ldata = Enum.Parse(LType, EditorGUILayout.EnumPopup(title, LEnum, layoutOption).ToString());
-                LEnumIndex = (int)Convert.ChangeType(Ldata, typeof(int));//Enum - EnumType => int
-
-                if(LEnumIndex >= 0)
+                if(LEnumIndex >= 0 && LEnumIndex < Enum.GetValues(LType).Length)
                 {
-                    DataPropSlot.stringValue = Rapping<int>(LEnumIndex);
+                    var LEnum = (Enum)Enum.GetValues(LType).GetValue(LEnumIndex);//Enum
+
+                    var Ldata = Enum.Parse(LType, EditorGUI.EnumPopup(rect, title, LEnum).ToString());
+                    LEnumIndex = (int)Convert.ChangeType(Ldata, typeof(int));//Enum - EnumType => int
+
+                    if (LEnumIndex >= 0)
+                    {
+                        DataText = Rapping<int>(LEnumIndex);
+                    }
+                }else
+                {
+                    Debug.LogError(LEnumIndex);
                 }
-            }//Data쪽은 int , DataType은 해당 열거형 타입
+            }else 
             if (LType.IsClass)
             {
+                if(DataPropSlot.isArray)//List
+                {
+                    EditorGUI.LabelField(rect, "List is Not Support");
+                    //EditorGUI.PropertyField(rect, DataPropSlot);//Test
 
-            }
-        }//이것도 DataField에 추가하면 안됨
-    }
+                    //ConvertTypeAssmbly(TypePropSlot.stringValue).
+                    Debug.Log(ConvertTypeAssmbly(TypePropSlot.stringValue));//이름에서 [] 안 FullName 추출해서 다시 Switch로...
+                }//List is Not Support
+            }//리스트형은 엄청난 노가다로 할순 있긴한데 , 클래스는.....못할듯
+            else
+            {
+                EditorGUI.LabelField(rect, "Not Support / Generic");
+            }//Not Support
+        }
+
+        DataPropSlot.stringValue = DataText;
+
+    }//배열 , 클래스, 구조체 구현
+
     public string DataField(string TypeFullName, string DataText, int index, string LabelText = "Index ", bool ErrorField = true, params GUILayoutOption[] layoutOption)
     {
         Type LType = ConvertTypeAssmbly(TypeFullName);
@@ -1226,13 +1355,13 @@ public class CollectionListProperty : PropertyDrawer
         return DataText;
     }
 
-    void DrawListItems(Rect rect, int index, bool isActive, bool isfocused)
+    void DrawListItems(Rect rect, int index, bool isActive, bool isfocused)// CreateDataField 통합 가능
     {
         var element = DataProp.GetArrayElementAtIndex(index);
         rect.height -= 4;
         rect.y += 2;
-        EditorGUI.PropertyField(rect, element);
-        //EditorGUILayout.PropertyField(element);
+        //EditorGUI.PropertyField(rect, element);
+        DataReOrderField(rect, index);
     }
     void DrawHeader(Rect rect)
     {
