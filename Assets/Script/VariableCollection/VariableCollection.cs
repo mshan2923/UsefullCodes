@@ -169,7 +169,7 @@ public class VariableCollection
 
     public static T UnRapping<T>(string vaule)
     {
-        if(typeof(Wrap<T>) != null)
+        if(typeof(Wrap<T>) != null && !string.IsNullOrEmpty(vaule))
         {
             return JsonUtility.FromJson<Wrap<T>>(vaule).Get;
         }
@@ -423,7 +423,7 @@ public class VariableCollection
         }
     }//vaule = JsonUtility.ToJson(new wrap<T>(Vaule))
 
-}
+}//계산만
 
 [System.Serializable]
 public class Wrap<T>
@@ -438,6 +438,9 @@ public class Wrap<T>
 
     public T Get { get => data; }
 }//이렇게 감싸주면 배열,리스트 등을 직렬화가능 //https://birthbefore.tistory.com/11 이걸로 커스텀 직렬화
+
+#region CollectionList
+
 [System.Serializable]
 public class CollectionList
 {
@@ -495,11 +498,12 @@ public class CollectionList
             DataType[index] = TypeName;
             return true;
         }
-        else if(index == Data.Count)
+        else if (index == Data.Count)
         {
             ForceAdd(TypeName, VauleText);
             return true;
-        }else
+        }
+        else
         {
             return false;
         }
@@ -561,34 +565,6 @@ public class CollectionList
         }
         return indexs;
     }
-
-    public Type ConvertType(string TypeName)
-    {
-        // null 반환 없이 Type이 얻어진다면 얻어진 그대로 반환.
-        var type = Type.GetType(TypeName);
-        if (type != null)
-            return type;
-
-        // 프로젝트에 분명히 포함된 클래스임에도 불구하고 Type이 찾아지지 않는다면,
-        // 실행중인 어셈블리를 모두 탐색 하면서 그 안에 찾고자 하는 Type이 있는지 검사.
-        var currentAssembly = System.Reflection.Assembly.GetExecutingAssembly();
-        var referencedAssemblies = currentAssembly.GetReferencedAssemblies();
-        foreach (var assemblyName in referencedAssemblies)
-        {
-            var assembly = System.Reflection.Assembly.Load(assemblyName);
-            if (assembly != null)
-            {
-                // 찾았다 요놈!!!
-                type = assembly.GetType(TypeName);
-                if (type != null)
-                    return type;
-            }
-        }
-
-        // 못 찾았음;;; 클래스 이름이 틀렸던가, 아니면 알 수 없는 문제 때문이겠지...
-        return null;
-    }//TypeName = typeof(Type).FullName
-
 }
 
 /*
@@ -820,7 +796,7 @@ public class CollectionListProperty : PropertyDrawer
 
         return temp;
     }
-    public float GetArrayHeight(SerializedProperty property , string name = "Data", float indexSize = 25 , float Default = 50)
+    public float GetArrayHeight(SerializedProperty property, string name = "Data", float indexSize = 25, float Default = 50)
     {
         var Local = property.FindPropertyRelative(name);
         int size = Mathf.Clamp(Local.arraySize, 1, Local.arraySize) + 1;//최소 2칸 , 갯수가 1개이상 - 갯수 + 1
@@ -842,11 +818,11 @@ public class CollectionListProperty : PropertyDrawer
             //EditorGUI.PropertyField(DataRect, property.FindPropertyRelative("Data"), GUIContent.none);
             //EditorGUI.PropertyField(TypeRect, property.FindPropertyRelative("DataType"), GUIContent.none);
         }//EditorGUI
-        
+
         DataProp = property.FindPropertyRelative("Data");
         TypeProp = property.FindPropertyRelative("DataType");
 
-        if(list == null)
+        if (list == null)
         {
             list = new UnityEditorInternal.ReorderableList(property.serializedObject, DataProp)
             {
@@ -885,9 +861,9 @@ public class CollectionListProperty : PropertyDrawer
         //EditorGUI.EndProperty();
 
         {
-                DataInputFold = EditorGUILayout.BeginFoldoutHeaderGroup(DataInputFold, ("Debug Data Field" + "  /  Length : " + DataProp.arraySize));
-                if (DataInputFold)
-                {
+            DataInputFold = EditorGUILayout.BeginFoldoutHeaderGroup(DataInputFold, ("Debug Data Field" + "  /  Length : " + DataProp.arraySize));
+            if (DataInputFold)
+            {
                 for (int i = 0; i < DataProp.arraySize; i++)
                 {
                     EditorGUILayout.BeginHorizontal();
@@ -898,8 +874,8 @@ public class CollectionListProperty : PropertyDrawer
                     EditorGUILayout.EndHorizontal();
                 }
             }
-                EditorGUILayout.EndFoldoutHeaderGroup();
-                
+            EditorGUILayout.EndFoldoutHeaderGroup();
+
         }//Test Data Field--------------------------------------------
 
         {
@@ -1136,11 +1112,11 @@ public class CollectionListProperty : PropertyDrawer
                 //DataField();//Type[] 형을 UnRapping ,,, 항상 이게 문제인데
 
             }//힘들어 너무 노가다야
-            else 
+            else
             if (LType.IsEnum)
             {
                 int LEnumIndex = UnRapping<int>(DataPropSlot.stringValue);
-                if(LEnumIndex >= 0 && LEnumIndex < Enum.GetValues(LType).Length)
+                if (LEnumIndex >= 0 && LEnumIndex < Enum.GetValues(LType).Length)
                 {
                     var LEnum = (Enum)Enum.GetValues(LType).GetValue(LEnumIndex);//Enum
 
@@ -1151,14 +1127,16 @@ public class CollectionListProperty : PropertyDrawer
                     {
                         DataText = Rapping<int>(LEnumIndex);
                     }
-                }else
+                }
+                else
                 {
                     Debug.LogError(LEnumIndex);
                 }
-            }else 
+            }
+            else
             if (LType.IsClass)
             {
-                if(DataPropSlot.isArray)//List
+                if (DataPropSlot.isArray)//List
                 {
                     EditorGUI.LabelField(rect, "List is Not Support");
                     //EditorGUI.PropertyField(rect, DataPropSlot);//Test
@@ -1193,7 +1171,7 @@ public class CollectionListProperty : PropertyDrawer
         switch (TypeEnum)
         {
             case SerializedPropertyType.Generic:
-                if(ErrorField)
+                if (ErrorField)
                 {
                     EditorGUILayout.LabelField("Not Support / Generic");
                 }
@@ -1281,14 +1259,14 @@ public class CollectionListProperty : PropertyDrawer
                     {
                         //DataField(DataPropSlot, TypePropSlot, collectionList, i);
                     }
-                    if(ErrorField)
+                    if (ErrorField)
                         EditorGUILayout.LabelField("Add To Script");
                     break;
                 }//-------------아직 지원X // Add To Script
             case SerializedPropertyType.Character:
                 {
                     //??먼지 모르겠음
-                    if(ErrorField)
+                    if (ErrorField)
                         EditorGUILayout.LabelField("Not Support");
                     break;
                 }//Not Support
@@ -1315,7 +1293,7 @@ public class CollectionListProperty : PropertyDrawer
             case SerializedPropertyType.ExposedReference:
             case SerializedPropertyType.FixedBufferSize:
                 {
-                    if(ErrorField)
+                    if (ErrorField)
                         EditorGUILayout.LabelField("Not Support");
                     break;
                 }
@@ -1341,13 +1319,13 @@ public class CollectionListProperty : PropertyDrawer
                 }
             case SerializedPropertyType.ManagedReference:
                 {
-                    if(ErrorField)
+                    if (ErrorField)
                         EditorGUILayout.LabelField("Not Support");
                     break;
                 }//Not Support
             default:
                 {
-                    if(ErrorField)
+                    if (ErrorField)
                         EditorGUILayout.TextArea("Unknown Type");
                     break;
                 }
@@ -1369,3 +1347,311 @@ public class CollectionListProperty : PropertyDrawer
         EditorGUI.LabelField(rect, name);
     }
 }//PropertyDrawer
+
+#endregion
+//비추천
+
+[System.Serializable]
+public class VarCollection
+{
+    public string Data;
+    public string DataType;
+
+    public T Get<T>()
+    {
+        if (typeof(T) == ConvertType(DataType))
+        {
+            return JsonUtility.FromJson<Wrap<T>>(Data).Get;
+        }
+        else
+        {
+            Debug.Log("Not Equal GetType , DataType");
+            return default;
+        }
+    }
+    public bool Set<T>(T vaule, bool Force = false)
+    {
+        Wrap<T> wrap = new Wrap<T>(vaule);
+        string data = JsonUtility.ToJson(wrap);
+
+        if(string.IsNullOrEmpty(DataType) || Force)
+        {
+            Data = data;
+            DataType = typeof(T).FullName;
+            return true;
+        }
+        else
+        {
+            if (typeof(T) == ConvertType(DataType))
+            {
+                Data = data;
+                DataType = typeof(T).FullName;
+                return true;
+            }
+            else
+            {
+                Debug.Log("Not Equal SetType , DataType");
+                return false;
+            }
+        }
+    }
+    public void ForceSet(string TypeName, string VauleText)
+    {
+        Data = VauleText;
+        DataType = TypeName;
+    }
+    public string[] ForceGet()
+    {
+        return new string[] { DataType, Data };
+    }
+
+}
+
+[CustomPropertyDrawer(typeof(VarCollection))]
+public class VarCollectionProperty : PropertyDrawer
+{
+    SerializedProperty DataProp;
+    SerializedProperty TypeProp;
+
+    SerializedPropertyType TypeEnum;
+    string DataVaule;
+
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        //base.OnGUI(position, property, label);
+
+        DataProp = property.FindPropertyRelative("Data");
+        TypeProp = property.FindPropertyRelative("DataType");
+
+
+        {
+            if (TypeProp != null)
+            {
+                Type LType = ConvertTypeAssmbly(TypeProp.stringValue);
+                if (LType != null)
+                    TypeEnum = ConvertTypeEnum(LType.Name);
+            }
+            else
+            {
+                TypeEnum = SerializedPropertyType.Generic;
+            }
+
+            if (DataProp != null)
+            {
+                DataVaule = DataProp.stringValue;
+            }
+            else
+            {
+                DataVaule = "";
+            }
+        }//Set TypeEnum, DataVaule
+
+        EditorGUILayout.BeginHorizontal();
+
+        {
+            EditorGUILayout.LabelField(property.name, GUILayout.Width(100));
+            TypeEnum = (SerializedPropertyType)EditorGUILayout.EnumPopup(TypeEnum, GUILayout.Width(100));
+
+            {
+                if (ConvertTypeAssmbly(TypeProp.stringValue) != null)
+                {
+                    if (TypeEnum == SerializedPropertyType.Generic || ConvertTypeEnum(ConvertTypeAssmbly(TypeProp.stringValue).Name) == SerializedPropertyType.Generic)
+                    {
+                        TypeProp.stringValue = ConvertTypeName(TypeEnum);
+                    }else if (TypeEnum != ConvertTypeEnum(ConvertTypeAssmbly(TypeProp.stringValue).Name))
+                    {
+                        Debug.LogWarning("if Change Type , Type >> Generic >> Type");
+                    }
+                }
+                else
+                {
+                    TypeProp.stringValue = ConvertTypeName(TypeEnum);
+                }
+            }//TypeProp Update for Generic
+
+            DataVaule = DataField(TypeProp.stringValue, DataProp.stringValue, "", true);
+            DataProp.stringValue = DataVaule;
+
+        }//Update TypeProp & DataProp
+
+        EditorGUILayout.EndHorizontal();
+    }
+    public string DataField(string TypeFullName, string DataText, string LabelText = " ", bool ErrorField = true, params GUILayoutOption[] layoutOption)
+    {
+        Type LType = ConvertTypeAssmbly(TypeFullName);
+        SerializedPropertyType LTypeEnum = SerializedPropertyType.Generic;
+        if (LType != null)
+            LTypeEnum = ConvertTypeEnum(LType.Name);
+        
+
+        string title = "";
+        if (!string.IsNullOrEmpty(LabelText))
+            title = LabelText;
+
+        //layoutOption = new GUILayoutOption[] { GUILayout.Width(200) };
+
+        switch (LTypeEnum)
+        {
+            case SerializedPropertyType.Generic:
+                if (ErrorField)
+                {
+                    EditorGUILayout.LabelField("Not Support / Generic");
+                }
+                break;
+            #region done
+            case SerializedPropertyType.Integer:
+                {
+                    //LProp.intValue = EditorGUILayout.IntField(LProp.intValue);
+                    //collectionList.Set<int>(index, LProp.intValue);
+
+                    //LProp.stringValue = VariableCollection.Rapping(EditorGUILayout.IntField(VariableCollection.UnRapping<int>(LProp.stringValue)));
+                    DataText = Rapping(EditorGUILayout.IntField(title, UnRapping<int>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.Boolean:
+                {
+                    DataText = Rapping(EditorGUILayout.Toggle(title, UnRapping<bool>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.Float:
+                {
+                    DataText = Rapping(EditorGUILayout.FloatField(title, UnRapping<float>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.String:
+                {
+                    DataText = Rapping(EditorGUILayout.TextField(title, UnRapping<string>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.Color:
+                {
+                    DataText = Rapping(EditorGUILayout.ColorField(title, UnRapping<Color>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.ObjectReference:
+                {
+                    DataText = Rapping(EditorGUILayout.ObjectField(title, UnRapping<GameObject>(DataText), typeof(GameObject), true, layoutOption));
+                    break;
+                }//GameObject OR Object ?
+            case SerializedPropertyType.LayerMask:
+                {
+                    DataText = Rapping(EditorGUILayout.LayerField(title, UnRapping<LayerMask>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.Enum:
+                {/*
+                    int LEnumIndex = UnRapping<int>(DataText);
+                    var LEnum = (Enum)Enum.GetValues(LType).GetValue(LEnumIndex);//Enum
+
+                    var Ldata = Enum.Parse(LType, EditorGUILayout.EnumPopup(title, LEnum, layoutOption).ToString());
+                    LEnumIndex = (int)Convert.ChangeType(Ldata, typeof(int));//Enum - EnumType => int
+
+                    if (LEnumIndex >= 0)
+                    {
+                        DataText = Rapping<int>(LEnumIndex);
+                    }*/
+                    if (ErrorField)
+                        EditorGUILayout.LabelField("Add To Script");
+                    break;
+                }
+            case SerializedPropertyType.Vector2:
+                {
+                    DataText = Rapping(EditorGUILayout.Vector2Field(title, UnRapping<Vector2>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.Vector3:
+                {
+                    DataText = Rapping(EditorGUILayout.Vector3Field(title, UnRapping<Vector3>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.Vector4:
+                {
+                    DataText = Rapping(EditorGUILayout.Vector4Field(title, UnRapping<Vector4>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.Rect:
+                {
+                    DataText = Rapping(EditorGUILayout.RectField(title, UnRapping<Rect>(DataText), layoutOption));
+                    break;
+                }
+            #endregion
+            case SerializedPropertyType.ArraySize:
+                {
+                    //for (int i = 0; i < DataPropSlot.arraySize; i++)
+                    {
+                        //DataField(DataPropSlot, TypePropSlot, collectionList, i);
+                    }
+                    if (ErrorField)
+                        EditorGUILayout.LabelField("Add To Script");
+                    break;
+                }//-------------아직 지원X // Add To Script
+            case SerializedPropertyType.Character:
+                {
+                    //??먼지 모르겠음
+                    if (ErrorField)
+                        EditorGUILayout.LabelField("Not Support");
+                    break;
+                }//Not Support
+            case SerializedPropertyType.AnimationCurve:
+                {
+                    DataText = Rapping(EditorGUILayout.CurveField(title, UnRapping<AnimationCurve>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.Bounds:
+                {
+                    DataText = Rapping(EditorGUILayout.BoundsField(title, UnRapping<Bounds>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.Gradient:
+                {
+                    DataText = Rapping(EditorGUILayout.GradientField(title, UnRapping<Gradient>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.Quaternion:
+                {
+                    DataText = Rapping(EditorGUILayout.Vector4Field(title, UnRapping<Vector4>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.ExposedReference:
+            case SerializedPropertyType.FixedBufferSize:
+                {
+                    if (ErrorField)
+                        EditorGUILayout.LabelField("Not Support");
+                    break;
+                }
+            case SerializedPropertyType.Vector2Int:
+                {
+                    DataText = Rapping(EditorGUILayout.Vector2IntField(title, UnRapping<Vector2Int>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.Vector3Int:
+                {
+                    DataText = Rapping(EditorGUILayout.Vector3IntField(title, UnRapping<Vector3Int>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.RectInt:
+                {
+                    DataText = Rapping(EditorGUILayout.RectIntField(title, UnRapping<RectInt>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.BoundsInt:
+                {
+                    DataText = Rapping(EditorGUILayout.BoundsIntField(title, UnRapping<BoundsInt>(DataText), layoutOption));
+                    break;
+                }
+            case SerializedPropertyType.ManagedReference:
+                {
+                    if (ErrorField)
+                        EditorGUILayout.LabelField("Not Support");
+                    break;
+                }//Not Support
+            default:
+                {
+                    if (ErrorField)
+                        EditorGUILayout.TextArea("Unknown Type");
+                    break;
+                }
+        }
+        return DataText;
+    }
+}//if Change Type , Type >> Generic >> Type

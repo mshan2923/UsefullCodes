@@ -328,9 +328,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91601acb39bc0a841b237a98d0eba706, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collection:
+  MutiCollection:
     Data: []
     DataType: []
+  Collection:
+    Data: '{"data":0}'
+    DataType: System.Int32
 --- !u!4 &1980552411
 Transform:
   m_ObjectHideFlags: 0

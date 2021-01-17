@@ -6,25 +6,30 @@ using UnityEngine;
 
 public class TestCollection : MonoBehaviour
 {
-    public CollectionList collection = new CollectionList();
+    public CollectionList MutiCollection = new CollectionList();
+    [Space(50)]
+    public VarCollection Collection = new VarCollection();
+
     // Start is called before the first frame update
     void Start()
     {
-        collection.Add<int>(10);
-        collection.Add<string>("Testing");
-        collection.Add<ViewTool>(ViewTool.FPS);
-        collection.Add<List<int>>(new List<int>() { 0, 1});
-        collection.Add<int[]>(new int[] { 2, 3 });
+        MutiCollection.Add<int>(10);
+        MutiCollection.Add<string>("Testing");
+        MutiCollection.Add<ViewTool>(ViewTool.FPS);
+        MutiCollection.Add<List<int>>(new List<int>() { 0, 1});
+        MutiCollection.Add<int[]>(new int[] { 2, 3 });
 
 
         int[] Test = new int[] { 2, 3 };
         Debug.Log("///" + JsonUtility.ToJson(Test));
+
+        Collection.Set<int>(100, true);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        print(Collection.ForceGet()[1]);
     }
 
     public Type GetTypeFromAssemblies(string TypeName)
@@ -65,8 +70,8 @@ class TestCollectionInspector : Editor
     private void OnEnable()
     {
         //base.OnEnable();
-        property = serializedObject.FindProperty("collection");
-        collection = target as TestCollection;
+        //property = serializedObject.FindProperty("collection");
+        //collection = target as TestCollection;
     }
     
     public override void OnInspectorGUI()
@@ -80,7 +85,7 @@ class TestCollectionInspector : Editor
         if (GUI.changed)
             EditorUtility.SetDirty(target);
         */
-        EditorGUILayout.HelpBox("Test", MessageType.None);
+        EditorGUILayout.HelpBox("Editor class Test", MessageType.None);
     }
     
 }
