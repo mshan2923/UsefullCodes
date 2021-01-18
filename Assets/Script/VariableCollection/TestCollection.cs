@@ -6,30 +6,35 @@ using UnityEngine;
 
 public class TestCollection : MonoBehaviour
 {
-    public CollectionList MutiCollection = new CollectionList();
+    // CollectionList MutiCollection = new CollectionList();
     [Space(50)]
     public VarCollection Collection = new VarCollection();
+
+    [Space(50)]
+    public VarCollection[] collections = new VarCollection[3];
 
     // Start is called before the first frame update
     void Start()
     {
+        /*
         MutiCollection.Add<int>(10);
         MutiCollection.Add<string>("Testing");
         MutiCollection.Add<ViewTool>(ViewTool.FPS);
         MutiCollection.Add<List<int>>(new List<int>() { 0, 1});
         MutiCollection.Add<int[]>(new int[] { 2, 3 });
-
+        */
 
         int[] Test = new int[] { 2, 3 };
         Debug.Log("///" + JsonUtility.ToJson(Test));
 
         Collection.Set<int>(100, true);
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        print(Collection.ForceGet()[1]);
+
     }
 
     public Type GetTypeFromAssemblies(string TypeName)
