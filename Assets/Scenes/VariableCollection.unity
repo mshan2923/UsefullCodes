@@ -334,7 +334,7 @@ MonoBehaviour:
   collections:
   - Data: '{"data":0}'
     DataType: System.Int32
-  - Data: '{"data":0}'
+  - Data: '{"data":1}'
     DataType: System.Int32
 --- !u!4 &1980552411
 Transform:

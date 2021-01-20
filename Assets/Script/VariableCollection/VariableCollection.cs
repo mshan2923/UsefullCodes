@@ -9,24 +9,30 @@ public class VariableCollection
 {
     public static Type ConvertType(string TypeFullName)
     {
-        // null 반환 없이 Type이 얻어진다면 얻어진 그대로 반환.
-        var type = Type.GetType(TypeFullName);
-        if (type != null)
-            return type;
-
-        // 프로젝트에 분명히 포함된 클래스임에도 불구하고 Type이 찾아지지 않는다면,
-        // 실행중인 어셈블리를 모두 탐색 하면서 그 안에 찾고자 하는 Type이 있는지 검사.
-        var currentAssembly = System.Reflection.Assembly.GetExecutingAssembly();
-        var referencedAssemblies = currentAssembly.GetReferencedAssemblies();
-        foreach (var assemblyName in referencedAssemblies)
+        if(string.IsNullOrEmpty(TypeFullName))
         {
-            var assembly = System.Reflection.Assembly.Load(assemblyName);
-            if (assembly != null)
+            return null;
+        }else
+        {
+            // null 반환 없이 Type이 얻어진다면 얻어진 그대로 반환.
+            var type = Type.GetType(TypeFullName);
+            if (type != null)
+                return type;
+
+            // 프로젝트에 분명히 포함된 클래스임에도 불구하고 Type이 찾아지지 않는다면,
+            // 실행중인 어셈블리를 모두 탐색 하면서 그 안에 찾고자 하는 Type이 있는지 검사.
+            var currentAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+            var referencedAssemblies = currentAssembly.GetReferencedAssemblies();
+            foreach (var assemblyName in referencedAssemblies)
             {
-                // 찾았다 요놈!!!
-                type = assembly.GetType(TypeFullName);
-                if (type != null)
-                    return type;
+                var assembly = System.Reflection.Assembly.Load(assemblyName);
+                if (assembly != null)
+                {
+                    // 찾았다 요놈!!!
+                    type = assembly.GetType(TypeFullName);
+                    if (type != null)
+                        return type;
+                }
             }
         }
 

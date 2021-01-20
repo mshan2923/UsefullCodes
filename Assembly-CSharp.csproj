@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Assets\Script\VariableCollection\VariableCollection.cs" />
     <Compile Include="Assets\Script\SaveLoad\SaveLoad.cs" />
+    <Compile Include="Assets\Script\VariableCollection\ListCollection.cs" />
     <Compile Include="Assets\Script\IntMap\CustomDictionary.cs" />
     <Compile Include="Assets\Script\SquareCalculate\SquareCalculate.cs" />
     <Compile Include="Assets\Script\ObjectPool\ObjPoolSpawner.cs" />
@@ -71,7 +72,6 @@
     <Compile Include="Assets\Script\VariableCollection\TestCollection.cs" />
     <Compile Include="Assets\Script\SaveLoad\TestSaveLoad.cs" />
     <Compile Include="Assets\Script\ReOrderableList\ReOrderableTemplate.cs" />
-    <Compile Include="Assets\Script\VariableCollection\ListCollection.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\Script\SaveLoad\SaveFile.txt" />
