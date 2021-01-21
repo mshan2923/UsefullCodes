@@ -510,12 +510,15 @@ public class VarCollectionProperty : PropertyDrawer
     float DrawPos = 0;
     float fontSize = 7;
     float Space = 10;
-    float EnumOffset = 20;
-    float Height = 20;
+    float EnumOffset = 10;
+    float LIndented = 0;
 
-    public Rect AddRect(Rect Lrect, Vector2 pos ,Vector2 size)
+    bool NeedExpand = false;
+
+    public Rect AddRect(Rect Lrect, Vector2 pos ,float width)
     {
-        return new Rect(Lrect.position + pos, size);
+        Vector2 Lpos = Lrect.position + pos;
+        return new Rect(Lpos.x, Lpos.y, width , Lrect.height);
     }
 
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -552,13 +555,14 @@ public class VarCollectionProperty : PropertyDrawer
         EditorGUILayout.BeginHorizontal();
 
         {
+            LIndented = EditorGUI.IndentedRect(position).x;
             DrawPos = property.name.Length * fontSize;
-            rect = AddRect(position, new Vector2(0, 0), new Vector2(DrawPos, Height));
+            rect = AddRect(EditorGUI.IndentedRect(position), new Vector2(0, 0), (DrawPos + LIndented));
             EditorGUI.LabelField(rect, property.name);
 
-            rect = AddRect(position, new Vector2(DrawPos, 0), new Vector2(TypeEnum.ToString().Length * fontSize + EnumOffset, Height));
+            rect = AddRect(EditorGUI.IndentedRect(position), new Vector2(DrawPos + Space, 0), (TypeEnum.ToString().Length * fontSize + EnumOffset + LIndented));
             TypeEnum = (SerializedPropertyType)EditorGUI.EnumPopup(rect, TypeEnum);
-            DrawPos += TypeEnum.ToString().Length * fontSize + EnumOffset + Space;
+            DrawPos += TypeEnum.ToString().Length * fontSize + EnumOffset + LIndented;
 
             {
                 if (ConvertType(TypeProp.stringValue) != null)
@@ -577,13 +581,19 @@ public class VarCollectionProperty : PropertyDrawer
                 }
             }//TypeProp Update for Generic
 
-            rect = AddRect(position, new Vector2(DrawPos, 0), new Vector2(position.width - DrawPos, Height));
-            DataVaule = DataField(TypeProp.stringValue, DataProp.stringValue, rect, "", true);
+            //rect = AddRect(EditorGUI.IndentedRect(position), new Vector2( Space, 0), (position.width ));
+            rect = new Rect(EditorGUI.IndentedRect(position).x + DrawPos, position.y, EditorGUI.IndentedRect(position).width - DrawPos, position.height);
+            DataVaule = DataField(TypeProp.stringValue, DataProp.stringValue, rect, out NeedExpand , "" , true);//Label -> " " 이면 버그 생김
             DataProp.stringValue = DataVaule;
 
         }//Update TypeProp & DataProp
 
         EditorGUILayout.EndHorizontal();
+
+        if(NeedExpand)
+        {
+            GUILayout.Space(20);
+        }
     }
     public string DataField(string TypeFullName, string DataText, string LabelText = " ", bool ErrorField = true, params GUILayoutOption[] layoutOption)
     {
@@ -764,7 +774,7 @@ public class VarCollectionProperty : PropertyDrawer
         return DataText;
     }
 
-    public string DataField(string TypeFullName, string DataText, Rect Lrect, string LabelText = " ", bool ErrorField = true)
+    public string DataField(string TypeFullName, string DataText, Rect Lrect, out bool NeedExpand, string LabelText = "", bool ErrorField = true)
     {
         Type LType = ConvertType(TypeFullName);
         SerializedPropertyType LTypeEnum = SerializedPropertyType.Generic;
@@ -772,11 +782,8 @@ public class VarCollectionProperty : PropertyDrawer
             LTypeEnum = ConvertTypeEnum(LType.Name);
 
 
-        string title = "";
-        if (!string.IsNullOrEmpty(LabelText))
-            title = LabelText;
-
         //layoutOption = new GUILayoutOption[] { GUILayout.Width(200) };
+        NeedExpand = false;
 
         switch (LTypeEnum)
         {
@@ -793,37 +800,37 @@ public class VarCollectionProperty : PropertyDrawer
                     //collectionList.Set<int>(index, LProp.intValue);
 
                     //LProp.stringValue = VariableCollection.Rapping(EditorGUILayout.IntField(VariableCollection.UnRapping<int>(LProp.stringValue)));
-                    DataText = Rapping(EditorGUI.IntField(Lrect, title, UnRapping<int>(DataText)));
+                    DataText = Rapping(EditorGUI.IntField(Lrect, LabelText, UnRapping<int>(DataText)));
                     break;
                 }
             case SerializedPropertyType.Boolean:
                 {
-                    DataText = Rapping(EditorGUI.Toggle(Lrect, title, UnRapping<bool>(DataText)));
+                    DataText = Rapping(EditorGUI.Toggle(Lrect, LabelText, UnRapping<bool>(DataText)));
                     break;
                 }
             case SerializedPropertyType.Float:
                 {
-                    DataText = Rapping(EditorGUI.FloatField(Lrect, title, UnRapping<float>(DataText)));
+                    DataText = Rapping(EditorGUI.FloatField(Lrect, LabelText, UnRapping<float>(DataText)));
                     break;
                 }
             case SerializedPropertyType.String:
                 {
-                    DataText = Rapping(EditorGUI.TextField(Lrect, title, UnRapping<string>(DataText)));
+                    DataText = Rapping(EditorGUI.TextField(Lrect, LabelText, UnRapping<string>(DataText)));
                     break;
                 }
             case SerializedPropertyType.Color:
                 {
-                    DataText = Rapping(EditorGUI.ColorField(Lrect, title, UnRapping<Color>(DataText)));
+                    DataText = Rapping(EditorGUI.ColorField(Lrect, LabelText, UnRapping<Color>(DataText)));
                     break;
                 }
             case SerializedPropertyType.ObjectReference:
                 {
-                    DataText = Rapping(EditorGUI.ObjectField(Lrect, title, UnRapping<GameObject>(DataText), typeof(GameObject), true));
+                    DataText = Rapping(EditorGUI.ObjectField(Lrect, LabelText, UnRapping<GameObject>(DataText), typeof(GameObject), true));
                     break;
                 }//GameObject OR Object ?
             case SerializedPropertyType.LayerMask:
                 {
-                    DataText = Rapping(EditorGUI.LayerField(Lrect, title, UnRapping<LayerMask>(DataText)));
+                    DataText = Rapping(EditorGUI.LayerField(Lrect, LabelText, UnRapping<LayerMask>(DataText)));
                     break;
                 }
             case SerializedPropertyType.Enum:
@@ -844,22 +851,23 @@ public class VarCollectionProperty : PropertyDrawer
                 }
             case SerializedPropertyType.Vector2:
                 {
-                    DataText = Rapping(EditorGUI.Vector2Field(Lrect, title, UnRapping<Vector2>(DataText)));
+                    DataText = Rapping(EditorGUI.Vector2Field(Lrect, LabelText, UnRapping<Vector2>(DataText)));
                     break;
                 }
             case SerializedPropertyType.Vector3:
                 {
-                    DataText = Rapping(EditorGUI.Vector3Field(Lrect, title, UnRapping<Vector3>(DataText)));
+                    DataText = Rapping(EditorGUI.Vector3Field(Lrect, LabelText, UnRapping<Vector3>(DataText)));
                     break;
                 }
             case SerializedPropertyType.Vector4:
                 {
-                    DataText = Rapping(EditorGUI.Vector4Field(Lrect, title, UnRapping<Vector4>(DataText)));
+                    DataText = Rapping(EditorGUI.Vector4Field(Lrect, LabelText, UnRapping<Vector4>(DataText)));
                     break;
                 }
             case SerializedPropertyType.Rect:
                 {
-                    DataText = Rapping(EditorGUI.RectField(Lrect, title, UnRapping<Rect>(DataText)));
+                    DataText = Rapping(EditorGUI.RectField(Lrect, LabelText, UnRapping<Rect>(DataText)));
+                    NeedExpand = true;
                     break;
                 }
             #endregion
@@ -882,22 +890,23 @@ public class VarCollectionProperty : PropertyDrawer
                 }//Not Support
             case SerializedPropertyType.AnimationCurve:
                 {
-                    DataText = Rapping(EditorGUI.CurveField(Lrect, title, UnRapping<AnimationCurve>(DataText)));
+                    DataText = Rapping(EditorGUI.CurveField(Lrect, LabelText, UnRapping<AnimationCurve>(DataText)));
                     break;
                 }
             case SerializedPropertyType.Bounds:
                 {
-                    DataText = Rapping(EditorGUI.BoundsField(Lrect, title, UnRapping<Bounds>(DataText)));
+                    DataText = Rapping(EditorGUI.BoundsField(Lrect, LabelText, UnRapping<Bounds>(DataText)));
+                    NeedExpand = true;
                     break;
                 }
             case SerializedPropertyType.Gradient:
                 {
-                    DataText = Rapping(EditorGUI.GradientField(Lrect, title, UnRapping<Gradient>(DataText)));
+                    DataText = Rapping(EditorGUI.GradientField(Lrect, LabelText, UnRapping<Gradient>(DataText)));
                     break;
                 }
             case SerializedPropertyType.Quaternion:
                 {
-                    DataText = Rapping(EditorGUI.Vector4Field(Lrect, title, UnRapping<Vector4>(DataText)));
+                    DataText = Rapping(EditorGUI.Vector4Field(Lrect, LabelText, UnRapping<Vector4>(DataText)));
                     break;
                 }
             case SerializedPropertyType.ExposedReference:
@@ -909,22 +918,24 @@ public class VarCollectionProperty : PropertyDrawer
                 }
             case SerializedPropertyType.Vector2Int:
                 {
-                    DataText = Rapping(EditorGUI.Vector2IntField(Lrect, title, UnRapping<Vector2Int>(DataText)));
+                    DataText = Rapping(EditorGUI.Vector2IntField(Lrect, LabelText, UnRapping<Vector2Int>(DataText)));
                     break;
                 }
             case SerializedPropertyType.Vector3Int:
                 {
-                    DataText = Rapping(EditorGUI.Vector3IntField(Lrect, title, UnRapping<Vector3Int>(DataText)));
+                    DataText = Rapping(EditorGUI.Vector3IntField(Lrect, LabelText, UnRapping<Vector3Int>(DataText)));
                     break;
                 }
             case SerializedPropertyType.RectInt:
                 {
-                    DataText = Rapping(EditorGUI.RectIntField(Lrect, title, UnRapping<RectInt>(DataText)));
+                    DataText = Rapping(EditorGUI.RectIntField(Lrect, LabelText, UnRapping<RectInt>(DataText)));
+                    NeedExpand = true;
                     break;
                 }
             case SerializedPropertyType.BoundsInt:
                 {
-                    DataText = Rapping(EditorGUI.BoundsIntField(Lrect, title, UnRapping<BoundsInt>(DataText)));
+                    DataText = Rapping(EditorGUI.BoundsIntField(Lrect, LabelText, UnRapping<BoundsInt>(DataText)));
+                    NeedExpand = true;
                     break;
                 }
             case SerializedPropertyType.ManagedReference:
