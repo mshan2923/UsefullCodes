@@ -417,6 +417,176 @@ public class VariableCollection
         }
     }//vaule = JsonUtility.ToJson(new wrap<T>(Vaule))
 
+    public static string DataField(string TypeFullName, string DataText, Rect Lrect, out bool NeedExpand, string LabelText = "", bool ErrorField = true)
+    {
+        Type LType = ConvertType(TypeFullName);
+        SerializedPropertyType LTypeEnum = SerializedPropertyType.Generic;
+        if (LType != null)
+            LTypeEnum = ConvertTypeEnum(LType.Name);
+
+
+        //layoutOption = new GUILayoutOption[] { GUILayout.Width(200) };
+        NeedExpand = false;
+
+        switch (LTypeEnum)
+        {
+            case SerializedPropertyType.Generic:
+                if (ErrorField)
+                {
+                    EditorGUI.LabelField(Lrect, "Not Support / Generic");
+                }
+                break;
+            #region done
+            case SerializedPropertyType.Integer:
+                {
+                    //LProp.intValue = EditorGUILayout.IntField(LProp.intValue);
+                    //collectionList.Set<int>(index, LProp.intValue);
+
+                    //LProp.stringValue = VariableCollection.Rapping(EditorGUILayout.IntField(VariableCollection.UnRapping<int>(LProp.stringValue)));
+                    DataText = Rapping(EditorGUI.IntField(Lrect, LabelText, UnRapping<int>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Boolean:
+                {
+                    DataText = Rapping(EditorGUI.Toggle(Lrect, LabelText, UnRapping<bool>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Float:
+                {
+                    DataText = Rapping(EditorGUI.FloatField(Lrect, LabelText, UnRapping<float>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.String:
+                {
+                    DataText = Rapping(EditorGUI.TextField(Lrect, LabelText, UnRapping<string>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Color:
+                {
+                    DataText = Rapping(EditorGUI.ColorField(Lrect, LabelText, UnRapping<Color>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.ObjectReference:
+                {
+                    DataText = Rapping(EditorGUI.ObjectField(Lrect, LabelText, UnRapping<GameObject>(DataText), typeof(GameObject), true));
+                    break;
+                }//GameObject OR Object ?
+            case SerializedPropertyType.LayerMask:
+                {
+                    DataText = Rapping(EditorGUI.LayerField(Lrect, LabelText, ((LayerMask)UnRapping<int>(DataText)).value));//UnRapping<LayerMask>(DataText)
+                    break;
+                }
+            case SerializedPropertyType.Enum:
+                {
+                    if (ErrorField)
+                        EditorGUI.LabelField(Lrect, "Add To Script");
+                    break;
+                }
+            case SerializedPropertyType.Vector2:
+                {
+                    DataText = Rapping(EditorGUI.Vector2Field(Lrect, LabelText, UnRapping<Vector2>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Vector3:
+                {
+                    DataText = Rapping(EditorGUI.Vector3Field(Lrect, LabelText, UnRapping<Vector3>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Vector4:
+                {
+                    DataText = Rapping(EditorGUI.Vector4Field(Lrect, LabelText, UnRapping<Vector4>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Rect:
+                {
+                    DataText = Rapping(EditorGUI.RectField(Lrect, LabelText, UnRapping<Rect>(DataText)));
+                    NeedExpand = true;
+                    break;
+                }
+            #endregion
+            case SerializedPropertyType.ArraySize:
+                {
+                    //for (int i = 0; i < DataPropSlot.arraySize; i++)
+                    {
+                        //DataField(DataPropSlot, TypePropSlot, collectionList, i);
+                    }
+                    if (ErrorField)
+                        EditorGUI.LabelField(Lrect, "Add To Script");
+                    break;
+                }//-------------아직 지원X // Add To Script
+            case SerializedPropertyType.Character:
+                {
+                    //??먼지 모르겠음
+                    if (ErrorField)
+                        EditorGUI.LabelField(Lrect, "Not Support");
+                    break;
+                }//Not Support
+            case SerializedPropertyType.AnimationCurve:
+                {
+                    DataText = Rapping(EditorGUI.CurveField(Lrect, LabelText, UnRapping<AnimationCurve>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Bounds:
+                {
+                    DataText = Rapping(EditorGUI.BoundsField(Lrect, LabelText, UnRapping<Bounds>(DataText)));
+                    NeedExpand = true;
+                    break;
+                }
+            case SerializedPropertyType.Gradient:
+                {
+                    DataText = Rapping(EditorGUI.GradientField(Lrect, LabelText, UnRapping<Gradient>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Quaternion:
+                {
+                    DataText = Rapping(EditorGUI.Vector4Field(Lrect, LabelText, UnRapping<Vector4>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.ExposedReference:
+            case SerializedPropertyType.FixedBufferSize:
+                {
+                    if (ErrorField)
+                        EditorGUI.LabelField(Lrect, "Not Support");
+                    break;
+                }
+            case SerializedPropertyType.Vector2Int:
+                {
+                    DataText = Rapping(EditorGUI.Vector2IntField(Lrect, LabelText, UnRapping<Vector2Int>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.Vector3Int:
+                {
+                    DataText = Rapping(EditorGUI.Vector3IntField(Lrect, LabelText, UnRapping<Vector3Int>(DataText)));
+                    break;
+                }
+            case SerializedPropertyType.RectInt:
+                {
+                    DataText = Rapping(EditorGUI.RectIntField(Lrect, LabelText, UnRapping<RectInt>(DataText)));
+                    NeedExpand = true;
+                    break;
+                }
+            case SerializedPropertyType.BoundsInt:
+                {
+                    DataText = Rapping(EditorGUI.BoundsIntField(Lrect, LabelText, UnRapping<BoundsInt>(DataText)));
+                    NeedExpand = true;
+                    break;
+                }
+            case SerializedPropertyType.ManagedReference:
+                {
+                    if (ErrorField)
+                        EditorGUI.LabelField(Lrect, "Not Support");
+                    break;
+                }//Not Support
+            default:
+                {
+                    if (ErrorField)
+                        EditorGUI.TextArea(Lrect, "Unknown Type");
+                    break;
+                }
+        }
+        return DataText;
+    }
+
 }//계산만
 
 [System.Serializable]
@@ -510,7 +680,7 @@ public class VarCollectionProperty : PropertyDrawer
     float DrawPos = 0;
     float fontSize = 7;
     float Space = 10;
-    float EnumOffset = 10;
+    float EnumOffset = 0;
     float LIndented = 0;
 
     bool NeedExpand = false;
@@ -562,7 +732,7 @@ public class VarCollectionProperty : PropertyDrawer
 
             rect = AddRect(EditorGUI.IndentedRect(position), new Vector2(DrawPos + Space, 0), (TypeEnum.ToString().Length * fontSize + EnumOffset + LIndented));
             TypeEnum = (SerializedPropertyType)EditorGUI.EnumPopup(rect, TypeEnum);
-            DrawPos += TypeEnum.ToString().Length * fontSize + EnumOffset + LIndented;
+            DrawPos += TypeEnum.ToString().Length * fontSize + EnumOffset + LIndented + Space;
 
             {
                 if (ConvertType(TypeProp.stringValue) != null)
@@ -830,7 +1000,7 @@ public class VarCollectionProperty : PropertyDrawer
                 }//GameObject OR Object ?
             case SerializedPropertyType.LayerMask:
                 {
-                    DataText = Rapping(EditorGUI.LayerField(Lrect, LabelText, UnRapping<LayerMask>(DataText)));
+                    DataText = Rapping(EditorGUI.LayerField(Lrect, LabelText, ((LayerMask)UnRapping<int>(DataText)).value));//UnRapping<LayerMask>(DataText)
                     break;
                 }
             case SerializedPropertyType.Enum:
