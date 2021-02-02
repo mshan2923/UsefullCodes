@@ -59,3 +59,10 @@ Update Mode: updateDependencies
 
 The following packages were 업데이트됨:
   com.unity.ide.rider 1.2.1 버전에서 2.0.7버전으로
+=== Tue Feb  2 11:55:32 2021
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were 업데이트됨:
+  com.unity.test-framework 1.1.19 버전에서 1.1.20버전으로
