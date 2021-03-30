@@ -241,7 +241,7 @@ public class CollectionListProperty : PropertyDrawer
                 {
                     EditorGUILayout.BeginHorizontal();
                     TempTypeEnum = (int)(SerializedPropertyType)EditorGUILayout.EnumPopup((SerializedPropertyType)TempTypeEnum);
-                    string LTypeName = ConvertTypeName((SerializedPropertyType)TempTypeEnum);
+                    string LTypeName = ConvertTypeName((TypeEnum)TempTypeEnum);
 
                     if (string.IsNullOrEmpty(TempVaule))
                     {
@@ -307,11 +307,11 @@ public class CollectionListProperty : PropertyDrawer
         //DataPropSlot.stringValue = DataField(TypePropSlot.stringValue, DataPropSlot.stringValue, index, LabelText, false, layoutOption);//EditorGUI로 위치 직접 지정해야함
         switch (TypeEnum)
         {
-            case SerializedPropertyType.Generic:
+            case TypeEnum.Generic:
                 //EditorGUI.LabelField(rect, "Not Support / Generic");                
                 break;
             #region done
-            case SerializedPropertyType.Integer:
+            case TypeEnum.Integer:
                 {
                     //LProp.intValue = EditorGUILayout.IntField(LProp.intValue);
                     //collectionList.Set<int>(index, LProp.intValue);
@@ -320,37 +320,37 @@ public class CollectionListProperty : PropertyDrawer
                     DataText = Rapping(EditorGUI.IntField(rect, title, UnRapping<int>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.Boolean:
+            case TypeEnum.Boolean:
                 {
                     DataText = Rapping(EditorGUI.Toggle(rect, title, UnRapping<bool>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.Float:
+            case TypeEnum.Float:
                 {
                     DataText = Rapping(EditorGUI.FloatField(rect, title, UnRapping<float>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.String:
+            case TypeEnum.String:
                 {
                     DataText = Rapping(EditorGUI.TextField(rect, title, UnRapping<string>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.Color:
+            case TypeEnum.Color:
                 {
                     DataText = Rapping(EditorGUI.ColorField(rect, title, UnRapping<Color>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.ObjectReference:
+            case TypeEnum.ObjectReference:
                 {
                     DataText = Rapping(EditorGUI.ObjectField(rect, title, UnRapping<GameObject>(DataText), typeof(GameObject), true));
                     break;
                 }//GameObject OR Object ?
-            case SerializedPropertyType.LayerMask:
+            case TypeEnum.LayerMask:
                 {
                     DataText = Rapping(EditorGUI.LayerField(rect, title, UnRapping<LayerMask>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.Enum:
+            case TypeEnum.Enum:
                 {/*
                     int LEnumIndex = UnRapping<int>(DataText);
                     var LEnum = (Enum)Enum.GetValues(LType).GetValue(LEnumIndex);//Enum
@@ -365,28 +365,28 @@ public class CollectionListProperty : PropertyDrawer
                     //EditorGUI.LabelField(rect, "Add To Script");
                     break;
                 }
-            case SerializedPropertyType.Vector2:
+            case TypeEnum.Vector2:
                 {
                     DataText = Rapping(EditorGUI.Vector2Field(rect, title, UnRapping<Vector2>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.Vector3:
+            case TypeEnum.Vector3:
                 {
                     DataText = Rapping(EditorGUI.Vector3Field(rect, title, UnRapping<Vector3>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.Vector4:
+            case TypeEnum.Vector4:
                 {
                     DataText = Rapping(EditorGUI.Vector4Field(rect, title, UnRapping<Vector4>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.Rect:
+            case TypeEnum.Rect:
                 {
                     DataText = Rapping(EditorGUI.RectField(rect, title, UnRapping<Rect>(DataText)));
                     break;
                 }
             #endregion
-            case SerializedPropertyType.ArraySize:
+            case TypeEnum.ArraySize:
                 {
                     //for (int i = 0; i < DataPropSlot.arraySize; i++)
                     {
@@ -395,59 +395,59 @@ public class CollectionListProperty : PropertyDrawer
                     EditorGUI.LabelField(rect, "Add To Script");
                     break;
                 }//-------------아직 지원X // Add To Script
-            case SerializedPropertyType.Character:
+            case TypeEnum.Character:
                 {
                     //??먼지 모르겠음
                     EditorGUI.LabelField(rect, "Not Support");
                     break;
                 }//Not Support
-            case SerializedPropertyType.AnimationCurve:
+            case TypeEnum.AnimationCurve:
                 {
                     DataText = Rapping(EditorGUI.CurveField(rect, title, UnRapping<AnimationCurve>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.Bounds:
+            case TypeEnum.Bounds:
                 {
                     DataText = Rapping(EditorGUI.BoundsField(rect, UnRapping<Bounds>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.Gradient:
+            case TypeEnum.Gradient:
                 {
                     DataText = Rapping(EditorGUI.GradientField(rect, title, UnRapping<Gradient>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.Quaternion:
+            case TypeEnum.Quaternion:
                 {
                     DataText = Rapping(EditorGUI.Vector4Field(rect, title, UnRapping<Vector4>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.ExposedReference:
-            case SerializedPropertyType.FixedBufferSize:
+            case TypeEnum.ExposedReference:
+            case TypeEnum.FixedBufferSize:
                 {
                     EditorGUI.LabelField(rect, "Not Support");
                     break;
                 }
-            case SerializedPropertyType.Vector2Int:
+            case TypeEnum.Vector2Int:
                 {
                     DataText = Rapping(EditorGUI.Vector2IntField(rect, title, UnRapping<Vector2Int>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.Vector3Int:
+            case TypeEnum.Vector3Int:
                 {
                     DataText = Rapping(EditorGUI.Vector3IntField(rect, title, UnRapping<Vector3Int>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.RectInt:
+            case TypeEnum.RectInt:
                 {
                     DataText = Rapping(EditorGUI.RectIntField(rect, title, UnRapping<RectInt>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.BoundsInt:
+            case TypeEnum.BoundsInt:
                 {
                     DataText = Rapping(EditorGUI.BoundsIntField(rect, title, UnRapping<BoundsInt>(DataText)));
                     break;
                 }
-            case SerializedPropertyType.ManagedReference:
+            case TypeEnum.ManagedReference:
                 {
                     EditorGUI.LabelField(rect, "Not Support");
                     break;
@@ -459,7 +459,7 @@ public class CollectionListProperty : PropertyDrawer
                 }
         }
 
-        if (TypeEnum == SerializedPropertyType.Generic)
+        if (TypeEnum == TypeEnum.Generic)
         {
             if (LType.IsArray)
             {
@@ -514,7 +514,7 @@ public class CollectionListProperty : PropertyDrawer
     public string DataField(string TypeFullName, string DataText, int index, string LabelText = "Index ", bool ErrorField = true, params GUILayoutOption[] layoutOption)
     {
         Type LType = ConvertType(TypeFullName);
-        SerializedPropertyType TypeEnum = SerializedPropertyType.Generic;
+        TypeEnum TypeEnum = TypeEnum.Generic;
         if (LType != null)
             TypeEnum = ConvertTypeEnum(LType.Name);
 
@@ -526,14 +526,14 @@ public class CollectionListProperty : PropertyDrawer
 
         switch (TypeEnum)
         {
-            case SerializedPropertyType.Generic:
+            case TypeEnum.Generic:
                 if (ErrorField)
                 {
                     EditorGUILayout.LabelField("Not Support / Generic");
                 }
                 break;
             #region done
-            case SerializedPropertyType.Integer:
+            case TypeEnum.Integer:
                 {
                     //LProp.intValue = EditorGUILayout.IntField(LProp.intValue);
                     //collectionList.Set<int>(index, LProp.intValue);
@@ -542,37 +542,37 @@ public class CollectionListProperty : PropertyDrawer
                     DataText = Rapping(EditorGUILayout.IntField(title, UnRapping<int>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.Boolean:
+            case TypeEnum.Boolean:
                 {
                     DataText = Rapping(EditorGUILayout.Toggle(title, UnRapping<bool>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.Float:
+            case TypeEnum.Float:
                 {
                     DataText = Rapping(EditorGUILayout.FloatField(title, UnRapping<float>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.String:
+            case TypeEnum.String:
                 {
                     DataText = Rapping(EditorGUILayout.TextField(title, UnRapping<string>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.Color:
+            case TypeEnum.Color:
                 {
                     DataText = Rapping(EditorGUILayout.ColorField(title, UnRapping<Color>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.ObjectReference:
+            case TypeEnum.ObjectReference:
                 {
                     DataText = Rapping(EditorGUILayout.ObjectField(title, UnRapping<GameObject>(DataText), typeof(GameObject), true, layoutOption));
                     break;
                 }//GameObject OR Object ?
-            case SerializedPropertyType.LayerMask:
+            case TypeEnum.LayerMask:
                 {
                     DataText = Rapping(EditorGUILayout.LayerField(title, UnRapping<LayerMask>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.Enum:
+            case TypeEnum.Enum:
                 {/*
                     int LEnumIndex = UnRapping<int>(DataText);
                     var LEnum = (Enum)Enum.GetValues(LType).GetValue(LEnumIndex);//Enum
@@ -588,28 +588,28 @@ public class CollectionListProperty : PropertyDrawer
                         EditorGUILayout.LabelField("Add To Script");
                     break;
                 }
-            case SerializedPropertyType.Vector2:
+            case TypeEnum.Vector2:
                 {
                     DataText = Rapping(EditorGUILayout.Vector2Field(title, UnRapping<Vector2>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.Vector3:
+            case TypeEnum.Vector3:
                 {
                     DataText = Rapping(EditorGUILayout.Vector3Field(title, UnRapping<Vector3>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.Vector4:
+            case TypeEnum.Vector4:
                 {
                     DataText = Rapping(EditorGUILayout.Vector4Field(title, UnRapping<Vector4>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.Rect:
+            case TypeEnum.Rect:
                 {
                     DataText = Rapping(EditorGUILayout.RectField(title, UnRapping<Rect>(DataText), layoutOption));
                     break;
                 }
             #endregion
-            case SerializedPropertyType.ArraySize:
+            case TypeEnum.ArraySize:
                 {
                     //for (int i = 0; i < DataPropSlot.arraySize; i++)
                     {
@@ -619,61 +619,61 @@ public class CollectionListProperty : PropertyDrawer
                         EditorGUILayout.LabelField("Add To Script");
                     break;
                 }//-------------아직 지원X // Add To Script
-            case SerializedPropertyType.Character:
+            case TypeEnum.Character:
                 {
                     //??먼지 모르겠음
                     if (ErrorField)
                         EditorGUILayout.LabelField("Not Support");
                     break;
                 }//Not Support
-            case SerializedPropertyType.AnimationCurve:
+            case TypeEnum.AnimationCurve:
                 {
                     DataText = Rapping(EditorGUILayout.CurveField(title, UnRapping<AnimationCurve>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.Bounds:
+            case TypeEnum.Bounds:
                 {
                     DataText = Rapping(EditorGUILayout.BoundsField(title, UnRapping<Bounds>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.Gradient:
+            case TypeEnum.Gradient:
                 {
                     DataText = Rapping(EditorGUILayout.GradientField(title, UnRapping<Gradient>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.Quaternion:
+            case TypeEnum.Quaternion:
                 {
                     DataText = Rapping(EditorGUILayout.Vector4Field(title, UnRapping<Vector4>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.ExposedReference:
-            case SerializedPropertyType.FixedBufferSize:
+            case TypeEnum.ExposedReference:
+            case TypeEnum.FixedBufferSize:
                 {
                     if (ErrorField)
                         EditorGUILayout.LabelField("Not Support");
                     break;
                 }
-            case SerializedPropertyType.Vector2Int:
+            case TypeEnum.Vector2Int:
                 {
                     DataText = Rapping(EditorGUILayout.Vector2IntField(title, UnRapping<Vector2Int>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.Vector3Int:
+            case TypeEnum.Vector3Int:
                 {
                     DataText = Rapping(EditorGUILayout.Vector3IntField(title, UnRapping<Vector3Int>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.RectInt:
+            case TypeEnum.RectInt:
                 {
                     DataText = Rapping(EditorGUILayout.RectIntField(title, UnRapping<RectInt>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.BoundsInt:
+            case TypeEnum.BoundsInt:
                 {
                     DataText = Rapping(EditorGUILayout.BoundsIntField(title, UnRapping<BoundsInt>(DataText), layoutOption));
                     break;
                 }
-            case SerializedPropertyType.ManagedReference:
+            case TypeEnum.ManagedReference:
                 {
                     if (ErrorField)
                         EditorGUILayout.LabelField("Not Support");
