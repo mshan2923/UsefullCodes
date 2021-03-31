@@ -6,6 +6,7 @@ using UnityEngine;
 [System.Serializable]
 public class ObjectPoolSturt
 {
+    public string Title = "";
     public GameObject m_Preperb;
     public Queue<GameObject> PoolObject;
 
