@@ -13,14 +13,17 @@ public class ObjectPoolSturt
     [Tooltip("0 is No Limit")] //ToolTip Maximum
     public int MaximumActivePool;
     public int PoolAmount;
-    public int ActivePoolObj;
+    public int ActivePoolAmount;
+
+    public List<GameObject> ActivePoolObj = new List<GameObject>();
+
     public ObjectPoolSturt(int maxAP = -1, int poolAmount = -1, int activePoolObj = -1)
     {
         m_Preperb = null;
         PoolObject = new Queue<GameObject>();
         MaximumActivePool = maxAP;
         PoolAmount = poolAmount;
-        ActivePoolObj = activePoolObj;
+        ActivePoolAmount = activePoolObj;
     }
     public void CreateQueue()
     {
@@ -36,15 +39,17 @@ public class ObjectPoolSturt
     }
     public void Add_ActivePool(int Vaule = 1)
     {
-        ActivePoolObj += Vaule;
+        ActivePoolAmount += Vaule;
     }
 }
 
 public class ObjectPool : MonoBehaviour
 {
-    public static ObjectPool objectPool;
+    //public ObjectPool objectPool;//Remove Static
     [SerializeField]
-    public static List<GameObject> ManagmentPool = new List<GameObject>();
+    public List<GameObject> ManagmentPool = new List<GameObject>();//Remove Static
+
+    public bool SaveActiveObj = false;
 
     [SerializeField]
     public Map<ObjectPoolSturt> ArrayPool = new Map<ObjectPoolSturt>();//Map 은 IntMap에 있는 List<>를 더 편하게 쓰기위해 만듬
@@ -55,7 +60,7 @@ public class ObjectPool : MonoBehaviour
     }
     void Awake()
     {
-        objectPool = this;
+        //objectPool = this;
 
         for (int i = 0; i < ArrayPool.Length(); i++)
         {
@@ -69,7 +74,7 @@ public class ObjectPool : MonoBehaviour
             ArrayPool.Get(i).CreateQueue();
             //ArrayPool[i].PoolObject = new Queue<GameObject>();
 
-            CreatePool(i, ArrayPool.Get(i).PoolAmount);
+            //CreatePool(i, ArrayPool.Get(i).PoolAmount);
         }
     }
 
@@ -89,7 +94,7 @@ public class ObjectPool : MonoBehaviour
     {
         if (ArrayPool.Length() > index)
         {
-            for (int i = 0; i < Amount; i++)
+            for (int i = 1; i <= Amount; i++)
             {
                 GameObject SpawnedPool = Instantiate(ArrayPool.Get(index).m_Preperb, Vector3.zero, Quaternion.identity);
                 if(ArrayPool.Get(index).PoolObject == null)
@@ -118,37 +123,39 @@ public class ObjectPool : MonoBehaviour
     {
         if(ArrayPool.Length() > index)
         {
-            if(ArrayPool.Get(index).PoolObject == null)
+            var PoolData = ArrayPool.Get(index);
+            bool CanSpawn = PoolData.ActivePoolAmount < PoolData.MaximumActivePool || PoolData.MaximumActivePool <= 0;
+
+            if (PoolData.PoolObject == null)
             {
-                ArrayPool.Get(index).PoolObject = new Queue<GameObject>();//Sometime Make Null problem
+                PoolData.PoolObject = new Queue<GameObject>();//Sometime Make Null problem
             }
 
-            if(ArrayPool.Get(index).PoolObject.Count == 0 
-                && ArrayPool.Get(index).ActivePoolObj < ArrayPool.Get(index).MaximumActivePool 
-                && ArrayPool.Get(index).MaximumActivePool > 0)//Need More Object
+            if(PoolData.PoolObject.Count == 0 && CanSpawn)//Need More Object
             {
                 CreatePool(index, 1);
-                //ArrayPool.Get(index).PoolAmount++;
                 ArrayPool.Get(index).Add_PoolAmount();
-            }
-            else if(ArrayPool.Get(index).PoolObject.Count == 0 && ArrayPool.Get(index).MaximumActivePool <= 0 )//No Limit
-            {
-                CreatePool(index, 1);
-                //ArrayPool.Get(index).PoolAmount++;
-                ArrayPool.Get(index).Add_PoolAmount();
-            }
+            }//Need More Object & if No Limit
 
-            if(ArrayPool.Get(index).ActivePoolObj >= ArrayPool.Get(index).MaximumActivePool && ArrayPool.Get(index).MaximumActivePool > 0)//Over MaxiumPool
+            if (PoolData.ActivePoolAmount >= PoolData.MaximumActivePool && PoolData.MaximumActivePool > 0)
             {
                 return null;
-            }
+            }//Over MaxiumPool
 
             GameObject L_GO = ArrayPool.Get(index).PoolObject.Dequeue();
             L_GO.SetActive(true);
 
-            //ArrayPool.Get(index).ActivePoolObj++;
+
             ArrayPool.Get(index).Add_ActivePool();
-            if(L_GO == null)
+
+            {
+                if (SaveActiveObj)
+                {
+                    PoolData.ActivePoolObj.Add(L_GO);
+                }
+            }// ActivePoolObj추가
+
+            if (L_GO == null)
             {
                 if(ArrayPool.Get(index).PoolObject.Count == 0)
                 {
@@ -158,7 +165,7 @@ public class ObjectPool : MonoBehaviour
                 {
                     return ForceAddPool(index);
                 }
-            }//Queue 가 없거나 생성조건됐으나 Null 일때
+            }//Queue 가 없거나 생성조건됐으나 Null 일때// 의도치 않은 버그처리
             return L_GO;
         }else
         {
@@ -179,6 +186,13 @@ public class ObjectPool : MonoBehaviour
 
                 //ArrayPool.Get(index).ActivePoolObj--;
                 ArrayPool.Get(index).Add_ActivePool(-1);
+
+                {
+                    if (SaveActiveObj)
+                    {
+                        ArrayPool.Get(index).ActivePoolObj.Remove(L_object);
+                    }
+                }//Remove ActivePoolObject 
                 return true;
             }else
             {

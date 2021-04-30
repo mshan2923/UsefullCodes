@@ -4,16 +4,17 @@ using UnityEditor;
 using UnityEngine;
 using static VariableCollection;
 
+
+public enum TypeEnum
+{
+    Generic, Integer, Boolean, Float, String, Color, ObjectReference, LayerMask, Enum, Vector2, Vector3, Vector4,
+    Rect, ArraySize, Character, AnimationCurve, Bounds, Gradient, Quaternion, ExposedReference, FixedBufferSize,
+    Vector2Int, Vector3Int, RectInt, BoundsInt, ManagedReference
+}
+
 [System.Serializable]
 public class VariableCollection
 {
-    public enum TypeEnum
-    {
-        Generic, Integer, Boolean, Float, String, Color, ObjectReference, LayerMask, Enum, Vector2, Vector3, Vector4,
-        Rect, ArraySize, Character, AnimationCurve, Bounds, Gradient, Quaternion, ExposedReference, FixedBufferSize,
-        Vector2Int, Vector3Int, RectInt, BoundsInt, ManagedReference
-    }//Replace SerializedPropertyType for Build
-
     public static Type ConvertType(string TypeFullName)
     {
         if (string.IsNullOrEmpty(TypeFullName))

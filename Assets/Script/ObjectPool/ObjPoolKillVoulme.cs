@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ObjPoolKillVoulme : MonoBehaviour
 {
+    public ObjectPool objectPool;
     public int ObjectIndex = 0;
     void Start()
     {
@@ -19,12 +20,12 @@ public class ObjPoolKillVoulme : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         print("Trigger : " + other.gameObject);
-        ObjectPool.objectPool.ReturnPool(ObjectIndex, other.gameObject);
+        objectPool.ReturnPool(ObjectIndex, other.gameObject);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         print(collision.gameObject);
-        ObjectPool.objectPool.ReturnPool(ObjectIndex, collision.gameObject);
+        objectPool.ReturnPool(ObjectIndex, collision.gameObject);
     }
 }
