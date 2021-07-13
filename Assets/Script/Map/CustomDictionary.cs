@@ -83,7 +83,14 @@ public class Map<T>
         map.RemoveAt(index);
         return map;
     }
-
+    public int Count
+    {
+        get { return Vaule.Count; }
+    }
+    public void Clear()
+    {
+        Vaule.Clear();
+    }
 }
 
 [Serializable]
@@ -122,6 +129,12 @@ public class IntMap<T>
             return default;
         }
     }
+
+    public int Count
+    {
+        get { return Vaules.Count; }
+    }
+
     public Vaule GetKey(int Key)
     {
         if (Vaules.Exists(v => v.key == Key))
