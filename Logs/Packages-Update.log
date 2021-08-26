@@ -101,3 +101,10 @@ Update Mode: updateDependencies
 
 The following packages were 업데이트됨:
   com.unity.test-framework 1.1.24 버전에서 1.1.27버전으로
+=== Tue Aug 24 15:00:36 2021
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were 업데이트됨:
+  com.unity.collab-proxy 1.5.7 버전에서 1.7.1버전으로  com.unity.timeline 1.5.5 버전에서 1.5.6버전으로

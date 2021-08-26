@@ -911,7 +911,7 @@ public class VarCollectionProperty : PropertyDrawer
             }
         }//Set TypeEnum, DataVaule
 
-        EditorGUILayout.BeginHorizontal();
+        //EditorGUILayout.BeginHorizontal();
 
         {
             LIndented = EditorGUI.IndentedRect(position).x;
@@ -948,7 +948,7 @@ public class VarCollectionProperty : PropertyDrawer
 
         }//Update TypeProp & DataProp
 
-        EditorGUILayout.EndHorizontal();
+        //EditorGUILayout.EndHorizontal();
 
         if (NeedExpand)
         {

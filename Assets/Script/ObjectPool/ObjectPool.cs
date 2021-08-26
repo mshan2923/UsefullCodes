@@ -62,14 +62,14 @@ public class ObjectPool : MonoBehaviour
     {
         //objectPool = this;
 
-        for (int i = 0; i < ArrayPool.Length(); i++)
+        for (int i = 0; i < ArrayPool.Length; i++)
         {
             ManagmentPool.Add(null);
         }
     }
     private void Start()
     {
-        for (int i = 0; i < ArrayPool.Length(); i++)
+        for (int i = 0; i < ArrayPool.Length; i++)
         {
             ArrayPool.Get(i).CreateQueue();
             //ArrayPool[i].PoolObject = new Queue<GameObject>();
@@ -92,7 +92,7 @@ public class ObjectPool : MonoBehaviour
 
     public void CreatePool(int index , int Amount)
     {
-        if (ArrayPool.Length() > index)
+        if (ArrayPool.Length> index)
         {
             for (int i = 1; i <= Amount; i++)
             {
@@ -121,7 +121,7 @@ public class ObjectPool : MonoBehaviour
 
     public GameObject GetPool(int index)
     {
-        if(ArrayPool.Length() > index)
+        if(ArrayPool.Length> index)
         {
             var PoolData = ArrayPool.Get(index);
             bool CanSpawn = PoolData.ActivePoolAmount < PoolData.MaximumActivePool || PoolData.MaximumActivePool <= 0;
@@ -175,7 +175,7 @@ public class ObjectPool : MonoBehaviour
 
     public bool ReturnPool(int index, GameObject L_object)//인덱스를 제거후 instanceID로 찾고 반환
     {
-        if (ArrayPool.Length() > index)
+        if (ArrayPool.Length> index)
         {
             if (ArrayPool.Get(index).m_Preperb.GetType() == L_object.GetType() && L_object.activeSelf)
             {

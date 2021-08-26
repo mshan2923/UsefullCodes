@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.5748172, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -154,6 +154,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IntMap:
     Vaules: []
+  Map:
+    Vaule:
+    - 
+  Map_KV:
+    Key:
+    - Data: '{"data":{"x":0.0,"y":0.0,"z":0.0,"w":0.0}}'
+      DataType: 
+    Vaule:
+    - 0
+  GroupMap:
+    Key:
+    - 
+    Vaule: 00000000
+    SortList:
+      Key: 00000000
+      Vaule:
+      - Vaule: 00000000
 --- !u!4 &2670898
 Transform:
   m_ObjectHideFlags: 0

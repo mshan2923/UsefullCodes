@@ -9,9 +9,9 @@ namespace Expand
 {
     public static class EditorExpand
     {
-        public static Rect NextLine(Rect Pos, Rect DrawRect, int LineHeight = 20)
+        public static Rect NextLine(Rect Pos, Rect DrawRect, float Offset = 0, int LineHeight = 20)
         {
-            return new Rect(Pos.x, (DrawRect.y + LineHeight), Pos.width, LineHeight);
+            return new Rect(Pos.x + Offset, (DrawRect.y + LineHeight), Pos.width - Offset, LineHeight);
         }
         public static Rect GetNextSpace(Rect Pos, Rect DrawRect, float width, float PreWidth = 0, bool LineFirst = false, int LineHeight = 20)
         {
