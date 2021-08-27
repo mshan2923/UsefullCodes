@@ -736,13 +736,13 @@ public class GroupMapEditor : PropertyDrawer
                                 break;
                             }
 
-                            DrawRect = EditorExpand.InputField(position, DrawRect, key.GetArrayElementAtIndex(Lindex), "", 2);
+                            DrawRect = EditorExpand.PropertyField(position, DrawRect, key.GetArrayElementAtIndex(Lindex), (i + " - " + j + " "), 2);
 
                             int temp = vaule.GetArrayElementAtIndex(Lindex).intValue;
                             DrawRect = EditorExpand.RateRect(position, DrawRect, 1, 2, (SlotOffset * 2), 20);
 
                             Rect TempRect = new Rect(position.x, position.y, position.width - RemoveButton * 2, position.height);
-                            DrawRect = EditorExpand.InputField(TempRect, DrawRect, vaule.GetArrayElementAtIndex(Lindex), "", 2);
+                            DrawRect = EditorExpand.PropertyField(TempRect, DrawRect, vaule.GetArrayElementAtIndex(Lindex), "", 2);
 
                             DrawRect = new Rect(DrawRect.x, DrawRect.y, RemoveButton, DrawRect.height);
                             if (GUI.Button(DrawRect, " - "))

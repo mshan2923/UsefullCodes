@@ -46,6 +46,7 @@ namespace Expand
             return new Rect(LdrawRect.x + Size, LdrawRect.y, Size, LdrawRect.height);
         }
 
+        [System.Obsolete("Use PropertyField insteed(Replaced)")]        //Not Work Rect, Bound , Gradient , Not Recommand Use 
         public static Rect InputField(Rect pos, Rect DrawRect, SerializedProperty property, string Text, int LineAmount, float Space = 0, bool ResizedText = true)
         {
             EditorGUI.indentLevel = 0;
@@ -68,123 +69,163 @@ namespace Expand
             }
 
             LRect = GetNextSpace(pos, LRect, InputWidth);
-            switch (VariableCollection.ConvertTypeEnum(PropertyTypeToType(property.type).Name))
             {
-                case TypeEnum.Generic:
-                    EditorGUI.LabelField(LRect, "Not Surpport");
-                    break;
-                case TypeEnum.Integer:
-                    property.intValue = EditorGUI.IntField(LRect, property.intValue);
-                    break;
-                case TypeEnum.Boolean:
-                    property.boolValue = EditorGUI.Toggle(LRect, property.boolValue);
-                    break;
-                case TypeEnum.Float:
-                    property.floatValue = EditorGUI.FloatField(LRect, property.floatValue);
-                    break;
-                case TypeEnum.String:
-                    property.stringValue = EditorGUI.TextField(LRect, property.stringValue);
-                    break;
-                case TypeEnum.Color:
-                    property.colorValue = EditorGUI.ColorField(LRect, property.colorValue);
-                    break;
-                case TypeEnum.ObjectReference:
-                    property.objectReferenceValue = EditorGUI.ObjectField(LRect, property.objectReferenceValue, typeof(GameObject), true);
-                    break;
-                case TypeEnum.LayerMask:
+                System.Type Ltype = PropertyTypeToType(property.type);
+                if (Ltype == null)
+                {
+                    EditorGUI.LabelField(LRect, (property.type.ToString() + " is Not Surpport"));
+                }
+                else
+                {
+                    switch (VariableCollection.ConvertTypeEnum(Ltype.Name))
                     {
-                        if (property.type == "int" || property.type == "LayerMask")
-                        {
-                            property.intValue = LayerMaskField(LRect, "", property.intValue);
-                        }
-                        else
-                        {
-                            EditorGUI.LabelField(LRect, "Surpport type is 'int' OR 'LayerMask'  - " + property.type);
-                        }
-                        break;
-                    }
-                case TypeEnum.Enum:
-                    EditorGUI.LabelField(LRect, "Not Surpport");
-                    break;
-                case TypeEnum.Vector2:
-                    property.vector2Value = EditorGUI.Vector2Field(LRect, "", property.vector2Value);
-                    break;
-                case TypeEnum.Vector3:
-                    property.vector3Value = EditorGUI.Vector3Field(LRect, "", property.vector3Value);
-                    break;
-                case TypeEnum.Vector4:
-                    property.vector4Value = EditorGUI.Vector4Field(LRect, "", property.vector4Value);
-                    break;
-                case TypeEnum.Rect:
-                    {
+                        case TypeEnum.Generic:
+                            EditorGUI.LabelField(LRect, "Not Surpport");
+                            break;
+                        case TypeEnum.Integer:
+                            property.intValue = EditorGUI.IntField(LRect, property.intValue);
+                            break;
+                        case TypeEnum.Boolean:
+                            property.boolValue = EditorGUI.Toggle(LRect, property.boolValue);
+                            break;
+                        case TypeEnum.Float:
+                            property.floatValue = EditorGUI.FloatField(LRect, property.floatValue);
+                            break;
+                        case TypeEnum.String:
+                            property.stringValue = EditorGUI.TextField(LRect, property.stringValue);
+                            break;
+                        case TypeEnum.Color:
+                            property.colorValue = EditorGUI.ColorField(LRect, property.colorValue);
+                            break;
+                        case TypeEnum.ObjectReference:
+                            property.objectReferenceValue = EditorGUI.ObjectField(LRect, property.objectReferenceValue, typeof(GameObject), true);
+                            break;
+                        case TypeEnum.LayerMask:
+                            {
+                                if (property.type == "int" || property.type == "LayerMask")
+                                {
+                                    property.intValue = LayerMaskField(LRect, "", property.intValue);
+                                }
+                                else
+                                {
+                                    EditorGUI.LabelField(LRect, "Surpport type is 'int' OR 'LayerMask'  - " + property.type);
+                                }
+                                break;
+                            }
+                        case TypeEnum.Enum:
+                            EditorGUI.LabelField(LRect, "Not Surpport");
+                            break;
+                        case TypeEnum.Vector2:
+                            property.vector2Value = EditorGUI.Vector2Field(LRect, "", property.vector2Value);
+                            break;
+                        case TypeEnum.Vector3:
+                            property.vector3Value = EditorGUI.Vector3Field(LRect, "", property.vector3Value);
+                            break;
+                        case TypeEnum.Vector4:
+                            property.vector4Value = EditorGUI.Vector4Field(LRect, "", property.vector4Value);
+                            break;
+                        case TypeEnum.Rect:
+                            {
 
-                    }
-                    break;
-                case TypeEnum.ArraySize:
-                    EditorGUI.LabelField(LRect, "Not Surpport");
-                    break;
-                case TypeEnum.Character:
-                    EditorGUI.LabelField(LRect, "Not Surpport");
-                    break;
-                case TypeEnum.AnimationCurve:
-                    property.animationCurveValue = EditorGUI.CurveField(LRect, property.animationCurveValue);
-                    break;
-                case TypeEnum.Bounds:
-                    {
+                            }
+                            break;
+                        case TypeEnum.ArraySize:
+                            EditorGUI.LabelField(LRect, "Not Surpport");
+                            break;
+                        case TypeEnum.Character:
+                            EditorGUI.LabelField(LRect, "Not Surpport");
+                            break;
+                        case TypeEnum.AnimationCurve:
+                            property.animationCurveValue = EditorGUI.CurveField(LRect, property.animationCurveValue);
+                            break;
+                        case TypeEnum.Bounds:
+                            {
 
-                    }
-                    break;
-                case TypeEnum.Gradient:
-                    //property.animationCurveValue = EditorGUI.GradientField(,);
-                    EditorGUI.LabelField(LRect, "Not Surpport");
-                    break;
-                case TypeEnum.Quaternion:
-                    {
-                        Rect LinputRec = new Rect(LRect.x + 50, LRect.y, LRect.width - 50, LRect.height);
-                        Rect Lbutton = new Rect(LRect.x, LRect.y, 50, LRect.height);
+                            }
+                            break;
+                        case TypeEnum.Gradient:
+                            //property.animationCurveValue = EditorGUI.GradientField(,);
+                            EditorGUI.LabelField(LRect, "Not Surpport");
+                            break;
+                        case TypeEnum.Quaternion:
+                            {
+                                Rect LinputRec = new Rect(LRect.x + 50, LRect.y, LRect.width - 50, LRect.height);
+                                Rect Lbutton = new Rect(LRect.x, LRect.y, 50, LRect.height);
 
-                        if (GUI.RepeatButton(Lbutton, "Euler"))
-                        {
-                            EditorGUI.Vector3Field(LinputRec, "", property.quaternionValue.eulerAngles);
-                        }
-                        else
-                        {
-                            Quaternion Lquater = property.quaternionValue;
-                            Vector4 LReceive = EditorGUI.Vector4Field(LinputRec, "", new Vector4(Lquater.x, Lquater.y, Lquater.z, Lquater.w));
-                            property.quaternionValue = new Quaternion(LReceive.x, LReceive.y, LReceive.z, LReceive.w);
-                        }
-                    }
-                    break;
-                case TypeEnum.ExposedReference:
-                    EditorGUI.LabelField(LRect, "Not Surpport");
-                    break;
-                case TypeEnum.FixedBufferSize:
-                    EditorGUI.LabelField(LRect, "Not Surpport");
-                    break;
-                case TypeEnum.Vector2Int:
-                    property.vector2IntValue = EditorGUI.Vector2IntField(LRect, "", property.vector2IntValue);
-                    break;
-                case TypeEnum.Vector3Int:
-                    property.vector3IntValue = EditorGUI.Vector3IntField(LRect, "", property.vector3IntValue);
-                    break;
-                case TypeEnum.RectInt:
-                    {
+                                if (GUI.RepeatButton(Lbutton, "Euler"))
+                                {
+                                    EditorGUI.Vector3Field(LinputRec, "", property.quaternionValue.eulerAngles);
+                                }
+                                else
+                                {
+                                    Quaternion Lquater = property.quaternionValue;
+                                    Vector4 LReceive = EditorGUI.Vector4Field(LinputRec, "", new Vector4(Lquater.x, Lquater.y, Lquater.z, Lquater.w));
+                                    property.quaternionValue = new Quaternion(LReceive.x, LReceive.y, LReceive.z, LReceive.w);
+                                }
+                            }
+                            break;
+                        case TypeEnum.ExposedReference:
+                            EditorGUI.LabelField(LRect, "Not Surpport");
+                            break;
+                        case TypeEnum.FixedBufferSize:
+                            EditorGUI.LabelField(LRect, "Not Surpport");
+                            break;
+                        case TypeEnum.Vector2Int:
+                            property.vector2IntValue = EditorGUI.Vector2IntField(LRect, "", property.vector2IntValue);
+                            break;
+                        case TypeEnum.Vector3Int:
+                            property.vector3IntValue = EditorGUI.Vector3IntField(LRect, "", property.vector3IntValue);
+                            break;
+                        case TypeEnum.RectInt:
+                            {
 
-                        //EditorGUI.MaskField();
-                    }
-                    break;
-                case TypeEnum.BoundsInt:
-                    {
+                                //EditorGUI.MaskField();
+                            }
+                            break;
+                        case TypeEnum.BoundsInt:
+                            {
 
+                            }
+                            break;
+                        case TypeEnum.ManagedReference:
+                            EditorGUI.LabelField(LRect, "Not Surpport");
+                            break;
+                        default:
+                            break;
                     }
-                    break;
-                case TypeEnum.ManagedReference:
-                    EditorGUI.LabelField(LRect, "Not Surpport");
-                    break;
+                }
             }
             LRect = GetNextSpace(pos, LRect, 0, InputWidth);
             return LRect;
-        }//Not Work Rect, Bound , Gradient
+        }
+        public static Rect PropertyField(Rect pos, Rect DrawRect, SerializedProperty Property, string Text, int LineAmount, float Space = 0, bool ResizedText = true)
+        {
+            EditorGUI.indentLevel = 0;
+            Rect LRect = new Rect(DrawRect.x + Space, DrawRect.y, DrawRect.width - Space, DrawRect.height);
+
+            float InputWidth = 0;
+            if (ResizedText)
+            {
+                LRect = ResizedLabel(pos, LRect, Text);
+
+                InputWidth = Mathf.Max(0, (((pos.width) / LineAmount) - LRect.width));
+            }
+            else
+            {
+                Rect TextRect = new Rect(LRect.x, LRect.y, ((pos.width) / LineAmount * 0.5f), LRect.height);
+                EditorGUI.LabelField(TextRect, Text);
+
+                InputWidth = TextRect.width;
+                LRect = new Rect(TextRect.x + TextRect.width, LRect.y, TextRect.width, LRect.height);
+            }
+
+            LRect = GetNextSpace(pos, LRect, InputWidth);
+
+            EditorGUI.PropertyField(LRect, Property, GUIContent.none);
+
+            LRect = GetNextSpace(pos, LRect, 0, InputWidth);
+            return LRect;
+        }
         public static int LayerMaskField(Rect pos, string label, int Layers, float Space = 0)
         {
             {/*
@@ -404,14 +445,14 @@ namespace Expand
                 EditorGUI.HelpBox(DrawRect, Text, MessageType.None);
                 DrawRect = EditorExpand.NextLine(position, DrawRect);
                 TypeEnum Ltype = VariableCollection.ConvertTypeEnum(EditorExpand.PropertyTypeToType(property.type).Name);
-                EditorExpand.InputField(position, DrawRect, property, property.displayName, 1);
+                EditorExpand.PropertyField(position, DrawRect, property, property.displayName, 1);
             }
             else
             {
                 EditorGUI.LabelField(DrawRect, Text);
                 DrawRect = EditorExpand.NextLine(position, DrawRect);
                 TypeEnum Ltype = VariableCollection.ConvertTypeEnum(EditorExpand.PropertyTypeToType(property.type).Name);
-                EditorExpand.InputField(position, DrawRect, property, property.displayName, 1);
+                EditorExpand.PropertyField(position, DrawRect, property, property.displayName, 1);
             }
         }
     }//[AttributeLabel("Testing", true, true)]
@@ -479,7 +520,7 @@ namespace Expand
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             attributeField = (AttributeField)attribute;
-            position = EditorExpand.InputField(position, position, property, property.displayName, 1, attributeField.Space);
+            position = EditorExpand.PropertyField(position, position, property, property.displayName, 1, attributeField.Space);
         }
     }//[AttributeField("Testing",TypeEnum.LayerMask)]
     #endregion AttributeField
@@ -513,7 +554,7 @@ namespace Expand
             string[] BasePath = attributeHorizontal.BasePath;
             string[] Paths = attributeHorizontal.Paths;
             DrawRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
-            DrawRect = EditorExpand.InputField(position, DrawRect, property, property.displayName, (Paths.Length + 1));
+            DrawRect = EditorExpand.PropertyField(position, DrawRect, property, property.displayName, (Paths.Length + 1));
 
             if (BasePath.Length > 0)
             {
@@ -532,7 +573,7 @@ namespace Expand
                 for (int i = 0; i < Paths.Length; i++)
                 {
                     var Lproperty = BaseProperty.FindPropertyRelative(Paths[i]);//먼저 BasePath에 접근
-                    DrawRect = EditorExpand.InputField(position, DrawRect, Lproperty, Lproperty.displayName, (Paths.Length + 1));
+                    DrawRect = EditorExpand.PropertyField(position, DrawRect, Lproperty, Lproperty.displayName, (Paths.Length + 1));
                 }
             }
         }
