@@ -253,32 +253,51 @@ public class IntMap<T>
 [Serializable]
 public class Map<T, V>
 {
+    [Serializable]
+    public struct MapSlot
+    {
+        public T Key;
+        public V Vaule;
+    }
     [SerializeField]
-    List<T> Key = new List<T>();
-    [SerializeField]
-    List<V> Vaule = new List<V>();
+    private List<MapSlot> Slots = new List<MapSlot>();
+    //[SerializeField]
+    //List<T> Key = new List<T>();
+    //[SerializeField]
+    //List<V> Vaule = new List<V>();
 
     public Map()
     {
-        Key = new List<T>();
-        Vaule = new List<V>();
+        //Key = new List<T>();
+        //Vaule = new List<V>();
+        Slots = new List<MapSlot>();
     }
     public void Clear()
     {
-        Key.Clear();
-        Vaule.Clear();
+        Slots.Clear();
+        //Key.Clear();
+        //Vaule.Clear();
     }
     public void Add(T key, V vaule)
     {
-        Key.Add(key);
-        Vaule.Add(vaule);
+        //Key.Add(key);
+        //Vaule.Add(vaule);
+        Slots.Add(new MapSlot { Key = key, Vaule = vaule});
     }
     public bool Remove(int i)
     {
+        /*
         if (i >= 0 && i < Key.Count)
         {
             Key.RemoveAt(i);
             Vaule.RemoveAt(i);
+
+            return true;
+        }
+        return false;*/
+        if (i >= 0 && i < Slots.Count)
+        {
+            Slots.RemoveAt(i);
 
             return true;
         }
@@ -287,28 +306,50 @@ public class Map<T, V>
 
     public int Count
     {
-        get { return Key.Count; }
+        //get { return Key.Count; }
+        get { return Slots.Count; }
     }
-
+    public List<MapSlot> Get()
+    {
+        return Slots;
+    }
     public List<T> GetKey()
     {
-        return Key;
+        //return Key;
+        List<T> result = new List<T>();
+
+        for (int i = 0; i < Slots.Count; i++)
+        {
+            result.Add(Slots[i].Key);
+        }
+        return result;
     }
     public T GetKey(int index)
     {
-        return Key[index];
+        //return Key[index];
+        return Slots[index].Key;
     }
     public List<V> GetVaule()
     {
-        return Vaule;
+        //return Vaule;
+
+        List<V> result = new List<V>();
+
+        for (int i = 0; i < Slots.Count; i++)
+        {
+            result.Add(Slots[i].Vaule);
+        }
+        return result;
     }
     public V GetVaule(int index)
     {
-        return Vaule[index];
+        //return Vaule[index];
+        return Slots[index].Vaule;
     }
 
     public bool SetKey(int index, T key)
     {
+        /*
         if (index >= 0 && index < Key.Count)
         {
             Key[index] = key;
@@ -316,10 +357,23 @@ public class Map<T, V>
         }else
         {
             return false;
+        }*/
+
+        if (index >= 0 && index < Slots.Count)
+        {
+            MapSlot temp = Slots[index];
+            temp.Key = key;
+            Slots[index] = temp;
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
     public bool SetVaule(int index, V vaule)
     {
+        /*
         if (index >= 0 && index < Vaule.Count)
         {
             Vaule[index] = vaule;
@@ -327,13 +381,21 @@ public class Map<T, V>
         }else
         {
             return false;
+        }*/
+
+        if (index >= 0 && index < Slots.Count)
+        {
+            MapSlot temp = Slots[index];
+            temp.Vaule = vaule;
+            Slots[index] = temp;
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
-    public static int ArraySize(SerializedProperty property)
-    {
-        return property.FindPropertyRelative("Key").arraySize;
-    }
 }
 
 [Serializable]
@@ -572,7 +634,7 @@ public class IntMapEditor : PropertyDrawer
         }
     }
 }
-[CustomPropertyDrawer(typeof(Map<,>))]
+//[CustomPropertyDrawer(typeof(Map<,>))]
 public class MapEditor_KV : PropertyDrawer
 {
     Rect DrawRect;
@@ -636,6 +698,56 @@ public class MapEditor_KV : PropertyDrawer
                 }
             }
 
+        }
+    }
+}
+
+[CustomPropertyDrawer(typeof(Map<,>.MapSlot))]
+public class MapSlotEditor : PropertyDrawer
+{
+    Rect DrawRect;
+
+    SerializedProperty key;
+    SerializedProperty vaule;
+
+    float SlotOffset = 10f;
+
+    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+    {
+        key = property.FindPropertyRelative("Key");
+        vaule = property.FindPropertyRelative("Vaule");
+        if(LargeProperty(key.propertyType.ToString()) || LargeProperty(vaule.propertyType.ToString()))
+        {
+            return 40;
+        }
+
+        return 20;
+    }
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        DrawRect = new Rect(position.x, position.y, position.width, 20);
+        key = property.FindPropertyRelative("Key");
+        vaule = property.FindPropertyRelative("Vaule");
+
+        DrawRect = EditorExpand.RateRect(position, DrawRect, 0, 2, SlotOffset, 20);
+        EditorGUI.PropertyField(DrawRect, key, new GUIContent { text = "" });
+        DrawRect = EditorExpand.RateRect(position, DrawRect, 1, 2, SlotOffset, 20);
+        EditorGUI.PropertyField(DrawRect, vaule, new GUIContent { text = "" });
+    }
+
+    public bool LargeProperty(string name)
+    {
+        switch (name)
+        {
+
+            case "Rect":
+            case "Bounds":
+            case "Quaternion":
+            case "RectInt":
+            case "BoundsInt":
+                return true;
+            default:
+                return false;
         }
     }
 }

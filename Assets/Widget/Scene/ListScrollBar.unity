@@ -639,8 +639,10 @@ MonoBehaviour:
   Content: {fileID: 1134291829}
   Vertical: 1
   ScrollList:
-    Key: []
-    Vaule: []
+    Slots: []
+  ListPadding: 0.5
+  SlotStretch: 1
+  SlotPadding: 0.5
   StartSpace: 1
   BetweenSpace: 10
   AutoScrollToChange: 0
@@ -2071,7 +2073,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 800162680}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.99999136
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2267,7 +2269,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.0008544922, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!1 &1477146679
@@ -2343,8 +2345,10 @@ MonoBehaviour:
   Content: {fileID: 1413082787}
   Vertical: 0
   ScrollList:
-    Key: []
-    Vaule: []
+    Slots: []
+  ListPadding: 0.5
+  SlotStretch: 1
+  SlotPadding: 0.5
   StartSpace: 0
   BetweenSpace: 10
   AutoScrollToChange: 1
