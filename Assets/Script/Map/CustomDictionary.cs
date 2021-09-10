@@ -565,7 +565,7 @@ public class MapEditor : PropertyDrawer
         }
     }
 }
-[CustomPropertyDrawer(typeof(IntMap<>))]
+//[CustomPropertyDrawer(typeof(IntMap<>))]
 public class IntMapEditor : PropertyDrawer
 {
     Rect DrawRect;
@@ -634,6 +634,56 @@ public class IntMapEditor : PropertyDrawer
         }
     }
 }
+
+[CustomPropertyDrawer(typeof(IntMap<>.Vaule))]
+public class IntMapSlotEditor : PropertyDrawer
+{
+    Rect DrawRect;
+
+    SerializedProperty key;
+    SerializedProperty vaule;
+
+    float SlotOffset = 10f;
+
+    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+    {
+        vaule = property.FindPropertyRelative("vaule");
+        if (LargeProperty(vaule.propertyType.ToString()))
+        {
+            return 40;
+        }
+
+        return 20;
+    }
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        DrawRect = new Rect(position.x, position.y, position.width, 20);
+        key = property.FindPropertyRelative("key");
+        vaule = property.FindPropertyRelative("vaule");
+
+        DrawRect = EditorExpand.RateRect(position, DrawRect, 0, 2, SlotOffset, 20);
+        EditorGUI.PropertyField(DrawRect, key, new GUIContent { text = "" });
+        DrawRect = EditorExpand.RateRect(position, DrawRect, 1, 2, SlotOffset, 20);
+        EditorGUI.PropertyField(DrawRect, vaule, new GUIContent { text = "" });
+    }
+
+    public bool LargeProperty(string name)
+    {
+        switch (name)
+        {
+
+            case "Rect":
+            case "Bounds":
+            case "Quaternion":
+            case "RectInt":
+            case "BoundsInt":
+                return true;
+            default:
+                return false;
+        }
+    }
+}
+
 //[CustomPropertyDrawer(typeof(Map<,>))]
 public class MapEditor_KV : PropertyDrawer
 {

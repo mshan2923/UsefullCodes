@@ -6,12 +6,25 @@ using UnityEngine.UI;
 [RequireComponent(typeof(ScrollRect))]
 public class ListScroll : MonoBehaviour
 {
+    public struct FoldSlotData
+    {
+        public float TitileSize;
+        public float ContentSize;
+        public bool IsOpen;
+    }
+
+
     public GameObject Content;
     ScrollRect scroll;
     public bool Vertical = true;
 
     [Space(10)]
     public Map<GameObject, float> ScrollList = new Map<GameObject, float>();
+    Map<int, FoldSlotData> FoldData = new Map<int, FoldSlotData>();
+    public FoldPanel FoldSlotObject;
+
+    [Space(5)]
+    public float SlotSize = 50f;// disable to use SlotStretch
     public float ListPadding = 0.5f;
     public bool SlotStretch = true;
     public float SlotPadding = 0.5f;
@@ -24,23 +37,28 @@ public class ListScroll : MonoBehaviour
     [SerializeField]
     float ScrollEndVaule = 0;
 
+
     void Start()
     {
         scroll = gameObject.GetComponent<ScrollRect>();
 
-        //====content 높이 작게 , 정렬
         var contentRect = Content.GetComponent<RectTransform>();
         if (Vertical)
         {
+            SetPadding(contentRect, contentRect.offsetMin.x, 0, contentRect.offsetMax.x, 0);
+
             contentRect.anchorMin = new Vector2(0, ListPadding);
             contentRect.anchorMax = new Vector2(1, ListPadding);
             contentRect.pivot = new Vector2(0.5f, ListPadding);// ListPadding : 0.5 =>Middle Stretch
         }else
         {
+            SetPadding(contentRect, 0, -contentRect.offsetMax.y, 0, -contentRect.offsetMin.y);
+
+
             contentRect.anchorMin = new Vector2(ListPadding, 0);
             contentRect.anchorMax = new Vector2(ListPadding, 1);
             contentRect.pivot = new Vector2(ListPadding, 0.5f);// ListPadding : 0.5 =>Center Stretch
-        }
+        }//content 높이 작게 , 정렬
     }
 
     public void SetPadding( RectTransform rect, float horizontal, float vertical)
@@ -53,7 +71,8 @@ public class ListScroll : MonoBehaviour
     {
         rect.offsetMax = new Vector2(-right, -top);
         rect.offsetMin = new Vector2(left, bottom);
-    }//Template --> SetPadding(Temp, Temp.offsetMin.x, -Temp.offsetMax.y, Temp.offsetMax.x, -Temp.offsetMin.y);
+    }
+    //Template --> SetPadding(Temp, Temp.offsetMin.x, -Temp.offsetMax.y, -Temp.offsetMax.x, -Temp.offsetMin.y);
 
     public void Set(GameObject obj)
     {
@@ -79,7 +98,7 @@ public class ListScroll : MonoBehaviour
                     }
                     else
                     {
-                        scrollWidth = Temp.rect.width;
+                        scrollWidth = SlotSize;
                         Temp.anchorMin = new Vector2(SlotPadding, 1);
                         Temp.anchorMax = new Vector2(0.5f, 1);
                         Temp.pivot = new Vector2(0.5f, 1);// SlotPadding : 0.5 =>Top Center
@@ -105,7 +124,7 @@ public class ListScroll : MonoBehaviour
                     }
                     else
                     {
-                        ScrollHeight = Temp.rect.height;
+                        ScrollHeight = SlotSize;
                         Temp.anchorMin = new Vector2(0, SlotPadding);
                         Temp.anchorMax = new Vector2(0, SlotPadding);
                         Temp.pivot = new Vector2(0, 0.5f);// SlotPadding : 0.5 =>Middle Left
@@ -126,7 +145,7 @@ public class ListScroll : MonoBehaviour
 
         if (ScrollList.Count == 0 && StartSpace)
         {
-            ScrollEndVaule += BetweenSpace;
+            ScrollEndVaule = BetweenSpace;
         }
 
         Set(obj);
@@ -158,10 +177,46 @@ public class ListScroll : MonoBehaviour
     }
     public void AddEmptySpace(float SpaceSize)
     {
-        ScrollList.Add(null, SpaceSize);
+        if (ScrollList.Count > 0)
+        {
+            if (ScrollList.GetKey(ScrollList.Count - 1) == null)
+            {
+                ScrollList.SetVaule(ScrollList.Count - 1, ScrollList.GetVaule(ScrollList.Count - 1) + SpaceSize);
+            }
+            else
+            {
+                ScrollList.Add(null, SpaceSize);
+            }
+        }else
+        {
+            ScrollList.Add(null, SpaceSize);
+        }
 
         ScrollEndVaule += SpaceSize;
     }
+    public void AddFold(float titileSize, float contentSize, bool isOpen = false)
+    {
+        var obj = GameObject.Instantiate(FoldSlotObject);
+        obj.TitleSize = titileSize;
+        obj.ContentSize = contentSize;
+        obj.SetOpen(isOpen);
+
+
+        var objRect = obj.gameObject.GetComponent<RectTransform>();
+        objRect.sizeDelta = new Vector2(objRect.sizeDelta.x, (isOpen ? (titileSize + contentSize) : titileSize));
+
+
+        var slotData = new FoldSlotData
+        {
+            TitileSize = titileSize,
+            ContentSize = (titileSize + contentSize),
+            IsOpen = isOpen
+        };
+        FoldData.Add(ScrollList.Count, slotData);
+        Add(obj.gameObject);
+        obj.OpenEvnet += new FoldPanel.OpenDelegate(OpenEvent);
+    }
+    //AddFoldSlot , RemoveFoldSlot
 
     public void Remove(int index, bool destroy = true)
     {
@@ -172,15 +227,10 @@ public class ListScroll : MonoBehaviour
 
         var Lobj = ScrollList.GetKey(index);
 
-
-        ScrollList.Remove(index);
-
         if (Lobj != null)
         {
-            if (destroy)
-            {
-                GameObject.Destroy(Lobj);
-            }
+
+            RemoveAnimationEvent(Lobj, destroy);
 
             var contentRect = Content.GetComponent<RectTransform>();
 
@@ -210,8 +260,38 @@ public class ListScroll : MonoBehaviour
                 }
 
             }
+
+            {
+                if (FoldData.GetKey().Exists(t => t == index))
+                {
+                    {
+                        for (int i = 0; i < ScrollList.GetKey(index).transform.childCount; i++)
+                        {
+                            //if (destroy)
+                            //GameObject.Destroy(ScrollList.GetKey(index).transform.GetChild(i).gameObject);
+                            RemoveAnimationEvent(ScrollList.GetKey(index).transform.GetChild(i).gameObject, destroy);
+                        }
+                    }//자식 제거
+                    
+                    FoldData.Remove(index);
+                }//Remove
+
+                for (int i = 0; i < FoldData.Count; i++)
+                {
+                    if (FoldData.GetKey(i) > index)
+                    {
+                        FoldData.SetKey(i, FoldData.GetKey(i) - 1);
+                    }
+                }
+            }//Change ExpandSlots SlotIndex
+        }else
+        {
+            ScrollEndVaule -= ScrollList.GetVaule(index);
         }
-    }
+
+        ScrollList.Remove(index);
+        RePosition();
+    }//ExpandSlots SlotIndex 변경 (제거대상, 인덱스 변경 유무) , 자식도 같이 제거
     public bool Remove(GameObject obj, bool destroy = true)
     {
         int Lindex = ScrollList.GetKey().FindIndex(t => t == obj);
@@ -225,6 +305,13 @@ public class ListScroll : MonoBehaviour
             return false;
         }
     }
+    public virtual void RemoveAnimationEvent(GameObject Obj, bool destory)
+    {
+        if (destory)
+        {
+            GameObject.Destroy(Obj);
+        }
+    }//기본값 - GameObject.Destory
 
     public void RePosition()
     {
@@ -266,7 +353,8 @@ public class ListScroll : MonoBehaviour
                     ScrollList.SetVaule(i, objRect.rect.height);
                     ScrollEndVaule += (objRect.rect.height + BetweenSpace);
 
-                    SetPadding(contentRect, contentRect.offsetMin.x, -contentRect.offsetMax.y, contentRect.offsetMax.x, (-ScrollEndVaule + contentRect.offsetMax.y));
+                    //SetPadding(contentRect, contentRect.offsetMin.x, -contentRect.offsetMax.y, contentRect.offsetMax.x, (-ScrollEndVaule + contentRect.offsetMax.y));
+                    contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, ScrollEndVaule);
 
                     if (AutoScrollToChange)
                     {
@@ -279,7 +367,8 @@ public class ListScroll : MonoBehaviour
                     ScrollList.SetVaule(i, objRect.rect.width);
                     ScrollEndVaule += (objRect.rect.width + BetweenSpace);
 
-                    SetPadding(contentRect, contentRect.offsetMin.x, -contentRect.offsetMax.y, (-contentRect.offsetMin.x - ScrollEndVaule), -contentRect.offsetMin.y);
+                    //SetPadding(contentRect, contentRect.offsetMin.x, -contentRect.offsetMax.y, (-contentRect.offsetMin.x - ScrollEndVaule), -contentRect.offsetMin.y);
+                    contentRect.sizeDelta = new Vector2(ScrollEndVaule, contentRect.sizeDelta.y);
 
                     if (AutoScrollToChange)//scroll.verticalScrollbar.IsActive() &&
                     {
@@ -288,9 +377,51 @@ public class ListScroll : MonoBehaviour
                 }
             }
         }
+    }//ExpandSlot 인지 검사후 크기조절후 자식오브젝트 (비)활성화 + 슬롯 크기 X?
+
+    public void OpenEvent(GameObject obj, bool Open)
+    {
+        int Lindex = ScrollList.GetKey().FindIndex(t => t == obj);
+
+        if (Lindex >= 0)
+        {
+            if (FoldData.GetKey().Exists(t => t == Lindex))
+            {
+                var temp = FoldData.GetVaule(FoldData.GetKey().FindIndex(v => v == Lindex));
+                temp.IsOpen = Open;
+                FoldData.SetVaule(Lindex, temp);
+            }
+
+            //ScrollList.GetKey(Lindex).transform.GetChild
+
+            RePosition();
+        }
     }
+    public void SetOpen(GameObject obj, bool Open)
+    {
+        int Lindex = ScrollList.GetKey().FindIndex(t => t == obj);
+
+        if (Lindex >= 0)
+        {
+            var foldObj = obj.GetComponent<FoldPanel>();
+            if (FoldData.GetKey().Exists(t => t == Lindex) && foldObj != null)
+            {
+                var temp = FoldData.GetVaule(FoldData.GetKey().FindIndex(v => v == Lindex));
+                temp.IsOpen = Open;
+                FoldData.SetVaule(Lindex, temp);
+
+                foldObj.SetOpen(Open);
+            }
+
+            //ScrollList.GetKey(Lindex).transform.GetChild
+
+            RePosition();
+        }
+    }
+
 }
 
+#if UNITY_EDITOR
 [UnityEditor.CustomEditor(typeof(ListScroll))]
 public class ListScrollEditor  : UnityEditor.Editor
 {
@@ -305,10 +436,20 @@ public class ListScrollEditor  : UnityEditor.Editor
         {
             owner.AddEmptySpace(10);
         }
+        if (GUILayout.Button("Add FoldSlot"))
+        {
+            owner.AddFold(20, 100, false);
+        }
 
         if (GUILayout.Button("Redraw"))
         {
             owner.RePosition();
         }
+
+        if (GUILayout.Button("Random Remove"))
+        {
+            owner.Remove(Random.Range(0 , owner.ScrollList.Count - 1));
+        }
     }
 }
+#endif
