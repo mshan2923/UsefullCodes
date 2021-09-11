@@ -65,6 +65,7 @@
     <Compile Include="Assets\Widget\Script\Test\TestListScrollbar.cs" />
     <Compile Include="Assets\Script\SquareCalculate\TestRactCal.cs" />
     <Compile Include="Assets\Script\ObjectPool\ObjPoolKillVoulme.cs" />
+    <Compile Include="Assets\Widget\Script\InventorySystem.cs" />
     <Compile Include="Assets\Script\AutoVarAccess.cs" />
     <Compile Include="Assets\Script\SaveLoad\SaveLoad.cs" />
     <Compile Include="Assets\Script\VariableCollection\Disable\ListCollection.cs" />

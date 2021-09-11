@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/Widget/Scene/ListScrollBar.unity
+- path: Assets/Widget/Scene/RatePanelScene.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0

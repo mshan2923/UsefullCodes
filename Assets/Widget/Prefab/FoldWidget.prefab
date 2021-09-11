@@ -92,10 +92,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SelfRect: {fileID: 0}
   FoldButton: {fileID: 2661956721357286474}
-  FoldContent: {fileID: 2661956721404556841}
+  FoldContent: {fileID: 2661956721404556846}
+  Direction: 2
+  TitleHeight: 30
+  FoldPanelSize: {x: 250, y: 100}
   InnerPadding: 10
-  TitleSize: 30
-  ContentSize: 70
 --- !u!1 &2661956721140417015
 GameObject:
   m_ObjectHideFlags: 0

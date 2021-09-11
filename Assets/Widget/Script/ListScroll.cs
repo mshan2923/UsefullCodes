@@ -194,22 +194,22 @@ public class ListScroll : MonoBehaviour
 
         ScrollEndVaule += SpaceSize;
     }
-    public void AddFold(float titileSize, float contentSize, bool isOpen = false)
+    public void AddFold(float titleHeight, Vector2 foldPanelSize, bool isOpen = false)
     {
         var obj = GameObject.Instantiate(FoldSlotObject);
-        obj.TitleSize = titileSize;
-        obj.ContentSize = contentSize;
+        obj.TitleHeight = titleHeight;
+        obj.FoldPanelSize = foldPanelSize;
         obj.SetOpen(isOpen);
 
 
         var objRect = obj.gameObject.GetComponent<RectTransform>();
-        objRect.sizeDelta = new Vector2(objRect.sizeDelta.x, (isOpen ? (titileSize + contentSize) : titileSize));
+        objRect.sizeDelta = new Vector2(objRect.sizeDelta.x, (isOpen ? (titleHeight + foldPanelSize.y) : titleHeight));
 
 
         var slotData = new FoldSlotData
         {
-            TitileSize = titileSize,
-            ContentSize = (titileSize + contentSize),
+            TitileSize = titleHeight,
+            ContentSize = (titleHeight + foldPanelSize.y),
             IsOpen = isOpen
         };
         FoldData.Add(ScrollList.Count, slotData);
@@ -438,7 +438,7 @@ public class ListScrollEditor  : UnityEditor.Editor
         }
         if (GUILayout.Button("Add FoldSlot"))
         {
-            owner.AddFold(20, 100, false);
+            owner.AddFold(20, new Vector2(150 , 100), false);
         }
 
         if (GUILayout.Button("Redraw"))
