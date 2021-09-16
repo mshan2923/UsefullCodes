@@ -19,9 +19,6 @@ public class FoldPanel : MonoBehaviour
     public FoldDirection Direction = FoldDirection.TopToButtom;
     public float TitleHeight = 30;
     public Vector2 FoldPanelSize = new Vector2(350,250);
-    public float InnerPadding = 10f;
-
-    //=============4방향 전부 + 들여쓰기 + 자식추가
 
     [Space(5)]
     private bool isOpen = false;

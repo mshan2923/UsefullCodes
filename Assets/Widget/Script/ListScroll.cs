@@ -45,14 +45,16 @@ public class ListScroll : MonoBehaviour
         var contentRect = Content.GetComponent<RectTransform>();
         if (Vertical)
         {
-            SetPadding(contentRect, contentRect.offsetMin.x, 0, contentRect.offsetMax.x, 0);
+            //SetPadding(contentRect, contentRect.offsetMin.x, 0, contentRect.offsetMax.x, 0);
+            WidgetExpandScript.SetTransform(contentRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
 
             contentRect.anchorMin = new Vector2(0, ListPadding);
             contentRect.anchorMax = new Vector2(1, ListPadding);
             contentRect.pivot = new Vector2(0.5f, ListPadding);// ListPadding : 0.5 =>Middle Stretch
         }else
         {
-            SetPadding(contentRect, 0, -contentRect.offsetMax.y, 0, -contentRect.offsetMin.y);
+            //SetPadding(contentRect, 0, -contentRect.offsetMax.y, 0, -contentRect.offsetMin.y);
+            WidgetExpandScript.SetTransform(contentRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
 
 
             contentRect.anchorMin = new Vector2(ListPadding, 0);
@@ -60,12 +62,6 @@ public class ListScroll : MonoBehaviour
             contentRect.pivot = new Vector2(ListPadding, 0.5f);// ListPadding : 0.5 =>Center Stretch
         }//content 높이 작게 , 정렬
     }
-
-    public void SetPadding( RectTransform rect, float horizontal, float vertical)
-    {
-        rect.offsetMax = new Vector2(-horizontal, -vertical);
-        rect.offsetMin = new Vector2(horizontal, vertical);
-    }//Not Anchored
 
     public void SetPadding( RectTransform rect, float left, float top, float right, float bottom)//Setting Rect Position & Size
     {
@@ -107,8 +103,8 @@ public class ListScroll : MonoBehaviour
                     slotHeight = Temp.rect.height;
                 }//Set scrollWidth , slotHeight
 
-                //Temp.localPosition = new Vector3(Temp.rect.x, -ScrollEndVaule, Temp.localPosition.z);//로컬 기준에서 내려가니 y = -높이
-                SetPadding(Temp, (-0.5f * scrollWidth), ScrollEndVaule, (-0.5f * scrollWidth), (-ScrollEndVaule - slotHeight));
+                //SetPadding(Temp, (-0.5f * scrollWidth), ScrollEndVaule, (-0.5f * scrollWidth), (-ScrollEndVaule - slotHeight));
+                WidgetExpandScript.SetTransform(Temp, new Vector2(0, -ScrollEndVaule), new Vector2(scrollWidth, slotHeight), new Vector2(0.5f, 0));
             }
             else
             {
@@ -133,8 +129,8 @@ public class ListScroll : MonoBehaviour
                     slotWidth = Temp.rect.width;
                 }//Set ScrollHeight, slotWidth
 
-                //Temp.localPosition = new Vector3(ScrollEndVaule, Temp.rect.y, Temp.localPosition.z);
-                SetPadding(Temp, ScrollEndVaule, (-0.5f * ScrollHeight), (-ScrollEndVaule - slotWidth), (-0.5f * ScrollHeight));
+                //SetPadding(Temp, ScrollEndVaule, (-0.5f * ScrollHeight), (-ScrollEndVaule - slotWidth), (-0.5f * ScrollHeight));
+                WidgetExpandScript.SetTransform(Temp, new Vector2(ScrollEndVaule, 0), new Vector2(slotWidth, ScrollHeight), new Vector2(0 , 0.5f));
             }
         }
     }
@@ -148,6 +144,8 @@ public class ListScroll : MonoBehaviour
             ScrollEndVaule = BetweenSpace;
         }
 
+        Vector2 leftTop = new Vector2(contentRect.offsetMin.x, -contentRect.offsetMax.y);
+
         Set(obj);
 
         if (Vertical)
@@ -155,7 +153,8 @@ public class ListScroll : MonoBehaviour
             ScrollList.Add(obj, objRect.rect.height);
             ScrollEndVaule += (objRect.rect.height + BetweenSpace);
 
-            SetPadding(contentRect, contentRect.offsetMin.x, -contentRect.offsetMax.y, contentRect.offsetMax.x, (-ScrollEndVaule + contentRect.offsetMax.y));
+            //SetPadding(contentRect, contentRect.offsetMin.x, -contentRect.offsetMax.y, contentRect.offsetMax.x, (-ScrollEndVaule + contentRect.offsetMax.y));
+            SetPadding(contentRect, contentRect.offsetMin.x, leftTop.y, contentRect.offsetMax.x, (-ScrollEndVaule - leftTop.y));
 
             if (AutoScrollToChange)
             {
@@ -167,7 +166,8 @@ public class ListScroll : MonoBehaviour
             ScrollList.Add(obj, objRect.rect.width);
             ScrollEndVaule += (objRect.rect.width + BetweenSpace);
 
-            SetPadding(contentRect, contentRect.offsetMin.x, -contentRect.offsetMax.y, (-contentRect.offsetMin.x - ScrollEndVaule), -contentRect.offsetMin.y);
+            //SetPadding(contentRect, contentRect.offsetMin.x, -contentRect.offsetMax.y, (-contentRect.offsetMin.x - ScrollEndVaule), -contentRect.offsetMin.y);
+            SetPadding(contentRect, leftTop.x, -contentRect.offsetMax.y, (-leftTop.x - ScrollEndVaule), -contentRect.offsetMin.y);
 
             if (AutoScrollToChange )//scroll.verticalScrollbar.IsActive() &&
             {
@@ -393,8 +393,29 @@ public class ListScroll : MonoBehaviour
             }
 
             //ScrollList.GetKey(Lindex).transform.GetChild
+            var Lfold = obj.GetComponent<FoldPanel>();
+            var contentRect = Content.GetComponent<RectTransform>();
+
+            Vector3 scrollPos = contentRect.localPosition;
 
             RePosition();
+
+
+            if (! AutoScrollToChange)
+            {
+                if (Vertical)
+                {
+
+                    contentRect.localPosition = scrollPos + new Vector3(0, (Open ? -1 : 1) * (Lfold.FoldPanelSize.y - Lfold.TitleHeight * 0.5f) * 0.5f);
+
+                }
+                else
+                {
+                    //contentRect.localPosition = scrollPos + new Vector3((Open ? -1 : 1) * (Lfold.FoldPanelSize.x - Lfold.TitleHeight * 0.5f) * 0.5f, 0);
+                    //+++Fold를 Left To Right으로 
+                }
+            }
+
         }
     }
     public void SetOpen(GameObject obj, bool Open)

@@ -60,6 +60,7 @@
     <Compile Include="Assets\Script\Map\CustomDictionary.cs" />
     <Compile Include="Assets\Script\SquareCalculate\SquareCalculate.cs" />
     <Compile Include="Assets\Widget\Script\ListScroll.cs" />
+    <Compile Include="Assets\Widget\Script\Test\TestWidgetExpand.cs" />
     <Compile Include="Assets\Script\AlertWin_Delegate\AlertWindowScript.cs" />
     <Compile Include="Assets\Script\AlertWin_Delegate\TestAlertDelegate.cs" />
     <Compile Include="Assets\Widget\Script\Test\TestListScrollbar.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Assets\Script\Map\TestingScript.cs" />
     <Compile Include="Assets\Script\VariableCollection\Disable\CustomSerialization.cs" />
     <Compile Include="Assets\Script\VariableCollection\Example\TestCollection.cs" />
+    <Compile Include="Assets\Widget\Script\WidgetExpandScript.cs" />
     <Compile Include="Assets\Script\SaveLoad\TestSaveLoad.cs" />
     <Compile Include="Assets\Widget\Script\RatePanel.cs" />
     <Compile Include="Assets\Script\EditorExpand.cs" />
