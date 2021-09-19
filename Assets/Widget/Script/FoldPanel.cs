@@ -20,7 +20,7 @@ public class FoldPanel : MonoBehaviour
     public float TitleHeight = 30;
     public Vector2 FoldPanelSize = new Vector2(350,250);
 
-    [Space(5)]
+    [Space(5) , SerializeField]
     private bool isOpen = false;
     public bool IsOpen 
     { 
@@ -41,20 +41,14 @@ public class FoldPanel : MonoBehaviour
         ReDraw();
     }
 
-    public void SetPadding(RectTransform rect, float left, float top, float right, float bottom)//Setting Rect Position & Size
-    {
-        rect.offsetMax = new Vector2(-right, -top);
-        rect.offsetMin = new Vector2(left, bottom);
-        //앵커 -> 좌하단이 시작점,  상대적거리으로
-        //일반 -> 중앙기준
-    }
-    //Template --> SetPadding(Temp, Temp.offsetMin.x, -Temp.offsetMax.y, -Temp.offsetMax.x, -Temp.offsetMin.y);
 
     void ToggleFold()
     {
-        IsOpen = ! isOpen;
+        //IsOpen = ! isOpen;
+        isOpen = !isOpen;
+        SetOpen(isOpen);
     }
-    public void SetOpen(bool open)
+    public void SetOpen(bool open , bool Event = true)
     {
         if (SelfRect == null)
         {
@@ -62,7 +56,10 @@ public class FoldPanel : MonoBehaviour
         }
 
         //SetPadding(SelfRect, SelfRect.offsetMin.x, -SelfRect.offsetMax.y, -SelfRect.offsetMax.x, -SelfRect.offsetMin.y);
+        FoldContent.gameObject.SetActive(open);
+
         var buttonRect = FoldButton.gameObject.GetComponent<RectTransform>();
+        Vector2 Lpos = SelfRect.anchoredPosition;
 
         //좌하단이 시작점,  상대적거리으로 / 한점을 기준으로 접고펴기
         switch (Direction)
@@ -71,95 +68,91 @@ public class FoldPanel : MonoBehaviour
                 {
                     if (open)
                     {
-                        //SetPadding(SelfRect, -FoldPanelSize.x, FoldPanelSize.y * 0.5f, 0, FoldPanelSize.y * -0.5f);
-                        SelfRect.sizeDelta = FoldPanelSize;
-                        SelfRect.localPosition = new Vector3(FoldPanelSize.x * -0.5f, 0, 0);
+                        //SelfRect.sizeDelta = FoldPanelSize;
+                        //SelfRect.localPosition = new Vector3(FoldPanelSize.x * 0.5f, 0, 0);
+
+                        WidgetExpandScript.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0, 0.5f));
                     }
                     else
                     {
-                        //SetPadding(SelfRect, -TitleHeight, FoldPanelSize.y * 0.5f, 0, FoldPanelSize.y * -0.5f);
-                        SelfRect.sizeDelta = new Vector2(TitleHeight, FoldPanelSize.y);
-                        SelfRect.localPosition = new Vector3(TitleHeight * -0.5f, 0, 0);
+                        //SelfRect.sizeDelta = new Vector2(TitleHeight, FoldPanelSize.y);
+                        WidgetExpandScript.SetTransform(SelfRect, Lpos, new Vector2(TitleHeight, FoldPanelSize.x), new Vector2(0, 0.5f));
                     }
 
                     {
-                        buttonRect.anchorMax = new Vector2(1, 0);
-                        buttonRect.anchorMin = Vector2.one;
-                        buttonRect.pivot = new Vector2(1, 0.5f);
-                        break;
+                        WidgetExpandScript.SetPadding(buttonRect, (open ? (SelfRect.rect.size.x - TitleHeight) : 0), 0, 0, 0);//(FoldPanelSize.x - TitleHeight)
+                        WidgetExpandScript.SetPadding(FoldContent, 0, 0, TitleHeight, 0);
                     }
+                    break;
                 }
             case FoldDirection.LeftToRight:
                 {
                     if (open)
                     {
-                        //SetPadding(SelfRect, -FoldPanelSize.x, FoldPanelSize.y * 0.5f, 0, FoldPanelSize.y * -0.5f);
-                        SelfRect.sizeDelta = FoldPanelSize;
-                        SelfRect.localPosition = new Vector3(FoldPanelSize.x * 0.5f, 0, 0);
+                        //SelfRect.sizeDelta = FoldPanelSize;
+                        //SelfRect.localPosition = new Vector3(FoldPanelSize.x * 0.5f, 0, 0);
+
+                        WidgetExpandScript.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0, 0.5f));
                     }
                     else
                     {
-                        //SetPadding(SelfRect, -TitleHeight, FoldPanelSize.y * 0.5f, 0, FoldPanelSize.y * -0.5f);
-                        SelfRect.sizeDelta = new Vector2(TitleHeight, FoldPanelSize.y);
-                        SelfRect.localPosition = new Vector3(TitleHeight * 0.5f, 0, 0);
+                        //SelfRect.sizeDelta = new Vector2(TitleHeight, FoldPanelSize.y);
+                        WidgetExpandScript.SetTransform(SelfRect, Lpos, new Vector2(TitleHeight, FoldPanelSize.x), new Vector2(0, 0.5f));
                     }
 
                     {
-                        buttonRect.anchorMax = new Vector2(0, 0);
-                        buttonRect.anchorMin = new Vector2(0, 1);
-                        buttonRect.pivot = new Vector2(0, 0.5f);
-                        break;
+                        WidgetExpandScript.SetPadding(buttonRect, 0, 0, (open ? (SelfRect.rect.size.x - TitleHeight) : 0), 0);
+                        WidgetExpandScript.SetPadding(FoldContent, TitleHeight, 0, 0, 0);
                     }
+                    break;
                 }
             case FoldDirection.TopToButtom:
                 {
                     if (open)
                     {
-                        //SetPadding(SelfRect, -FoldPanelSize.x, FoldPanelSize.y * 0.5f, 0, FoldPanelSize.y * -0.5f);
-                        SelfRect.sizeDelta = FoldPanelSize;
-                        SelfRect.localPosition = new Vector3(0, 0, 0);
+                        //SelfRect.sizeDelta = FoldPanelSize;
+                        //SelfRect.localPosition = new Vector3(0, FoldPanelSize.y * -0.5f, 0);
+
+                        WidgetExpandScript.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0.5f,0));
                     }
                     else
                     {
-                        //SetPadding(SelfRect, -TitleHeight, FoldPanelSize.y * 0.5f, 0, FoldPanelSize.y * -0.5f);
-                        SelfRect.sizeDelta = new Vector2(FoldPanelSize.x, TitleHeight);
-                        SelfRect.localPosition = new Vector3(0, TitleHeight * -0.5f, 0);
+                        //SelfRect.sizeDelta = new Vector2(FoldPanelSize.x, TitleHeight);
+
+                        WidgetExpandScript.SetTransform(SelfRect, Lpos, new Vector2(FoldPanelSize.x, TitleHeight), new Vector2(0.5f, 0));
+
                     }
 
                     {
-                        buttonRect.anchorMax = new Vector2(0, 1);
-                        buttonRect.anchorMin = Vector2.one;
-                        buttonRect.pivot = new Vector2(0.5f, 1);
-                    }//Anchor
+                        WidgetExpandScript.SetPadding(buttonRect, 0, 0, 0, (open ? (SelfRect.rect.size.y - TitleHeight) : 0));
+                        WidgetExpandScript.SetPadding(FoldContent, 0, TitleHeight, 0, 0);
+                    }
                     break;
                 }
             case FoldDirection.ButtomToTop:
                 {
                     if (open)
                     {
-                        //SetPadding(SelfRect, -FoldPanelSize.x, FoldPanelSize.y * 0.5f, 0, FoldPanelSize.y * -0.5f);
-                        SelfRect.sizeDelta = FoldPanelSize;
-                        SelfRect.localPosition = new Vector3(0, FoldPanelSize.y * 0.5f, 0);
+                        //SelfRect.sizeDelta = FoldPanelSize;
+                        //SelfRect.localPosition = new Vector3(0, FoldPanelSize.y * 0.5f, 0);
+
+                        WidgetExpandScript.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0.5f, 0));
                     }
                     else
                     {
-                        //SetPadding(SelfRect, -TitleHeight, FoldPanelSize.y * 0.5f, 0, FoldPanelSize.y * -0.5f);
-                        SelfRect.sizeDelta = new Vector2(FoldPanelSize.x, TitleHeight);
-                        SelfRect.localPosition = new Vector3(0, TitleHeight * 0.5f, 0);
+                        //SelfRect.sizeDelta = new Vector2(FoldPanelSize.x, TitleHeight);
+                        WidgetExpandScript.SetTransform(SelfRect, Lpos, new Vector2(FoldPanelSize.x, TitleHeight), new Vector2(0.5f, 0));
                     }
 
                     {
-                        buttonRect.anchorMax = new Vector2(0, 0);
-                        buttonRect.anchorMin = new Vector2(1, 0);
-                        buttonRect.pivot = new Vector2(0.5f, 0);
-                    }//Anchor
+                        WidgetExpandScript.SetPadding(buttonRect, 0, (open ? (SelfRect.rect.size.y - TitleHeight) : 0), 0, 0);
+                        WidgetExpandScript.SetPadding(FoldContent, 0, 0, 0, TitleHeight);
+                    }
                     break;
                 }
         }
 
-        FoldContent.gameObject.SetActive(open);
-
-        if (OpenEvnet != null)
+        if (OpenEvnet != null && Event)
         {
             OpenEvnet.Invoke(gameObject, open);
         }
@@ -167,55 +160,7 @@ public class FoldPanel : MonoBehaviour
 
     public void ReDraw()
     {
-        SetOpen(isOpen);//FoldContent (비)활성화 설정
-
-        var buttonRect = FoldButton.gameObject.GetComponent<RectTransform>();
-
-        switch (Direction)
-        {
-            case FoldDirection.RightToLeft:
-                {
-                    buttonRect.localPosition = Vector2.zero;
-                    SetPadding(buttonRect, -TitleHeight, -FoldPanelSize.y, 0, -FoldPanelSize.y);
-
-                    FoldContent.localPosition = Vector2.zero;
-                    SetPadding(FoldContent, 0, 0, TitleHeight, 0);
-
-                    break;
-                }
-            case FoldDirection.LeftToRight:
-                {
-                    buttonRect.localPosition = Vector2.zero;
-                    SetPadding(buttonRect, 0, -FoldPanelSize.y, -TitleHeight, -FoldPanelSize.y);
-
-                    FoldContent.localPosition = Vector2.zero;
-                    SetPadding(FoldContent, TitleHeight, 0, 0, 0);
-
-                    break;
-                }
-            case FoldDirection.TopToButtom:
-                {
-                    //SelfRect는 SetOpen에 포함
-                    buttonRect.localPosition = Vector2.zero;
-                    SetPadding(buttonRect, -FoldPanelSize.x, 0, -FoldPanelSize.x, -TitleHeight);
-
-                    FoldContent.localPosition = Vector2.zero;
-                    //SetPadding(FoldContent, FoldPanelSize.x * -0.5f, TitleHeight, FoldPanelSize.x * -0.5f, -FoldPanelSize.y);
-                    SetPadding(FoldContent, 0, TitleHeight, 0, 0);
-
-                    break;
-                }
-            case FoldDirection.ButtomToTop:
-                {
-                    buttonRect.localPosition = Vector2.zero;
-                    SetPadding(buttonRect, -FoldPanelSize.x, -TitleHeight, -FoldPanelSize.x, 0);
-
-                    FoldContent.localPosition = Vector2.zero;
-                    //SetPadding(FoldContent, FoldPanelSize.x * -0.5f, TitleHeight, FoldPanelSize.x * -0.5f, -FoldPanelSize.y);
-                    SetPadding(FoldContent, 0, 0, 0, TitleHeight);
-                    break;
-                }
-        }//정렬 , Title + FoldContent 크기
+        SetOpen(isOpen, false);//FoldContent (비)활성화 설정
     }
 }
 

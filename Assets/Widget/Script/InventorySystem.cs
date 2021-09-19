@@ -90,8 +90,8 @@ public class InventorySystem : MonoBehaviour
 
             MainPanel.sizeDelta = InventoryPanelSize;
             TitlePanel.sizeDelta = new Vector2(TitlePanel.sizeDelta.x, TitleHeight);
-            //SetPadding(StoragePanel, StoragePanel.offsetMin.x, TitleHeight, -StoragePanel.offsetMax.x, -StoragePanel.offsetMin.y);
-            WidgetExpandScript.SetTransform(StoragePanel, new Vector2(0, TitleHeight), (InventoryPanelSize - new Vector2(0, TitleHeight)), new Vector2(0.5f, 0));
+            //WidgetExpandScript.SetTransform(StoragePanel, new Vector2(0, TitleHeight), (InventoryPanelSize - new Vector2(0, TitleHeight)), new Vector2(0.5f, 0));
+            WidgetExpandScript.SetPadding(StoragePanel, 0, TitleHeight, 0, 0);
 
         }//Title 크기 , Storage 크기
 
@@ -134,12 +134,12 @@ public class InventorySystem : MonoBehaviour
                     }
                 }//Set SortInventory
 
-                Vector2 DrawPos = new Vector2();// new Vector2(StoragePanel.offsetMin.x, -StoragePanel.offsetMax.y);//StoragePanel 좌상단
+                Vector2 DrawPos = Vector2.zero;// new Vector2(StoragePanel.offsetMin.x, -StoragePanel.offsetMax.y);//StoragePanel 좌상단
                 RectTransform rectParent;
 
                 if (SortInventory.Count == 0 )
                 {
-                    DrawPos = CreateFold(DrawPos, out rectParent);
+                    DrawPos = CreateFold(DrawPos, 1, out rectParent);
 
                     //여유분만 추가
                 }
@@ -147,7 +147,7 @@ public class InventorySystem : MonoBehaviour
                 {
                     for (int i = 0; i < SortInventory.Count; i++)
                     {
-                        DrawPos = CreateFold(DrawPos, out rectParent);
+                        DrawPos = CreateFold(DrawPos, 1, out rectParent);//=========임시로 DrawLine은 1
 
                         for (int v = 0; v < SortInventory.GetVaule(i).Count; v++)// + 여유 한줄위한 최대갯수 추가
                         {
@@ -166,12 +166,13 @@ public class InventorySystem : MonoBehaviour
 
         //=============>InventoryDatas.Add();
     }
-    Vector2 CreateFold(Vector2 DrawPos, out RectTransform rectParent)
+    Vector2 CreateFold(Vector2 DrawPos, int DrawLine, out RectTransform rectParent)
     {
         if (UseFold)
         {
             var Lfold = GameObject.Instantiate(FoldObject);
             rectParent = Lfold.gameObject.GetComponent<RectTransform>();
+            Lfold.transform.SetParent(StoragePanel);
 
             {
                 rectParent.anchorMin = new Vector2(0, 1);
@@ -179,25 +180,24 @@ public class InventorySystem : MonoBehaviour
                 rectParent.pivot = new Vector2(0.5f, 1);
             }//TopStretch으로 앵커
 
-            rectParent.localPosition = new Vector3(DrawPos.x, (DrawPos.y));// ======================결국 SetPadding으로?
-            rectParent.sizeDelta = new Vector2(StoragePanel.rect.width, FoldTitleHeight);// 폴드 + Slot Line수 만쿰 증가
+            rectParent.anchoredPosition = new Vector3(0, DrawPos.y);
 
             {
                 Lfold.Direction = foldDirection;
                 Lfold.TitleHeight = FoldTitleHeight;
-                Lfold.FoldPanelSize = new Vector2(StoragePanel.rect.width, FoldTitleHeight);
+                Lfold.FoldPanelSize = new Vector2(StoragePanel.rect.width, (SlotSize.y + SlotOffset.y) * DrawLine);
                 Lfold.FoldButton.GetComponentInChildren<Text>().text = " Temp Fold";
             }//폴드 방향, 폴드 크기, 폴드 이름
+            Lfold.ReDraw();
 
-            DrawPos = rectParent.offsetMin + (SlotSize + SlotOffset) * 0.5f;
-            Lfold.transform.SetParent(StoragePanel);
+            DrawPos = new Vector2(0, DrawPos.y + (SlotSize.y + SlotOffset.y) * DrawLine);//new Vector2(0, Slot 높이 * 즐 갯수)
 
-        }//폴드의 생성 + 크기할당 , 시작점(Fold 좌하단 + Slot크기 * 0.5f)지정 , 부모 지정
+        }//폴드의 생성 + 크기할당  , 부모 지정
         else
         {
-            DrawPos += (SlotSize + SlotOffset) * 0.5f;//DrawPos +=  Slot크기 * 0.5f)
+            //DrawPos += (SlotSize + SlotOffset) * 0.5f;//=====new Vector2(0, Slot 높이 * 즐 갯수)
             rectParent = StoragePanel;
-        }//함수화
+        }
 
         return DrawPos;
     }
