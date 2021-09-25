@@ -115,3 +115,10 @@ Update Mode: updateDependencies
 
 The following packages were 업데이트됨:
   com.unity.collab-proxy 1.7.1 버전에서 1.9.0버전으로
+=== Sat Sep 25 21:46:54 2021
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were 업데이트됨:
+  com.unity.ide.vscode 1.2.3 버전에서 1.2.4버전으로
