@@ -52,5 +52,24 @@ public class WidgetExpandScript
         return Mathf.Approximately(Mathf.Abs(rect.anchorMin.y - rect.anchorMax.y), 1);
     }
 
-    //찾아보니 해당 좌표에 위젯오브젝트 검출 하는거
+    public static bool ContainWidget(GameObject Obj, Vector3 pos)
+    {
+        var Lrect = Obj.GetComponent<RectTransform>();
+        Vector3 ObjPos = Obj.transform.position;
+
+        if (Lrect != null)
+        {
+            if (Lrect.rect.xMin < (pos.x - ObjPos.x) && (pos.x - ObjPos.x) < Lrect.rect.xMax)
+            {
+                if (Lrect.rect.yMin < (pos.y - ObjPos.y) && (pos.y - ObjPos.y) < Lrect.rect.yMax)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }else
+        {
+            return false;
+        }
+    }//Pos is WorldPosition ( Recommand => Input.mousePosition)
 }

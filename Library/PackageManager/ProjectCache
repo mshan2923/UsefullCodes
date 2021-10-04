@@ -20,7 +20,7 @@ m_EmbeddedPackageManifests:
 m_LocalPackages:
   m_LocalFileStatus: []
 m_ProjectPath: C:/Git/UsefullCodes/Packages
-m_EditorVersion: 2021.1.22f1 (a137e5fb0427)
+m_EditorVersion: 2021.1.23f1 (b50729e604a9)
 m_ResolvedPackages:
 - packageId: com.unity.collab-proxy@1.9.0
   testable: 0
@@ -70,6 +70,8 @@ m_ResolvedPackages:
     - 1.9.0
     - 1.10.2
     - 1.11.2
+    - 1.12.5
+    - 1.13.5
     - 2.0.0-preview.6
     - 2.0.0-preview.8
     - 2.0.0-preview.15
@@ -84,6 +86,8 @@ m_ResolvedPackages:
     - 1.9.0
     - 1.10.2
     - 1.11.2
+    - 1.12.5
+    - 1.13.5
     - 2.0.0-preview.6
     - 2.0.0-preview.8
     - 2.0.0-preview.15
