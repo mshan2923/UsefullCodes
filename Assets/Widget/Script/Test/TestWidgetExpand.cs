@@ -26,13 +26,13 @@ public class TestWidgetExpand : MonoBehaviour
     public void Test()
     {
         var buttonRect = ButtonObject.gameObject.GetComponent<RectTransform>();
-        WidgetExpandScript.SetTransform(buttonRect, DrawPos, DrawSize, DrawPivot);
+        WidgetExpand.SetTransform(buttonRect, DrawPos, DrawSize, DrawPivot);
     }
 
     public void TestWorld()
     {
         var buttonRect = ButtonObject.gameObject.GetComponent<RectTransform>();
-        WidgetExpandScript.SetWorldTransform(buttonRect, DrawPos, DrawSize, DrawPivot);
+        WidgetExpand.SetWorldTransform(buttonRect, DrawPos, DrawSize, DrawPivot);
     }
 
 }

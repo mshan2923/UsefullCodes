@@ -1,0 +1,75 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+public class TabWidget : MonoBehaviour
+{
+    public bool IsThisButtonListPanel = true;
+
+    public int ClsoeSlotIndex = 0;
+    public Map<int, GameObject> SlotWidget;
+    public Map<int, UnityEvent> SlotEvent;
+
+
+    [Header("Optional")]
+    public RectTransform Parent;
+    public Rect Offset;
+
+    GraphicRaycaster gr;
+
+    void Start()
+    {
+        if (IsThisButtonListPanel)
+        {
+            Button temp;
+            for (int i = 0; i < gameObject.transform.childCount; i++)
+            {
+                temp = gameObject.transform.GetChild(i).gameObject.GetComponent<Button>();
+                temp.onClick.AddListener(ReceiveEvent);
+            }
+        }
+
+        gr = FindObjectOfType<GraphicRaycaster>();
+    }
+    
+    void ReceiveEvent()
+    {
+        //추가 컨포넌트 없이 구분할려면 마우스위치 으로 가리키고 있는 오브젝트으로
+        GameObject Target = GetBehideObject(null, typeof(Button));
+
+        print(Target);
+    }
+
+    public List<RaycastResult> WidgetLineTrace()
+    {
+        var ped = new PointerEventData(null)
+        {
+            position = Input.mousePosition
+        };
+        List<RaycastResult> results = new List<RaycastResult>();
+        gr.Raycast(ped, results);
+
+        return results;
+    }
+    public GameObject GetBehideObject(GameObject Target, System.Type Fillter)
+    {
+        List<RaycastResult> results = WidgetLineTrace();
+        for (int i = 0; i < results.Count; i++)
+        {
+            if (Fillter == null)
+            {
+                return results[0].gameObject;
+            }
+
+            if (results[i].gameObject.GetComponent(Fillter))// && results[i].gameObject != Target
+            {
+                return results[i].gameObject;
+            }//Fillter의 해당 컴포넌트를 가진것만 + Target이 아닌 첫번째 오브젝트를 리턴
+        }
+
+        return null;
+    }
+}

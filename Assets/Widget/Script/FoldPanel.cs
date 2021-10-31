@@ -71,17 +71,17 @@ public class FoldPanel : MonoBehaviour
                         //SelfRect.sizeDelta = FoldPanelSize;
                         //SelfRect.localPosition = new Vector3(FoldPanelSize.x * 0.5f, 0, 0);
 
-                        WidgetExpandScript.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0, 0.5f));
+                        WidgetExpand.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0, 0.5f));
                     }
                     else
                     {
                         //SelfRect.sizeDelta = new Vector2(TitleHeight, FoldPanelSize.y);
-                        WidgetExpandScript.SetTransform(SelfRect, Lpos, new Vector2(TitleHeight, FoldPanelSize.x), new Vector2(0, 0.5f));
+                        WidgetExpand.SetTransform(SelfRect, Lpos, new Vector2(TitleHeight, FoldPanelSize.x), new Vector2(0, 0.5f));
                     }
 
                     {
-                        WidgetExpandScript.SetPadding(buttonRect, (open ? (SelfRect.rect.size.x - TitleHeight) : 0), 0, 0, 0);//(FoldPanelSize.x - TitleHeight)
-                        WidgetExpandScript.SetPadding(FoldContent, 0, 0, TitleHeight, 0);
+                        WidgetExpand.SetPadding(buttonRect, (open ? (SelfRect.rect.size.x - TitleHeight) : 0), 0, 0, 0);//(FoldPanelSize.x - TitleHeight)
+                        WidgetExpand.SetPadding(FoldContent, 0, 0, TitleHeight, 0);
                     }
                     break;
                 }
@@ -92,17 +92,17 @@ public class FoldPanel : MonoBehaviour
                         //SelfRect.sizeDelta = FoldPanelSize;
                         //SelfRect.localPosition = new Vector3(FoldPanelSize.x * 0.5f, 0, 0);
 
-                        WidgetExpandScript.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0, 0.5f));
+                        WidgetExpand.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0, 0.5f));
                     }
                     else
                     {
                         //SelfRect.sizeDelta = new Vector2(TitleHeight, FoldPanelSize.y);
-                        WidgetExpandScript.SetTransform(SelfRect, Lpos, new Vector2(TitleHeight, FoldPanelSize.x), new Vector2(0, 0.5f));
+                        WidgetExpand.SetTransform(SelfRect, Lpos, new Vector2(TitleHeight, FoldPanelSize.x), new Vector2(0, 0.5f));
                     }
 
                     {
-                        WidgetExpandScript.SetPadding(buttonRect, 0, 0, (open ? (SelfRect.rect.size.x - TitleHeight) : 0), 0);
-                        WidgetExpandScript.SetPadding(FoldContent, TitleHeight, 0, 0, 0);
+                        WidgetExpand.SetPadding(buttonRect, 0, 0, (open ? (SelfRect.rect.size.x - TitleHeight) : 0), 0);
+                        WidgetExpand.SetPadding(FoldContent, TitleHeight, 0, 0, 0);
                     }
                     break;
                 }
@@ -113,19 +113,19 @@ public class FoldPanel : MonoBehaviour
                         //SelfRect.sizeDelta = FoldPanelSize;
                         //SelfRect.localPosition = new Vector3(0, FoldPanelSize.y * -0.5f, 0);
 
-                        WidgetExpandScript.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0.5f,0));
+                        WidgetExpand.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0.5f,0));
                     }
                     else
                     {
                         //SelfRect.sizeDelta = new Vector2(FoldPanelSize.x, TitleHeight);
 
-                        WidgetExpandScript.SetTransform(SelfRect, Lpos, new Vector2(FoldPanelSize.x, TitleHeight), new Vector2(0.5f, 0));
+                        WidgetExpand.SetTransform(SelfRect, Lpos, new Vector2(FoldPanelSize.x, TitleHeight), new Vector2(0.5f, 0));
 
                     }
 
                     {
-                        WidgetExpandScript.SetPadding(buttonRect, 0, 0, 0, (open ? (SelfRect.rect.size.y - TitleHeight) : 0));
-                        WidgetExpandScript.SetPadding(FoldContent, 0, TitleHeight, 0, 0);
+                        WidgetExpand.SetPadding(buttonRect, 0, 0, 0, (open ? (SelfRect.rect.size.y - TitleHeight) : 0));
+                        WidgetExpand.SetPadding(FoldContent, 0, TitleHeight, 0, 0);
                     }
                     break;
                 }
@@ -136,17 +136,17 @@ public class FoldPanel : MonoBehaviour
                         //SelfRect.sizeDelta = FoldPanelSize;
                         //SelfRect.localPosition = new Vector3(0, FoldPanelSize.y * 0.5f, 0);
 
-                        WidgetExpandScript.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0.5f, 0));
+                        WidgetExpand.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0.5f, 0));
                     }
                     else
                     {
                         //SelfRect.sizeDelta = new Vector2(FoldPanelSize.x, TitleHeight);
-                        WidgetExpandScript.SetTransform(SelfRect, Lpos, new Vector2(FoldPanelSize.x, TitleHeight), new Vector2(0.5f, 0));
+                        WidgetExpand.SetTransform(SelfRect, Lpos, new Vector2(FoldPanelSize.x, TitleHeight), new Vector2(0.5f, 0));
                     }
 
                     {
-                        WidgetExpandScript.SetPadding(buttonRect, 0, (open ? (SelfRect.rect.size.y - TitleHeight) : 0), 0, 0);
-                        WidgetExpandScript.SetPadding(FoldContent, 0, 0, 0, TitleHeight);
+                        WidgetExpand.SetPadding(buttonRect, 0, (open ? (SelfRect.rect.size.y - TitleHeight) : 0), 0, 0);
+                        WidgetExpand.SetPadding(FoldContent, 0, 0, 0, TitleHeight);
                     }
                     break;
                 }

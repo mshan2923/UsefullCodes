@@ -513,12 +513,16 @@ public class MapEditor : PropertyDrawer
     SerializedProperty vaule;
 
     float SlotOffset = 10f;
+    float SlotLineSize = 20;
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
         if (fold)
         {
-            return (property.FindPropertyRelative("Vaule").arraySize + 2) * 20;
+            if (property.FindPropertyRelative("Vaule").arraySize > 0)
+                return (property.FindPropertyRelative("Vaule").arraySize) * EditorGUI.GetPropertyHeight(property.FindPropertyRelative("Vaule").GetArrayElementAtIndex(0), true) + 40;
+            else
+                return 40;
         }
         else
         {
@@ -529,6 +533,11 @@ public class MapEditor : PropertyDrawer
     {
         DrawRect = new Rect(position.x, position.y, position.width, 20);
         vaule = property.FindPropertyRelative("Vaule");
+
+        if (property.FindPropertyRelative("Vaule").arraySize > 0)
+        {
+            SlotLineSize = EditorGUI.GetPropertyHeight(property.FindPropertyRelative("Vaule").GetArrayElementAtIndex(0), true);
+        }
 
         //fold = EditorGUI.Foldout(DrawRect, fold, label);
         if (GUI.Button(DrawRect, (label.text + (fold ? " (open) " : " (close) ") + " ( " + vaule.arraySize + " ) ")))
@@ -541,7 +550,7 @@ public class MapEditor : PropertyDrawer
             Rect SlotSize = new Rect(position.x, position.y, position.width - 50, 20);
             for (int i = 0; i < vaule.arraySize; i++)
             {
-                DrawRect = EditorExpand.NextLine(SlotSize, DrawRect);
+                DrawRect = EditorExpand.NextLine(SlotSize, DrawRect, 0 , SlotLineSize);
                 DrawRect = new Rect(DrawRect.x + SlotOffset, DrawRect.y, DrawRect.width - SlotOffset, DrawRect.height);
 
                 EditorGUI.PropertyField(DrawRect, vaule.GetArrayElementAtIndex(i), new GUIContent { text = "" });
@@ -554,8 +563,7 @@ public class MapEditor : PropertyDrawer
 
             }
             {
-                DrawRect = EditorExpand.NextLine(position, DrawRect);
-                DrawRect = new Rect(DrawRect.x + SlotOffset, DrawRect.y, DrawRect.width - SlotOffset, DrawRect.height);
+                DrawRect = EditorExpand.NextLine(position, DrawRect, SlotOffset, 20);
                 if (GUI.Button(DrawRect, "Add"))
                 {
                     vaule.arraySize++;
@@ -648,12 +656,8 @@ public class IntMapSlotEditor : PropertyDrawer
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
         vaule = property.FindPropertyRelative("vaule");
-        if (LargeProperty(vaule.propertyType.ToString()))
-        {
-            return 40;
-        }
 
-        return 20;
+        return EditorGUI.GetPropertyHeight(vaule, true);
     }
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
@@ -665,22 +669,6 @@ public class IntMapSlotEditor : PropertyDrawer
         EditorGUI.PropertyField(DrawRect, key, new GUIContent { text = "" });
         DrawRect = EditorExpand.RateRect(position, DrawRect, 1, 2, SlotOffset, 20);
         EditorGUI.PropertyField(DrawRect, vaule, new GUIContent { text = "" });
-    }
-
-    public bool LargeProperty(string name)
-    {
-        switch (name)
-        {
-
-            case "Rect":
-            case "Bounds":
-            case "Quaternion":
-            case "RectInt":
-            case "BoundsInt":
-                return true;
-            default:
-                return false;
-        }
     }
 }
 
@@ -766,12 +754,8 @@ public class MapSlotEditor : PropertyDrawer
     {
         key = property.FindPropertyRelative("Key");
         vaule = property.FindPropertyRelative("Vaule");
-        if(LargeProperty(key.propertyType.ToString()) || LargeProperty(vaule.propertyType.ToString()))
-        {
-            return 40;
-        }
 
-        return 20;
+        return Mathf.Max(EditorGUI.GetPropertyHeight(key, true), EditorGUI.GetPropertyHeight(vaule, true));
     }
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
@@ -783,22 +767,6 @@ public class MapSlotEditor : PropertyDrawer
         EditorGUI.PropertyField(DrawRect, key, new GUIContent { text = "" });
         DrawRect = EditorExpand.RateRect(position, DrawRect, 1, 2, SlotOffset, 20);
         EditorGUI.PropertyField(DrawRect, vaule, new GUIContent { text = "" });
-    }
-
-    public bool LargeProperty(string name)
-    {
-        switch (name)
-        {
-
-            case "Rect":
-            case "Bounds":
-            case "Quaternion":
-            case "RectInt":
-            case "BoundsInt":
-                return true;
-            default:
-                return false;
-        }
     }
 }
 
@@ -816,25 +784,38 @@ public class GroupMapEditor : PropertyDrawer
     float SlotOffset = 10f;
     float RemoveButton = 50f;
 
+    float LineSize = 20;
+
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
+
+        //return EditorGUI.GetPropertyHeight(property.FindPropertyRelative("SortList").FindPropertyRelative("Slots"), true) + 60;
+
         int Line = 0;
+        var slots = property.FindPropertyRelative("SortList").FindPropertyRelative("Slots");
+
+        if (property.FindPropertyRelative("Key").arraySize > 0)
+        {
+            LineSize = EditorGUI.GetPropertyHeight(property.FindPropertyRelative("Key").GetArrayElementAtIndex(0), true);
+        }
+
         if (fold)
         {
-            Line = 3;
-            Line += property.FindPropertyRelative("SortList").FindPropertyRelative("Key").arraySize;
+            Line = 0;
+            //Line += slots.arraySize;
 
             for (int i = 0; i < SlotFold.Count; i++)
             {
-                if (i < property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").arraySize && SlotFold[i])
+                if (i < slots.arraySize && SlotFold[i])
                 {
-                    Line += property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").GetArrayElementAtIndex(i).FindPropertyRelative("Vaule").arraySize;
+                    Line += slots.GetArrayElementAtIndex(i).FindPropertyRelative("Vaule").FindPropertyRelative("Vaule").arraySize;
                 }
                 
             }
+            //Sort.FindPropertyRelative("Slots").GetArrayElementAtIndex(i).FindPropertyRelative("Vaule").FindPropertyRelative("Vaule");//Map<int>.Vaule
 
             //SlotFold 적용
-            return Line * 20;
+            return Line * LineSize + 60 + (slots.arraySize * 20);
         }
         else
         {
@@ -860,6 +841,11 @@ public class GroupMapEditor : PropertyDrawer
             fold = !fold;
         }
 
+        if (property.FindPropertyRelative("Key").arraySize > 0)
+        {
+            LineSize = EditorGUI.GetPropertyHeight(property.FindPropertyRelative("Key").GetArrayElementAtIndex(0), true);
+        }
+
         if (fold)
         {
             bool Changed = false;
@@ -868,9 +854,9 @@ public class GroupMapEditor : PropertyDrawer
 
             for (int i = 0; i < MapSize(Sort); i++)
             {
-                SerializedProperty SortKey = Sort.FindPropertyRelative("Key").GetArrayElementAtIndex(i);
+                SerializedProperty SortKey = Sort.FindPropertyRelative("Slots").GetArrayElementAtIndex(i).FindPropertyRelative("Key");
 
-                var SortSlot = property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").GetArrayElementAtIndex(i).FindPropertyRelative("Vaule");//Map<int>
+                var SortSlot = Sort.FindPropertyRelative("Slots").GetArrayElementAtIndex(i).FindPropertyRelative("Vaule").FindPropertyRelative("Vaule");//Map<int>.Vaule
                 //Sort.FindPropertyRelative("Vaule").arraySize
 
                 DrawRect = EditorExpand.NextLine(position, DrawRect, SlotOffset);
@@ -886,8 +872,9 @@ public class GroupMapEditor : PropertyDrawer
                         
                         for (int j = 0; j < SortSlot.arraySize; j++)
                         {
-                            DrawRect = EditorExpand.NextLine(position, DrawRect, (SlotOffset * 2));
-                            DrawRect = EditorExpand.RateRect(position, DrawRect, 0, 2, (SlotOffset * 2 + RemoveButton), 20);
+                            DrawRect = EditorExpand.NextLine(position, DrawRect, (SlotOffset * 2), LineSize);//NextLineFix
+
+                            DrawRect = EditorExpand.RateRect(position, DrawRect, 0, 2, (SlotOffset * 2 + RemoveButton), LineSize);
                             DrawRect = new Rect(DrawRect.x - RemoveButton, DrawRect.y, DrawRect.width, DrawRect.height);
 
                             int Lindex = SortSlot.GetArrayElementAtIndex(j).intValue;
@@ -901,12 +888,12 @@ public class GroupMapEditor : PropertyDrawer
                             DrawRect = EditorExpand.PropertyField(position, DrawRect, key.GetArrayElementAtIndex(Lindex), (i + " - " + j + " "), 2);
 
                             int temp = vaule.GetArrayElementAtIndex(Lindex).intValue;
-                            DrawRect = EditorExpand.RateRect(position, DrawRect, 1, 2, (SlotOffset * 2), 20);
+                            DrawRect = EditorExpand.RateRect(position, DrawRect, 1, 2, (SlotOffset * 2), LineSize);
 
-                            Rect TempRect = new Rect(position.x, position.y, position.width - RemoveButton * 2, position.height);
+                            Rect TempRect = new Rect(position.x, position.y, position.width - RemoveButton * 2, DrawRect.height);
                             DrawRect = EditorExpand.PropertyField(TempRect, DrawRect, vaule.GetArrayElementAtIndex(Lindex), "", 2);
 
-                            DrawRect = new Rect(DrawRect.x, DrawRect.y, RemoveButton, DrawRect.height);
+                            DrawRect = new Rect(DrawRect.x, DrawRect.y, RemoveButton, LineSize);
                             if (GUI.Button(DrawRect, " - "))
                             {
                                 RemoveGroup = i;
@@ -918,13 +905,17 @@ public class GroupMapEditor : PropertyDrawer
                                 Changed = true;
                             }
                         }
+                        DrawRect = EditorExpand.NextLineOverride(position, DrawRect, (SlotOffset * 2), 20);
+                    }else
+                    {
+                        //DrawRect = EditorExpand.NextLine(position, DrawRect, (SlotOffset * 2), 20);
                     }
                 }
             }
 
             if (RemoveSlot >= 0)
             {
-                var SortSlot = property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").GetArrayElementAtIndex(RemoveGroup).FindPropertyRelative("Vaule");//Map<int>
+                var SortSlot = Sort.FindPropertyRelative("Slots").GetArrayElementAtIndex(RemoveGroup).FindPropertyRelative("Vaule").FindPropertyRelative("Vaule");//Map<int>.Vaule
 
                 key.DeleteArrayElementAtIndex(SortSlot.GetArrayElementAtIndex(RemoveSlot).intValue);
                 vaule.DeleteArrayElementAtIndex(SortSlot.GetArrayElementAtIndex(RemoveSlot).intValue);
@@ -937,7 +928,7 @@ public class GroupMapEditor : PropertyDrawer
                 SortMap(property);
             }
 
-            DrawRect = EditorExpand.NextLine(position, DrawRect, SlotOffset);
+            DrawRect = EditorExpand.NextLine(position, DrawRect, (SlotOffset * 2), 20);
             if (GUI.Button(DrawRect, "Add"))
             {
                 key.arraySize++;
@@ -953,69 +944,32 @@ public class GroupMapEditor : PropertyDrawer
                 property.FindPropertyRelative("Key").arraySize = 0;
                 property.FindPropertyRelative("Vaule").arraySize = 0;
 
-                property.FindPropertyRelative("SortList").FindPropertyRelative("Key").arraySize = 0;
-                property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").arraySize = 0;
+                property.FindPropertyRelative("SortList").FindPropertyRelative("Slots").arraySize = 0;
             }
         }
     }
     public int MapSize(SerializedProperty property)
     {
-        return property.FindPropertyRelative("Key").arraySize;
-    }
-
-    public void SortMap(SerializedProperty property, int index)
-    {
-        int vauleData = vaule.GetArrayElementAtIndex(index).intValue;
-
-        //SortList내 vauleData인 키가 있는지 확인 
-        //있다면 index추가 , 없으면 SortList 크기증가후 index추가 
-
-        int FindKey = -1;
-        for (int i = 0; i < MapSize(Sort); i++)
-        {
-            if (vauleData == Sort.FindPropertyRelative("Key").GetArrayElementAtIndex(i).intValue)
-            {
-                FindKey = i;
-                break;
-            }
-        }
-
-        if (FindKey >= 0)
-        {
-            //var SortVaule = Sort.FindPropertyRelative("Vaule").GetArrayElementAtIndex(FindKey).FindPropertyRelative("Vaule");//Map<int>
-            //int Lsize = SortVaule.arraySize++;
-            //SortVaule.GetArrayElementAtIndex(Lsize).intValue = vauleData;
-
-            Debug.Log(property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").GetArrayElementAtIndex(FindKey).FindPropertyRelative("Vaule").propertyPath);
-
-            int Lsize = property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").GetArrayElementAtIndex(FindKey).FindPropertyRelative("Vaule").arraySize++;
-            property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").GetArrayElementAtIndex(FindKey)
-                .FindPropertyRelative("Vaule").GetArrayElementAtIndex(Lsize - 1).intValue = vauleData;
-        }
+        if (property == null)
+            return 0;
         else
-        {
-            int sortSize = property.FindPropertyRelative("SortList").FindPropertyRelative("Key").arraySize++;
-            property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").arraySize++;
-
-            property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").GetArrayElementAtIndex(sortSize);//Map<int>
-
-            property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").GetArrayElementAtIndex(sortSize).FindPropertyRelative("Vaule").arraySize++;
-            property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").GetArrayElementAtIndex(sortSize).FindPropertyRelative("Vaule").GetArrayElementAtIndex(0).intValue = vauleData;
-        }
+            return property.FindPropertyRelative("Slots").arraySize;
     }
+
     public void SortMap(SerializedProperty property)
     {
-        property.FindPropertyRelative("SortList").FindPropertyRelative("Key").arraySize = 0;
-        property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").arraySize = 0;
+
+        var LSlots = property.FindPropertyRelative("SortList").FindPropertyRelative("Slots");
+        property.FindPropertyRelative("SortList").FindPropertyRelative("Slots").arraySize = 0;
 
         for (int i = 0; i < property.FindPropertyRelative("Vaule").arraySize; i++)
         {
             int Lvaule = property.FindPropertyRelative("Vaule").GetArrayElementAtIndex(i).intValue;
 
             int Find = -1;
-            for (int f = 0; f < property.FindPropertyRelative("SortList").FindPropertyRelative("Key").arraySize; f++)
+            for (int f = 0; f < LSlots.arraySize; f++)
             {
-                if (Lvaule == property.FindPropertyRelative("SortList").FindPropertyRelative("Key").GetArrayElementAtIndex(f).intValue)
+                if (Lvaule == LSlots.GetArrayElementAtIndex(f).FindPropertyRelative("Key").intValue)
                 {
                     Find = f;
                     break;
@@ -1024,22 +978,25 @@ public class GroupMapEditor : PropertyDrawer
 
             if (Find >= 0)
             {
-                int Lsize = property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").GetArrayElementAtIndex(Find).FindPropertyRelative("Vaule").arraySize++;
-                property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").GetArrayElementAtIndex(Find).FindPropertyRelative("Vaule").GetArrayElementAtIndex(Lsize - 1).intValue = i;
-
-                //                 SortList                      .Vaule                      Map<int>                   .Vaule                             (int)
+                //int Lsize = property.FindPropertyRelative("SortList").FindPropertyRelative("Slots").GetArrayElementAtIndex(Find).FindPropertyRelative("Vaule").arraySize;
+                int Lsize = property.FindPropertyRelative("SortList").FindPropertyRelative("Slots").GetArrayElementAtIndex(Find).FindPropertyRelative("Vaule").FindPropertyRelative("Vaule").arraySize++;
+                property.FindPropertyRelative("SortList").FindPropertyRelative("Slots").GetArrayElementAtIndex(Find).FindPropertyRelative("Vaule").FindPropertyRelative("Vaule").GetArrayElementAtIndex(Lsize - 1).intValue = i;
             }
             else
             {
-                int Lmap = property.FindPropertyRelative("SortList").FindPropertyRelative("Key").arraySize++;
-                property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").arraySize++;
-                property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").GetArrayElementAtIndex(Lmap).FindPropertyRelative("Vaule").arraySize = 0;
+                int Lkey = property.FindPropertyRelative("SortList").FindPropertyRelative("Slots").arraySize++;
 
-                property.FindPropertyRelative("SortList").FindPropertyRelative("Key").GetArrayElementAtIndex(Lmap ).intValue = Lvaule;
-                int Mvaule = property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").GetArrayElementAtIndex(Lmap ).FindPropertyRelative("Vaule").arraySize++;
-                property.FindPropertyRelative("SortList").FindPropertyRelative("Vaule").GetArrayElementAtIndex(Lmap ).FindPropertyRelative("Vaule").GetArrayElementAtIndex(Mvaule ).intValue = i;
+                property.FindPropertyRelative("SortList").FindPropertyRelative("Slots").GetArrayElementAtIndex(Lkey).FindPropertyRelative("Key").intValue = Lvaule;
+                property.FindPropertyRelative("SortList").FindPropertyRelative("Slots").GetArrayElementAtIndex(Lkey).FindPropertyRelative("Vaule").FindPropertyRelative("Vaule").arraySize = 1;
+                property.FindPropertyRelative("SortList").FindPropertyRelative("Slots").GetArrayElementAtIndex(Lkey).FindPropertyRelative("Vaule").FindPropertyRelative("Vaule").GetArrayElementAtIndex(0).intValue = i;
             }
         }
+
+        //값을 루프돌려서 i 번째 값을 임시저장 => Lvaule
+        //정렬 리스트의 Key가 Lvaule인 인덱스를 찾음 => k
+        //
+        //k >= 0 이라면 정렬리스트 k 번째 값 마지막에 i를 추가
+        //k < 0 이라면 정렬리스트에 새로운 Key 생성 , i 를 추가
     }
 }
 #endif

@@ -1,0 +1,57 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+
+public class InputWidget : MonoBehaviour, IPointerEnterHandler , IPointerExitHandler
+{
+    Coroutine HoverCoroutine;
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        HoverCoroutine = StartCoroutine(Hovered());
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        StopCoroutine(HoverCoroutine);
+    }
+
+    IEnumerator Hovered()
+    {
+        //print("Hovered");
+
+        yield return new WaitForEndOfFrame();
+
+        HoverCoroutine = StartCoroutine(Hovered());
+    }
+
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        //if (gameObject)
+
+    }
+
+    private void OnGUI()
+    {
+        if (HoverCoroutine != null)
+        {
+            Event e = Event.current;
+            if (Event.current.isKey)
+            {
+                Debug.Log("Detected a keyboard event!" + Event.current.keyCode);
+            }
+            else if (Event.current.isMouse)
+            {
+                Debug.Log("Mouse " + Event.current.button + " Event");//Mouse 3, 4 ÀÎ½Ä X
+            }
+        }
+    }
+}

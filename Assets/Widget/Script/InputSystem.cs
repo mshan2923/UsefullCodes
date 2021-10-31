@@ -724,7 +724,7 @@ public class InputSystemEditor : Editor
 {
     InputSystem Onwer;
     KeyCode LastKey;
-    const string ext = "txt";
+    const string ext = "setting";
 
     public override void OnInspectorGUI()
     {

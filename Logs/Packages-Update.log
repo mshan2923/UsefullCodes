@@ -129,3 +129,10 @@ Update Mode: updateDependencies
 
 The following packages were 업데이트됨:
   com.unity.collab-proxy 1.9.0 버전에서 1.11.2버전으로
+=== Wed Oct 27 17:10:32 2021
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were 업데이트됨:
+  com.unity.collab-proxy 1.11.2 버전에서 1.13.5버전으로  com.unity.timeline 1.5.6 버전에서 1.6.2버전으로

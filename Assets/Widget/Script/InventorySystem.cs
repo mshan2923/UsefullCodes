@@ -162,7 +162,7 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
             MainPanel.sizeDelta = InventoryPanelSize;
             TitlePanel.sizeDelta = new Vector2(TitlePanel.sizeDelta.x, TitleHeight);
             //WidgetExpandScript.SetTransform(StoragePanel, new Vector2(0, TitleHeight), (InventoryPanelSize - new Vector2(0, TitleHeight)), new Vector2(0.5f, 0));
-            WidgetExpandScript.SetPadding(StoragePanel, 0, TitleHeight, 0, 0);
+            WidgetExpand.SetPadding(StoragePanel, 0, TitleHeight, 0, 0);
 
         }//Title 크기 , Storage 크기
 

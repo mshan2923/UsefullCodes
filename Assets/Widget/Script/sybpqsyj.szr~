@@ -1,0 +1,29 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class AlarmWidget : MonoBehaviour
+{
+    public bool OnlyApplyButton = true;
+    public bool ReverseOrder = false;// Base => Apply , Cencle
+
+    public Button ApplyButton;
+    public Button CencleButton;
+    void Start()
+    {
+        if (ApplyButton != null)
+            ApplyButton.onClick.AddListener(ApplyEvent);
+        if (CencleButton != null && !OnlyApplyButton)
+            CencleButton.onClick.AddListener(CencleEvent);
+    }
+
+    public void ApplyEvent()
+    {
+
+    }
+    public void CencleEvent()
+    {
+
+    }
+}

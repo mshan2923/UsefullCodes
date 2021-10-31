@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class WidgetExpandScript
+public class WidgetExpand
 {
     public static void SetPadding(RectTransform rect, float left, float top, float right, float bottom)//Setting Rect Position & Size
     {
@@ -39,7 +41,6 @@ public class WidgetExpandScript
     {
         Vector2 LPos = Position + ((Vector2.one + (rect.pivot * -2)) * RectSize) - new Vector2(rect.parent.position.x, rect.parent.position.y);
         SetTransform(rect, LPos, RectSize, DrawPivot);
-
         //Anchored 왼-오 OR 상-하 차이가 1인경우 Stretch
     }
 
@@ -72,4 +73,34 @@ public class WidgetExpandScript
             return false;
         }
     }//Pos is WorldPosition ( Recommand => Input.mousePosition)
+
+    public static List<RaycastResult> WidgetLineTrace(GraphicRaycaster gr)
+    {
+        var ped = new PointerEventData(null)
+        {
+            position = Input.mousePosition
+        };
+        List<RaycastResult> results = new();
+        gr.Raycast(ped, results);
+
+        return results;
+    }
+    public static GameObject GetBehideObject(GraphicRaycaster gr, System.Type Fillter)
+    {
+        List<RaycastResult> results = WidgetLineTrace(gr);
+        for (int i = 0; i < results.Count; i++)
+        {
+            if (Fillter == null)
+            {
+                return results[0].gameObject;
+            }
+
+            if (results[i].gameObject.GetComponent(Fillter))// && results[i].gameObject != Target
+            {
+                return results[i].gameObject;
+            }//Fillter의 해당 컴포넌트를 가진것만 + Target이 아닌 첫번째 오브젝트를 리턴
+        }
+
+        return null;
+    }
 }

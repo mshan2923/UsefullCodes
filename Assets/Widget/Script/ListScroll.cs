@@ -50,7 +50,7 @@ public class ListScroll : MonoBehaviour
         if (Vertical)
         {
             //SetPadding(contentRect, contentRect.offsetMin.x, 0, contentRect.offsetMax.x, 0);
-            WidgetExpandScript.SetTransform(contentRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
+            WidgetExpand.SetTransform(contentRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
 
             contentRect.anchorMin = new Vector2(0, ListPadding);
             contentRect.anchorMax = new Vector2(1, ListPadding);
@@ -58,7 +58,7 @@ public class ListScroll : MonoBehaviour
         }else
         {
             //SetPadding(contentRect, 0, -contentRect.offsetMax.y, 0, -contentRect.offsetMin.y);
-            WidgetExpandScript.SetTransform(contentRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
+            WidgetExpand.SetTransform(contentRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
 
 
             contentRect.anchorMin = new Vector2(ListPadding, 0);
@@ -108,7 +108,7 @@ public class ListScroll : MonoBehaviour
                 }//Set scrollWidth , slotHeight
 
                 //SetPadding(Temp, (-0.5f * scrollWidth), ScrollEndVaule, (-0.5f * scrollWidth), (-ScrollEndVaule - slotHeight));
-                WidgetExpandScript.SetTransform(Temp, new Vector2(0, -ScrollEndVaule), new Vector2(scrollWidth, slotHeight), new Vector2(0.5f, 0));
+                WidgetExpand.SetTransform(Temp, new Vector2(0, -ScrollEndVaule), new Vector2(scrollWidth, slotHeight), new Vector2(0.5f, 0));
             }
             else
             {
@@ -134,7 +134,7 @@ public class ListScroll : MonoBehaviour
                 }//Set ScrollHeight, slotWidth
 
                 //SetPadding(Temp, ScrollEndVaule, (-0.5f * ScrollHeight), (-ScrollEndVaule - slotWidth), (-0.5f * ScrollHeight));
-                WidgetExpandScript.SetTransform(Temp, new Vector2(ScrollEndVaule, 0), new Vector2(slotWidth, ScrollHeight), new Vector2(0 , 0.5f));
+                WidgetExpand.SetTransform(Temp, new Vector2(ScrollEndVaule, 0), new Vector2(slotWidth, ScrollHeight), new Vector2(0 , 0.5f));
             }
         }
     }
@@ -148,7 +148,7 @@ public class ListScroll : MonoBehaviour
         {
             ScrollEndVaule = StartSpace? BetweenSpace : 0;
 
-            WidgetExpandScript.SetTransform(contentRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0));
+            WidgetExpand.SetTransform(contentRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0));
         }
 
         Set(obj);
@@ -439,10 +439,10 @@ public class ListScroll : MonoBehaviour
 
             if (Vertical)
             {
-                WidgetExpandScript.SetTransform(ContentRect, LeftTop, new Vector2(0, ScrollEndVaule), Vector2.zero);
+                WidgetExpand.SetTransform(ContentRect, LeftTop, new Vector2(0, ScrollEndVaule), Vector2.zero);
             }else
             {
-                WidgetExpandScript.SetTransform(ContentRect, LeftTop, new Vector2(ScrollEndVaule, 0), Vector2.zero);
+                WidgetExpand.SetTransform(ContentRect, LeftTop, new Vector2(ScrollEndVaule, 0), Vector2.zero);
             }
 
             RePosition();

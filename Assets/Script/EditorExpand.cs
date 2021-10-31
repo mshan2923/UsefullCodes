@@ -9,10 +9,14 @@ namespace Expand
 {
     public static class EditorExpand
     {
-        public static Rect NextLine(Rect Pos, Rect DrawRect, float Offset = 0, int LineHeight = 20)
+        public static Rect NextLine(Rect Pos, Rect DrawRect, float Offset = 0, float LineHeight = 20)
+        {
+            return new Rect(Pos.x + Offset, (DrawRect.y + DrawRect.height), Pos.width - Offset, LineHeight);//Test LineHeight >> DrawRect.height
+        }
+        public static Rect NextLineOverride(Rect Pos, Rect DrawRect, float Offset = 0, float LineHeight = 20)
         {
             return new Rect(Pos.x + Offset, (DrawRect.y + LineHeight), Pos.width - Offset, LineHeight);
-        }
+        }//Use Change LineHeight
         public static Rect GetNextSpace(Rect Pos, Rect DrawRect, float width, float PreWidth = 0, bool LineFirst = false, int LineHeight = 20)
         {
             if (LineFirst)
@@ -395,6 +399,17 @@ namespace Expand
                     return null;
             }
             //Debug.Log(EditorExpand.PropertyTypeToType(property.type).FullName);
+        }
+
+        public static SerializedProperty FindProperty(SerializedProperty property , params string[] RelativePath)
+        {
+            SerializedProperty LPath = property;
+            for (int i = 0; i < RelativePath.Length; i++)
+            {
+                LPath = property.FindPropertyRelative(RelativePath[i]);
+            }
+
+            return LPath;
         }
     }
 
