@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/Widget/Scene/TabWidget Scene.unity
+- path: Assets/Widget/Scene/InventoryPanel.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0

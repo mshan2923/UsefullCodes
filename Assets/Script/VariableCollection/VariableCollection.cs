@@ -1314,4 +1314,21 @@ public class VarCollectionProperty : PropertyDrawer
         return DataText;
     }
 }//if Change Type , Type >> Generic >> Type
+
+[CustomPropertyDrawer(typeof(Wrap<>))]
+public class WrapEditor : PropertyDrawer
+{
+    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+    {
+        //return base.GetPropertyHeight(property, label);
+        
+        return EditorGUI.GetPropertyHeight(property.FindPropertyRelative("data"), true);
+    }
+
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        //base.OnGUI(position, property, label);
+        EditorGUI.PropertyField(position, property.FindPropertyRelative("data"), true);
+    }
+}
 #endif

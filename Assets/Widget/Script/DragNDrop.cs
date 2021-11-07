@@ -12,13 +12,13 @@ public class DragNDrop : MonoBehaviour , IPointerDownHandler, IPointerUpHandler 
     }
 
     //드래그드랍 될 위젯에 이스크립트 추가
-    RectTransform ParentRect;
+    RectTransform ObjRect;
     RectTransform CloneRect;
 
     public bool ShowDrag = true;
-    public bool ForceDrop = false;
+    public bool OnlyMoveObject = false;
     //드래그 , 드랍 따로 체크 - 드래그는 여기서 설정 , 드랍은 델리게이트 리턴으로 OR 강제 드랍
-    public GameObject DragArea;//++ 드래그 대상 제한
+    //public GameObject DragArea;//++ 드래그 대상 제한
     public bool DragClone = false;
 
     [Space(5)]
@@ -38,10 +38,12 @@ public class DragNDrop : MonoBehaviour , IPointerDownHandler, IPointerUpHandler 
     public Component RaycasterFillter;
 
     public float CloneZPos = -1;
+    int InputButton;
+
 
     void Start()
     {
-        ParentRect = gameObject.GetComponent<RectTransform>();
+        ObjRect = gameObject.GetComponent<RectTransform>();
         gr = FindObjectOfType<GraphicRaycaster>();
     }
 
@@ -49,7 +51,7 @@ public class DragNDrop : MonoBehaviour , IPointerDownHandler, IPointerUpHandler 
     public void OnPointerDown(PointerEventData eventData)
     {
         MouseDownPosition = eventData.position;
-        WidgetDownPosition = ParentRect.anchoredPosition;
+        WidgetDownPosition = ObjRect.anchoredPosition;
         Pressing = true;
 
         if (DragNDropEvent != null)
@@ -63,10 +65,12 @@ public class DragNDrop : MonoBehaviour , IPointerDownHandler, IPointerUpHandler 
         if (DragClone)
         {
             CloneObject = GameObject.Instantiate(gameObject);
-            CloneObject.transform.SetParent(gameObject.transform.parent);            
+            CloneObject.transform.SetParent(MainCanvasSingleton.Instance.MainCanvas.transform);            
 
             CloneRect = CloneObject.GetComponent<RectTransform>();
-            CloneRect.anchoredPosition = WidgetDownPosition;
+            CloneObject.transform.position = Input.mousePosition;
+            //CloneRect.anchoredPosition = WidgetDownPosition;
+            CloneRect.pivot = Vector2.up;
 
             CloneObject.transform.SetAsLastSibling();//Layer Draw 우선순위 변경
         }
@@ -93,10 +97,11 @@ public class DragNDrop : MonoBehaviour , IPointerDownHandler, IPointerUpHandler 
                 if(DragClone)
                 {
                     if (CloneObject != null)
-                        CloneRect.anchoredPosition = WidgetDownPosition + (new Vector2(Input.mousePosition.x, Input.mousePosition.y) - MouseDownPosition);                    
-                }else
+                        CloneRect.transform.position = Input.mousePosition;//WidgetDownPosition + (new Vector2(Input.mousePosition.x, Input.mousePosition.y) - MouseDownPosition);    
+                }
+                else
                 {
-                    ParentRect.anchoredPosition = WidgetDownPosition + (new Vector2(Input.mousePosition.x, Input.mousePosition.y) - MouseDownPosition);
+                    ObjRect.anchoredPosition = WidgetDownPosition + (new Vector2(Input.mousePosition.x, Input.mousePosition.y) - MouseDownPosition);
                 }
 
                 
@@ -110,44 +115,124 @@ public class DragNDrop : MonoBehaviour , IPointerDownHandler, IPointerUpHandler 
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        if (Input.GetMouseButton((int)eventData.button))
+        {
+            InputButton = (int)eventData.button;
+            StartCoroutine(WaitForUp());
+
+            return;
+        }
+
         Pressing = false;
         StopCoroutine(DragLoop);
 
         bool Laccess = false;
-        bool DCP = false;//DontChangePosition
+        bool DCP = false;//DontChangePosition - Move Object
 
-        if (ForceDrop)
+        if (OnlyMoveObject)
         {
             Laccess = true;
+
+            if (DragNDropEvent != null)
+                DragNDropEvent.Invoke(gameObject, MouseState.Up, null, ref DCP);
         }
         else
         {
+            GameObject Pointing = GetBehideObject(DragClone ? CloneObject : gameObject, RaycasterFillter);
             if (DragNDropEvent != null)
             {
                 
-                Laccess = DragNDropEvent.Invoke(gameObject, MouseState.Up, GetBehideObject(DragClone ? CloneObject : gameObject, RaycasterFillter), ref DCP);
+                Laccess = DragNDropEvent.Invoke(gameObject, MouseState.Up, Pointing, ref DCP);
                 //eventData.pointerCurrentRaycast.gameObject
             }
         }
 
-        if (! DCP)
+        if (DCP)
         {
-            if (ParentRect != null)
+            if (ObjRect != null)
+                ObjRect.anchoredPosition = WidgetDownPosition;
+
+            if (OnlyMoveObject)
+                ObjRect.anchoredPosition = WidgetDownPosition + (eventData.position - MouseDownPosition);
+        }
+        else
+        {
+            if (ObjRect != null)
             {
                 if (Laccess)
                 {
-                    ParentRect.anchoredPosition = WidgetDownPosition + (eventData.position - MouseDownPosition);
+                    ObjRect.anchoredPosition = WidgetDownPosition + (eventData.position - MouseDownPosition);
                 }
                 else
                 {
-                    ParentRect.anchoredPosition = WidgetDownPosition;
+                    ObjRect.anchoredPosition = WidgetDownPosition;
                 }
             }
         }
-
         if (DragClone)
         {
             DestroyImmediate(CloneObject);
+        }
+    }
+
+    IEnumerator WaitForUp()
+    {
+
+        if (Input.GetMouseButton(InputButton))
+        {
+            yield return new WaitForEndOfFrame();
+            StartCoroutine(WaitForUp());
+        }else
+        {
+            Pressing = false;
+            StopCoroutine(DragLoop);
+
+            bool Laccess = false;
+            bool DCP = false;//DontChangePosition - Move Object
+
+            if (OnlyMoveObject)
+            {
+                Laccess = true;
+
+                if (DragNDropEvent != null)
+                    DragNDropEvent.Invoke(gameObject, MouseState.Up, null, ref DCP);
+            }
+            else
+            {
+                GameObject Pointing = GetBehideObject(DragClone ? CloneObject : gameObject, RaycasterFillter);
+                if (DragNDropEvent != null)
+                {
+
+                    Laccess = DragNDropEvent.Invoke(gameObject, MouseState.Up, Pointing, ref DCP);
+                    //eventData.pointerCurrentRaycast.gameObject
+                }
+            }
+
+            /*
+            if (DCP)
+            {
+                if (ObjRect != null)
+                    ObjRect.anchoredPosition = WidgetDownPosition;
+            }
+            else
+            {
+                if (ObjRect != null)
+                {
+                    if (Laccess)
+                    {
+                        ObjRect.anchoredPosition = WidgetDownPosition + (new Vector2(Input.mousePosition.x, Input.mousePosition.y) - MouseDownPosition);
+                    }
+                    else
+                    {
+                        ObjRect.anchoredPosition = WidgetDownPosition;
+                    }
+                }
+            }*/
+
+            if (DragClone)
+            {
+                DestroyImmediate(CloneObject);
+            }
         }
     }
 

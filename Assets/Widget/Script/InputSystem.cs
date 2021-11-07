@@ -2,13 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class InputSystem : MonoBehaviour
 {
-    #region Singleton Prefab
+    #region Singleton Prefab + Save/Load
     public const string SettingFileDirectory = "Assets/Resources";
     const string SettingFileName = "InputSystem";
     const string KeySaveFileName = "InputData";
+    const string SaveExt = "setting";
 
     static InputSystem instance = null;
 
@@ -73,9 +75,53 @@ return instance;*/
     {
         Selection.activeObject = Instance;
     }
+
+    public void Save()
+    {
+        SaveLoad.Save(ButtonSingleAxis, SettingFileDirectory, "ButtonSingleAxis", SaveExt);
+        SaveLoad.Save(ButtonVector2Axis, SettingFileDirectory, "ButtonVector2Axis", SaveExt);
+        SaveLoad.Save(ActionEvent, SettingFileDirectory, "ActionEvent", SaveExt);
+    }
+    public bool Load()
+    {
+        int Loaded = 0;
+
+        if (SaveLoad.Load(SettingFileDirectory, "ActionEvent", SaveExt, out ActionInput ActionData))
+        {
+            ActionEvent = ActionData;
+            Loaded++;
+        }
+
+        if (SaveLoad.Load(SettingFileDirectory, "ButtonSingleAxis", SaveExt, out List<ButtonAxisInput> SingleData))
+        {
+            ButtonSingleAxis = SingleData;
+            Loaded++;
+        }
+
+        if (SaveLoad.Load(SettingFileDirectory, "ButtonVector2Axis", SaveExt, out List<ButtonVector2AxisInput> VectorData))
+        {
+            ButtonVector2Axis = VectorData;
+            Loaded++;
+        }
+
+        return Loaded == 3;
+    }
+    #endregion
+
+    #region UnityEvent
+    [System.Serializable]
+    public class SingleEvent : UnityEvent<float>
+    { 
+    }
+    [System.Serializable]
+    public class Vector2Event : UnityEvent<Vector2>
+    {
+    }
     #endregion
 
     #region AxisInput Class
+
+
     public abstract class AxisInput<T>
     {
         public T State;
@@ -528,6 +574,7 @@ return instance;*/
         public string Name;
         public Map<KeyCode, float> InputVaule;
         public SingleAxisInput AxisInput;
+        public SingleEvent Event;
 
         public float GetVaule()
         {
@@ -540,6 +587,7 @@ return instance;*/
         public string Name;
         public Map<KeyCode, Vector2> InputVaule;
         public Vector2AxisInput AxisInput;
+        public Vector2Event Event;
 
         public Vector2 GetVaule()
         {
@@ -555,8 +603,6 @@ return instance;*/
     #endregion
 
     #region ActionInput Class
-    public delegate void ButtonActionDelegate(string name, int index);
-    public static ButtonActionDelegate ButtonActionEvent;
 
     [System.Serializable]
     public struct ActionInputSlot
@@ -564,7 +610,7 @@ return instance;*/
         public string Name;
         public List<KeyCode> Buttons;
         public bool AndEvent;
-
+        public UnityEvent Event;
         [Space(5)]
         public bool Result;
 
@@ -607,18 +653,16 @@ return instance;*/
         {
             for (int i = 0; i < inputSlots.Count; i++)
             {
-                if (inputSlots[i].IsPress() && ButtonActionEvent != null)
+                if (inputSlots[i].IsPress())
                 {
-                    ButtonActionEvent.Invoke(inputSlots[i].Name, i);
+                    if (inputSlots[i].Event != null)
+                        inputSlots[i].Event.Invoke();
                 }
             }
         }
     }
     #endregion
 
-    #region Save & Load
-
-    #endregion
 
     public Vector2 MousePos;
     public Vector2AxisInput MouseOffset = new Vector2AxisInput();
@@ -681,6 +725,11 @@ return instance;*/
             if(ButtonSingleAxis[i].InputVaule.Count > 0)
             {
                 ButtonSingleAxis[i].AxisInput.GetVaule(Lvaule);
+
+                if (ButtonSingleAxis[i].Event != null)
+                {
+                    ButtonSingleAxis[i].Event.Invoke(ButtonSingleAxis[i].GetVaule());
+                }
             }
         }//ButtonSingleAxis
 
@@ -698,6 +747,11 @@ return instance;*/
             if (ButtonVector2Axis[i].InputVaule.Count > 0)
             {
                 ButtonVector2Axis[i].AxisInput.GetVaule(Lvaule);
+
+                if (ButtonVector2Axis[i].Event != null)
+                {
+                    ButtonVector2Axis[i].Event.Invoke(ButtonVector2Axis[i].GetVaule());
+                }
             }
         }//ButtonVector2Axis
 
@@ -716,6 +770,13 @@ return instance;*/
             //Debug.Log("Mouse " + e.button + " Event");//Mouse 3, 4 ÀÎ½Ä X
         }
     }
+
+#if UNITY_EDITOR
+    public void TestEvent(Vector2 vaule)
+    {
+        print(vaule);
+    }
+#endif
 }
 
 #if UNITY_EDITOR
@@ -724,7 +785,6 @@ public class InputSystemEditor : Editor
 {
     InputSystem Onwer;
     KeyCode LastKey;
-    const string ext = "setting";
 
     public override void OnInspectorGUI()
     {
@@ -735,11 +795,10 @@ public class InputSystemEditor : Editor
         if (Event.current.keyCode != KeyCode.None)
         {
             LastKey = Event.current.keyCode;
-            Debug.Log("Editor Event : " + Event.current.keyCode);
         }
         {
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Button("Last Input Key");
+            GUILayout.Button("Update Last Input Key");
             GUILayout.Label(" : " + LastKey);
             EditorGUILayout.EndHorizontal();
         }
@@ -748,20 +807,11 @@ public class InputSystemEditor : Editor
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Save"))
             {
-                SaveLoad.Save(Onwer.ButtonSingleAxis, InputSystem.SettingFileDirectory, "ButtonSingleAxis", ext);
-                SaveLoad.Save(Onwer.ButtonVector2Axis, InputSystem.SettingFileDirectory, "ButtonVector2Axis", ext);
-                SaveLoad.Save(Onwer.ActionEvent, InputSystem.SettingFileDirectory, "ActionEvent", ext);
+                Onwer.Save();
             }
             if (GUILayout.Button("Load"))
             {
-                if (SaveLoad.Load(InputSystem.SettingFileDirectory, "ActionEvent", ext, out InputSystem.ActionInput actionInput))
-                    Onwer.ActionEvent = actionInput;
-
-                if (SaveLoad.Load(InputSystem.SettingFileDirectory, "ButtonSingleAxis", ext, out List<InputSystem.ButtonAxisInput> ButtonSingleAxis))
-                    Onwer.ButtonSingleAxis = ButtonSingleAxis;
-
-                if (SaveLoad.Load(InputSystem.SettingFileDirectory, "ButtonVector2Axis", ext, out List<InputSystem.ButtonVector2AxisInput> ButtonVector2Axis))
-                    Onwer.ButtonVector2Axis = ButtonVector2Axis;
+                Onwer.Load();
             }
             EditorGUILayout.EndHorizontal();
 

@@ -16,15 +16,17 @@ public class ListScroll : MonoBehaviour
 
     public GameObject Content;
     ScrollRect scroll;
+    public Vector2 PenelSize;
     public bool Vertical = true;
 
     [Space(10)]
     public Map<GameObject, float> ScrollList = new Map<GameObject, float>();
     public FoldPanel FoldSlotObject;
 
-    [Space(5)]
-    public float SlotPerpendicularSize = 50f;// disable to use SlotStretch , if Vertical - Slot Horizontal Size
+    [Space(5), Header("Direction - L , R : (Axis, Perp) | T , B : (Perp , Axis)")]
     public float SlotAxisSize = 30f;
+    public float SlotPerpendicularSize = 50f;// disable to use SlotStretch , if Vertical - Slot Horizontal Size
+    [Space(10)]
     public float ListPadding = 0.5f;
     public bool SlotStretch = true;
     public float SlotPadding = 0.5f;
@@ -47,9 +49,10 @@ public class ListScroll : MonoBehaviour
         scroll = gameObject.GetComponent<ScrollRect>();
 
         var contentRect = Content.GetComponent<RectTransform>();
+        PenelSize = WidgetExpand.GetWorldSize(gameObject.GetComponent<RectTransform>());
+
         if (Vertical)
         {
-            //SetPadding(contentRect, contentRect.offsetMin.x, 0, contentRect.offsetMax.x, 0);
             WidgetExpand.SetTransform(contentRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
 
             contentRect.anchorMin = new Vector2(0, ListPadding);
@@ -57,7 +60,6 @@ public class ListScroll : MonoBehaviour
             contentRect.pivot = new Vector2(0.5f, ListPadding);// ListPadding : 0.5 =>Middle Stretch
         }else
         {
-            //SetPadding(contentRect, 0, -contentRect.offsetMax.y, 0, -contentRect.offsetMin.y);
             WidgetExpand.SetTransform(contentRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
 
 
@@ -76,66 +78,98 @@ public class ListScroll : MonoBehaviour
 
     public void Set(GameObject obj)
     {
-        var Temp = obj.GetComponent<RectTransform>();
+        
 
-        if (Temp != null)
+        var objRect = obj.GetComponent<RectTransform>();
+        FoldPanel LFold = obj.GetComponent<FoldPanel>();
+
+        if (LFold != null)
         {
-            Temp.SetParent(Content.transform);
-
+            LFold.TitleHeight = SlotAxisSize;//titleHeight;
 
             if (Vertical)
             {
-                float scrollWidth = 0;
-                float slotHeight = 0;
-                {
+                if (FoldDirection_Vertical == FoldPanel.FoldDirection.TopToButtom || FoldDirection_Vertical == FoldPanel.FoldDirection.ButtomToTop)
+                    LFold.PanelSize = new Vector2((SlotStretch ? PenelSize.x : SlotPerpendicularSize), (LFold.IsOpen ? FoldOpenSize : LFold.TitleHeight));
+                else
+                    LFold.PanelSize = new Vector2(FoldOpenSize, SlotPerpendicularSize);
 
-                    if (SlotStretch)
-                    {
-                        scrollWidth = 0;
-                        Temp.anchorMin = new Vector2(0, 1);
-                        Temp.anchorMax = Vector2.one;
-                        Temp.pivot = new Vector2(0.5f, 1);//Top Stretch
-                    }
-                    else
-                    {
-                        scrollWidth = SlotPerpendicularSize;
-                        Temp.anchorMin = new Vector2(SlotPadding, 1);
-                        Temp.anchorMax = new Vector2(0.5f, 1);
-                        Temp.pivot = new Vector2(0.5f, 1);// SlotPadding : 0.5 =>Top Center
-                    }
-
-                    slotHeight = Temp.sizeDelta.y;
-                }//Set scrollWidth , slotHeight
-
-                //SetPadding(Temp, (-0.5f * scrollWidth), ScrollEndVaule, (-0.5f * scrollWidth), (-ScrollEndVaule - slotHeight));
-                WidgetExpand.SetTransform(Temp, new Vector2(0, -ScrollEndVaule), new Vector2(scrollWidth, slotHeight), new Vector2(0.5f, 0));
+                LFold.Direction = FoldDirection_Vertical;
             }
             else
             {
-                float ScrollHeight = 0;
-                float slotWidth = 0;
+                if (FoldDirection_Horizontal == FoldPanel.FoldDirection.LeftToRight || FoldDirection_Horizontal == FoldPanel.FoldDirection.RightToLeft)
+                    LFold.PanelSize = new Vector2((LFold.IsOpen ? FoldOpenSize : LFold.TitleHeight), (SlotStretch ? PenelSize.y : SlotPerpendicularSize));
+                else
+                    LFold.PanelSize = new Vector2(SlotPerpendicularSize, FoldOpenSize);
+
+                LFold.Direction = FoldDirection_Horizontal;
+            }
+
+        }
+
+        if (objRect != null)
+        {
+            objRect.SetParent(Content.transform);
+            float SlotWidth = 0;
+            float SlotHeight = 0;
+
+            if (LFold != null)
+            {
+                LFold.ReDraw();
+            }
+
+            if (Vertical)
+            {
                 {
+                    objRect.anchorMin = new Vector2(0, 1);
+                    objRect.anchorMax = Vector2.one;
+                    objRect.pivot = new Vector2(0.5f, 1);//Top Stretch
+
                     if (SlotStretch)
                     {
-                        ScrollHeight = 0;
-                        Temp.anchorMin = Vector2.zero;
-                        Temp.anchorMax = new Vector2(0, 1);
-                        Temp.pivot = new Vector2(0, 0.5f);//Left Stretch
+                        SlotWidth = PenelSize.x;
+
                     }
                     else
                     {
-                        ScrollHeight = SlotPerpendicularSize;
-                        Temp.anchorMin = new Vector2(0, SlotPadding);
-                        Temp.anchorMax = new Vector2(0, SlotPadding);
-                        Temp.pivot = new Vector2(0, 0.5f);// SlotPadding : 0.5 =>Middle Left
+                        SlotWidth = LFold == null ? SlotPerpendicularSize : LFold.PanelSize.x;
+                        //objRect.anchorMin = new Vector2(SlotPadding, 1);
+                        //objRect.anchorMax = new Vector2(0.5f, 1);
+                        //objRect.pivot = new Vector2(0.5f, 1);// SlotPadding : 0.5 =>Top Center
                     }
 
-                    slotWidth = Temp.sizeDelta.x;
+                    SlotHeight = LFold == null ? SlotAxisSize : LFold.PanelSize.y;
+                }//Set scrollWidth , slotHeight
+
+                WidgetExpand.SetTransform(objRect, new Vector2(0, -ScrollEndVaule), new Vector2(SlotWidth, SlotHeight), new Vector2(SlotPadding, 0));
+            }
+            else
+            {
+                {
+                    objRect.anchorMin = Vector2.zero;
+                    objRect.anchorMax = new Vector2(0, 1);
+                    objRect.pivot = new Vector2(0, 0.5f);//Left Stretch
+
+                    if (SlotStretch)
+                    {
+                        SlotHeight = PenelSize.y;
+
+                    }
+                    else
+                    {
+                        SlotHeight = LFold == null ? SlotPerpendicularSize : LFold.PanelSize.y;
+                        //objRect.anchorMin = new Vector2(0, SlotPadding);
+                        //objRect.anchorMax = new Vector2(0, SlotPadding);
+                        //objRect.pivot = new Vector2(0, 0.5f);// SlotPadding : 0.5 =>Middle Left
+                    }
+
+                    SlotWidth = LFold == null ? SlotAxisSize : LFold.PanelSize.x;//Temp.sizeDelta.x;
                 }//Set ScrollHeight, slotWidth
 
-                //SetPadding(Temp, ScrollEndVaule, (-0.5f * ScrollHeight), (-ScrollEndVaule - slotWidth), (-0.5f * ScrollHeight));
-                WidgetExpand.SetTransform(Temp, new Vector2(ScrollEndVaule, 0), new Vector2(slotWidth, ScrollHeight), new Vector2(0 , 0.5f));
+                WidgetExpand.SetTransform(objRect, new Vector2(ScrollEndVaule, 0), new Vector2(SlotWidth, SlotHeight), new Vector2(0, SlotPadding));
             }
+
         }
     }
     public void Add(GameObject obj)
@@ -148,14 +182,14 @@ public class ListScroll : MonoBehaviour
         {
             ScrollEndVaule = StartSpace? BetweenSpace : 0;
 
-            WidgetExpand.SetTransform(contentRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0));
+            WidgetExpand.SetTransform(contentRect, Vector2.zero, PenelSize, new Vector2(0.5f, 0));
         }
 
         Set(obj);
 
         if (Vertical)
         {
-            objRect.sizeDelta = new Vector2(SlotPerpendicularSize, SlotAxisSize);
+            //objRect.sizeDelta = new Vector2(SlotPerpendicularSize, SlotAxisSize);
 
             ScrollList.Add(obj, objRect.rect.height);
             ScrollEndVaule += (objRect.rect.height + BetweenSpace);
@@ -173,7 +207,7 @@ public class ListScroll : MonoBehaviour
             }
         }else
         {
-            objRect.sizeDelta = new Vector2(SlotAxisSize, SlotPerpendicularSize);
+            //objRect.sizeDelta = new Vector2(SlotAxisSize, SlotPerpendicularSize);
 
             ScrollList.Add(obj, objRect.rect.width);
             ScrollEndVaule += (objRect.rect.width + BetweenSpace);
@@ -214,25 +248,37 @@ public class ListScroll : MonoBehaviour
     {
         var obj = GameObject.Instantiate(FoldSlotObject);
         obj.TitleHeight = SlotAxisSize;//titleHeight;
+
+        Add(obj.gameObject);
+
+        //PanelSize를 방향 기준으로 설정
+
+        /*
         if (Vertical)
         {
-            obj.FoldPanelSize = new Vector2(SlotPerpendicularSize, FoldOpenSize);//foldPanelSize;
+            if (FoldDirection_Vertical == FoldPanel.FoldDirection.TopToButtom || FoldDirection_Vertical == FoldPanel.FoldDirection.ButtomToTop)
+                obj.PanelSize = new Vector2((SlotStretch ? ScrollSize.x : SlotPerpendicularSize), FoldOpenSize);
+            else
+                obj.PanelSize = new Vector2(FoldOpenSize, SlotPerpendicularSize);
+
             obj.Direction = FoldDirection_Vertical ;
         }
         else
         {
-            obj.FoldPanelSize = new Vector2(FoldOpenSize, SlotPerpendicularSize);
+            if (FoldDirection_Vertical == FoldPanel.FoldDirection.LeftToRight && FoldDirection_Vertical == FoldPanel.FoldDirection.RightToLeft)
+                obj.PanelSize = new Vector2(FoldOpenSize, (SlotStretch ? ScrollSize.x : SlotPerpendicularSize));
+            else
+                obj.PanelSize = new Vector2(SlotAxisSize, FoldOpenSize);
+
             obj.Direction = FoldDirection_Horizontal;
-        }   
+        }   */
         
-        Add(obj.gameObject);
 
         obj.SetOpen(isOpen, false);
         obj.OpenEvnet += new FoldPanel.OpenDelegate(OpenEvent);
 
         RePosition();
-    }
-    //AddFoldSlot , RemoveFoldSlot
+    }//=======================if else 부분 Set으로 이동
 
     public void Remove(int index, bool destroy = true)
     {
@@ -341,45 +387,46 @@ public class ListScroll : MonoBehaviour
 
         for (int i = 0; i < ScrollList.Count; i++)
         {
-
-            if (ScrollList.GetKey(i).GetComponent<FoldPanel>() != null)
-            {
-                ScrollList.GetKey(i).GetComponent<FoldPanel>().Direction = Vertical ? FoldDirection_Vertical : FoldDirection_Horizontal;
-                ScrollList.GetKey(i).GetComponent<FoldPanel>().ReDraw();
-            }
-
             if (ScrollList.GetKey(i) == null)
             {
                 ScrollEndVaule += ScrollList.GetVaule(i);
             }
             else
             {
+                if (ScrollList.GetKey(i).GetComponent<FoldPanel>() != null)
+                {
+                    ScrollList.GetKey(i).GetComponent<FoldPanel>().Direction = Vertical ? FoldDirection_Vertical : FoldDirection_Horizontal;
+                    ScrollList.GetKey(i).GetComponent<FoldPanel>().ReDraw();
+                }
+
                 Set(ScrollList.GetKey(i));
 
                 objRect = ScrollList.GetKey(i).GetComponent<RectTransform>();
+
                 if (Vertical)
                 {
+                    //WidgetExpand.SetPosition(objRect, Vector2.down * ScrollEndVaule, new Vector2(0.5f, 0));
+
                     ScrollList.SetVaule(i, objRect.rect.height);
                     ScrollEndVaule += (objRect.rect.height + BetweenSpace);
 
-                    //SetPadding(contentRect, contentRect.offsetMin.x, -contentRect.offsetMax.y, contentRect.offsetMax.x, (-ScrollEndVaule + contentRect.offsetMax.y));
                     contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, ScrollEndVaule);
 
                     if (AutoScrollToChange)
                     {
-                        scroll.verticalNormalizedPosition = 0;
-                        //Content.transform.position += new Vector3(0, (Temp.rect.height + BetweenSpace));
+                        scroll.verticalNormalizedPosition = 0;                        
                     }
                 }
                 else
                 {
+                    //WidgetExpand.SetPosition(objRect, Vector2.right * ScrollEndVaule, new Vector2(0, 0.5f));
+
                     ScrollList.SetVaule(i, objRect.rect.width);
                     ScrollEndVaule += (objRect.rect.width + BetweenSpace);
 
-                    //SetPadding(contentRect, contentRect.offsetMin.x, -contentRect.offsetMax.y, (-contentRect.offsetMin.x - ScrollEndVaule), -contentRect.offsetMin.y);
                     contentRect.sizeDelta = new Vector2(ScrollEndVaule, contentRect.sizeDelta.y);
 
-                    if (AutoScrollToChange)//scroll.verticalScrollbar.IsActive() &&
+                    if (AutoScrollToChange)
                     {
                         scroll.horizontalNormalizedPosition = 1;
                     }
@@ -390,7 +437,14 @@ public class ListScroll : MonoBehaviour
 
     public void OpenEvent(GameObject obj, bool Open)
     {
+        if (ScrollList.GetKey().Exists(t => t == obj))
+        {
+            RePosition();
+            return;
+        }
 
+        {
+            /*
         int Lindex = ScrollList.GetKey().FindIndex(t => t == obj);
 
         if (Lindex >= 0)
@@ -412,17 +466,19 @@ public class ListScroll : MonoBehaviour
                 if (Vertical)
                 {
                     //contentRect.anchoredPosition += (1 - ListPadding) * (Open ? -1 : 1) * new Vector2(0, Lfold.FoldPanelSize.y - Lfold.TitleHeight);
-                    MoveContentToOpenFold(Lfold, FoldDirection_Vertical, Open);
+                    //MoveContentToOpenFold(Lfold, FoldDirection_Vertical, Open);
                 }
                 else
                 {
                     //contentRect.anchoredPosition += (1 - ListPadding) * (Open ? 1 : -1) * new Vector2(Lfold.FoldPanelSize.x - Lfold.TitleHeight, 0);
-                    MoveContentToOpenFold(Lfold, FoldDirection_Horizontal, Open);
+                    //MoveContentToOpenFold(Lfold, FoldDirection_Horizontal, Open);
                 }
 
             }
         
         }
+             * */
+        }//Disable
     }
     void SetOpen(GameObject obj, bool Open)
     {
@@ -456,22 +512,22 @@ public class ListScroll : MonoBehaviour
         {
             case FoldPanel.FoldDirection.RightToLeft:
                 {
-                    contentRect.anchoredPosition += (ListPadding) * (Open ? -1 : 1) * new Vector2(fold.FoldPanelSize.x - fold.TitleHeight, 0);
+                    contentRect.anchoredPosition += (ListPadding) * (Open ? -1 : 1) * new Vector2(fold.PanelSize.x - fold.TitleHeight, 0);
                     break;
                 }
             case FoldPanel.FoldDirection.LeftToRight:
                 {
-                    contentRect.anchoredPosition += (1 - ListPadding) * (Open ? 1 : -1) * new Vector2(fold.FoldPanelSize.x - fold.TitleHeight, 0);
+                    contentRect.anchoredPosition += (1 - ListPadding) * (Open ? 1 : -1) * new Vector2(fold.PanelSize.x - fold.TitleHeight, 0);
                     break;
                 }
             case FoldPanel.FoldDirection.TopToButtom:
                 {
-                    contentRect.anchoredPosition += (1 - ListPadding) * (Open ? -1 : 1) * new Vector2(0, fold.FoldPanelSize.y - fold.TitleHeight);
+                    contentRect.anchoredPosition += (1 - ListPadding) * (Open ? -1 : 1) * new Vector2(0, fold.PanelSize.y - fold.TitleHeight);
                     break;
                 }
             case FoldPanel.FoldDirection.ButtomToTop:
                 {
-                    contentRect.anchoredPosition += (ListPadding) * (Open ? -1 : 1) * new Vector2(0, fold.FoldPanelSize.y - fold.TitleHeight);
+                    contentRect.anchoredPosition += (ListPadding) * (Open ? -1 : 1) * new Vector2(0, fold.PanelSize.y - fold.TitleHeight);
                     break;
                 }
         }

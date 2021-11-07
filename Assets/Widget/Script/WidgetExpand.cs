@@ -18,23 +18,64 @@ public class WidgetExpand
 
     public static void SetTransform(RectTransform rect , Vector2 LocalPosition, Vector2 RectSize, Vector2 DrawPivot)
     {
-        if (IsXStretch(rect))
+        Vector2 ParnetSize = GetWorldSize((RectTransform) rect.parent);
+        
+        if (IsXStretch(rect) && IsYStretch(rect))
         {
-            SetPadding(rect, 0, -(LocalPosition.y + RectSize.y * (DrawPivot.y)),
-            0, (LocalPosition.y - RectSize.y * (1 - DrawPivot.y)));
+            Vector2 LT = ((ParnetSize - RectSize) * DrawPivot) + LocalPosition;
+            Vector2 RB = ((ParnetSize - RectSize) * (Vector2.one - DrawPivot)) - LocalPosition;
+
+            SetPadding(rect, LT.x, LT.y, RB.x, RB.y);
+        }
+        else if (IsXStretch(rect))
+        {
+            SetPadding(rect, (LocalPosition + (ParnetSize - RectSize) * DrawPivot).x, -(LocalPosition.y + RectSize.y * (DrawPivot.y)),
+            (LocalPosition + (ParnetSize - RectSize) * (Vector2.one - DrawPivot)).x, (LocalPosition.y - RectSize.y * (1 - DrawPivot.y)));
         }
         else if (IsYStretch(rect))
         {
-            SetPadding(rect, (LocalPosition.x - RectSize.x * (DrawPivot.x)), 0,
-            -(LocalPosition.x + RectSize.x * (1 - DrawPivot.x)), 0);
+            SetPadding(rect, (LocalPosition.x - RectSize.x * (DrawPivot.x)), (((ParnetSize - RectSize) * DrawPivot) + LocalPosition).y,
+            -(LocalPosition.x + RectSize.x * (1 - DrawPivot.x)), (((ParnetSize - RectSize) * (Vector2.one - DrawPivot)) - LocalPosition).y);
         }
         else
         {
             SetPadding(rect, (LocalPosition.x - RectSize.x * (DrawPivot.x)), -(LocalPosition.y + RectSize.y * (DrawPivot.y)),
             -(LocalPosition.x + RectSize.x * (1 - DrawPivot.x)), (LocalPosition.y - RectSize.y * (1 - DrawPivot.y)));
+
             //DrawRate == Vector2.Zero ->> LeftTop
         }
 
+        //Debug.Log("Parent : " + rect.parent + " - " + ParnetSize + " \n Rect : " + rect.gameObject + " - " + RectSize);
+
+    }//DrawRate == Vector2.Zero ->> LeftTop (Origin : Parent Pivot)
+    public static void SetTransform(RectTransform rect, Vector2 LocalPosition, Vector2 ParentSize, Vector2 RectSize, Vector2 DrawPivot)
+    {
+        if (IsXStretch(rect) && IsYStretch(rect))
+        {
+            Vector2 LT = ((ParentSize - RectSize) * DrawPivot) + LocalPosition;
+            Vector2 RB = ((ParentSize - RectSize) * (Vector2.one - DrawPivot)) - LocalPosition;
+
+            SetPadding(rect, LT.x, LT.y, RB.x, RB.y);
+        }
+        else if (IsXStretch(rect))
+        {
+            SetPadding(rect, (LocalPosition + (ParentSize - RectSize) * DrawPivot).x, -(LocalPosition.y + RectSize.y * (DrawPivot.y)),
+            (LocalPosition + (ParentSize - RectSize) * (Vector2.one - DrawPivot)).x, (LocalPosition.y - RectSize.y * (1 - DrawPivot.y)));
+        }
+        else if (IsYStretch(rect))
+        {
+            SetPadding(rect, (LocalPosition.x - RectSize.x * (DrawPivot.x)), (((ParentSize - RectSize) * DrawPivot) + LocalPosition).y,
+            -(LocalPosition.x + RectSize.x * (1 - DrawPivot.x)), (((ParentSize - RectSize) * (Vector2.one - DrawPivot)) - LocalPosition).y);
+        }
+        else
+        {
+            SetPadding(rect, (LocalPosition.x - RectSize.x * (DrawPivot.x)), -(LocalPosition.y + RectSize.y * (DrawPivot.y)),
+            -(LocalPosition.x + RectSize.x * (1 - DrawPivot.x)), (LocalPosition.y - RectSize.y * (1 - DrawPivot.y)));
+
+            //DrawRate == Vector2.Zero ->> LeftTop
+        }
+
+        //Debug.Log("Parent : " + rect.parent + " - " + ParnetSize + " \n Rect : " + rect.gameObject + " - " + RectSize);
     }
 
     public static void SetWorldTransform(RectTransform rect, Vector2 Position, Vector2 RectSize, Vector2 DrawPivot)
@@ -42,8 +83,40 @@ public class WidgetExpand
         Vector2 LPos = Position + ((Vector2.one + (rect.pivot * -2)) * RectSize) - new Vector2(rect.parent.position.x, rect.parent.position.y);
         SetTransform(rect, LPos, RectSize, DrawPivot);
         //Anchored 왼-오 OR 상-하 차이가 1인경우 Stretch
+
+    }//DrawPivot == Vector.zero == LeftTop (Origin : Screen Left Buttom)
+    public static void SetPosition(RectTransform rect, Vector2 LocalPosition, Vector2 DrawPivot)
+    {
+        SetTransform(rect, LocalPosition, GetWorldSize(rect), DrawPivot);
     }
 
+    public static Vector2 GetWorldSize(RectTransform rect)
+    {
+        Vector3[] rectCorners = new Vector3[4];
+        rect.GetWorldCorners(rectCorners);
+        //0 : 왼쪽 아래 / 1: 왼쪽 위 / 2: 오른쪽 위 / 3: 오른쪽 아래
+
+        return new Vector2(Mathf.Abs((rectCorners[2] - rectCorners[0]).x), Mathf.Abs((rectCorners[2] - rectCorners[0]).y));
+    }//Notworking Stretch
+    [System.Obsolete("--")]
+    public static void SetWorldSize(RectTransform rect , Vector2 Size)
+    {
+        Vector2 RectSize = GetWorldSize(rect);
+
+        if (IsXStretch(rect) && IsYStretch(rect))
+        {
+            rect.sizeDelta = Size - RectSize;
+        }else if (IsXStretch(rect))
+        {
+            rect.sizeDelta = new Vector2((Size.x - RectSize.x), Size.y);
+        }else if (IsYStretch(rect))
+        {
+            rect.sizeDelta = new Vector2(Size.x, (Size.y - RectSize.y));
+        }else
+        {
+            rect.sizeDelta = Size;
+        }
+    }
     public static bool IsXStretch(RectTransform rect)
     {
         return Mathf.Approximately(Mathf.Abs(rect.anchorMin.x - rect.anchorMax.x), 1);

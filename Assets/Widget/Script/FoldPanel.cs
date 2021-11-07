@@ -18,7 +18,13 @@ public class FoldPanel : MonoBehaviour
 
     public FoldDirection Direction = FoldDirection.TopToButtom;
     public float TitleHeight = 30;
-    public Vector2 FoldPanelSize = new Vector2(350,250);
+    public Vector2 PanelSize = new Vector2(350,250);
+    public float CloseHorizonHeight = 100;
+
+    [Space(10)]
+    public bool AnchoredPanel = false;
+    public bool StartRedraw = true;
+    public bool Test_Reseting = true;
 
     [Space(5) , SerializeField]
     private bool isOpen = false;
@@ -38,7 +44,8 @@ public class FoldPanel : MonoBehaviour
 
         FoldButton.onClick.AddListener(ToggleFold);
 
-        ReDraw();
+        if(StartRedraw)
+            ReDraw();
     }
 
 
@@ -48,6 +55,7 @@ public class FoldPanel : MonoBehaviour
         isOpen = !isOpen;
         SetOpen(isOpen);
     }
+
     public void SetOpen(bool open , bool Event = true)
     {
         if (SelfRect == null)
@@ -60,93 +68,135 @@ public class FoldPanel : MonoBehaviour
 
         var buttonRect = FoldButton.gameObject.GetComponent<RectTransform>();
         Vector2 Lpos = SelfRect.anchoredPosition;
+        Vector2 FoldSize = Vector2.zero;
 
+        FoldContent.gameObject.SetActive(open);
         //좌하단이 시작점,  상대적거리으로 / 한점을 기준으로 접고펴기
         switch (Direction)
         {
             case FoldDirection.RightToLeft:
                 {
+                    SelfRect.pivot = new Vector2(1, 0.5f);
+                    if (AnchoredPanel)
+                    {
+                        SelfRect.anchorMin = Vector2.right;
+                        SelfRect.anchorMax = Vector2.one;
+                    }
+
+                    buttonRect.anchorMin = new Vector2(1, 0.5f);
+                    buttonRect.anchorMax = new Vector2(1, 0.5f);
+                    buttonRect.pivot = new Vector2(1, 0.5f);
+
                     if (open)
                     {
-                        //SelfRect.sizeDelta = FoldPanelSize;
-                        //SelfRect.localPosition = new Vector3(FoldPanelSize.x * 0.5f, 0, 0);
-
-                        WidgetExpand.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0, 0.5f));
+                        WidgetExpand.SetTransform(SelfRect, Lpos, PanelSize, new Vector2(1, 0.5f));
+                        FoldSize = (PanelSize - Vector2.right * TitleHeight);
                     }
                     else
                     {
-                        //SelfRect.sizeDelta = new Vector2(TitleHeight, FoldPanelSize.y);
-                        WidgetExpand.SetTransform(SelfRect, Lpos, new Vector2(TitleHeight, FoldPanelSize.x), new Vector2(0, 0.5f));
+                        WidgetExpand.SetTransform(SelfRect, Lpos, new Vector2(TitleHeight, CloseHorizonHeight), new Vector2(1, 0.5f));
+                        FoldSize = Vector2.up * CloseHorizonHeight;
                     }
 
                     {
-                        WidgetExpand.SetPadding(buttonRect, (open ? (SelfRect.rect.size.x - TitleHeight) : 0), 0, 0, 0);//(FoldPanelSize.x - TitleHeight)
-                        WidgetExpand.SetPadding(FoldContent, 0, 0, TitleHeight, 0);
+                        //WidgetExpand.SetPadding(buttonRect, (open ? (SelfRect.rect.size.x - TitleHeight) : 0), 0, 0, 0);//(FoldPanelSize.x - TitleHeight)
+                        //WidgetExpand.SetPadding(FoldContent, 0, 0, TitleHeight, 0);
+                        WidgetExpand.SetTransform(buttonRect, Vector2.zero, new Vector2(TitleHeight, open ? PanelSize.y : CloseHorizonHeight), new Vector2(1, 0.5f));
+                        WidgetExpand.SetTransform(FoldContent, new Vector2(-TitleHeight, 0), FoldSize, new Vector2(1, 0.5f));
                     }
                     break;
                 }
             case FoldDirection.LeftToRight:
                 {
+                    SelfRect.pivot = new Vector2(0, 0.5f);
+                    if (AnchoredPanel)
+                    {
+                        SelfRect.anchorMin = Vector2.zero;
+                        SelfRect.anchorMax = Vector2.up;
+                    }
+
+                    buttonRect.anchorMin = Vector2.up * 0.5f;
+                    buttonRect.anchorMax = Vector2.up * 0.5f;
+                    buttonRect.pivot = Vector2.up * 0.5f;
+
                     if (open)
                     {
-                        //SelfRect.sizeDelta = FoldPanelSize;
-                        //SelfRect.localPosition = new Vector3(FoldPanelSize.x * 0.5f, 0, 0);
-
-                        WidgetExpand.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0, 0.5f));
+                        WidgetExpand.SetTransform(SelfRect, Lpos, PanelSize, new Vector2(0, 0.5f));
+                        FoldSize = (PanelSize - Vector2.right * TitleHeight);
                     }
                     else
                     {
-                        //SelfRect.sizeDelta = new Vector2(TitleHeight, FoldPanelSize.y);
-                        WidgetExpand.SetTransform(SelfRect, Lpos, new Vector2(TitleHeight, FoldPanelSize.x), new Vector2(0, 0.5f));
+                        WidgetExpand.SetTransform(SelfRect, Lpos, new Vector2(TitleHeight, CloseHorizonHeight), new Vector2(0, 0.5f));
+                        FoldSize = Vector2.up * CloseHorizonHeight;
                     }
 
                     {
-                        WidgetExpand.SetPadding(buttonRect, 0, 0, (open ? (SelfRect.rect.size.x - TitleHeight) : 0), 0);
-                        WidgetExpand.SetPadding(FoldContent, TitleHeight, 0, 0, 0);
+                        WidgetExpand.SetTransform(buttonRect, Vector2.zero, new Vector2(TitleHeight, open ? PanelSize.y : CloseHorizonHeight), new Vector2(0, 0.5f));
+                        WidgetExpand.SetTransform(FoldContent, new Vector2(TitleHeight, 0), FoldSize, new Vector2(0, 0.5f));
                     }
                     break;
                 }
             case FoldDirection.TopToButtom:
                 {
+                    SelfRect.pivot = new Vector2(0.5f, 1);
+                    if (AnchoredPanel)
+                    {
+                        SelfRect.anchorMin = Vector2.up;
+                        SelfRect.anchorMax = Vector2.one;
+                    }
+
+                    buttonRect.anchorMin = Vector2.up;
+                    buttonRect.anchorMax = Vector2.one;
+                    buttonRect.pivot = new Vector2(0.5f, 1);
+
                     if (open)
                     {
-                        //SelfRect.sizeDelta = FoldPanelSize;
-                        //SelfRect.localPosition = new Vector3(0, FoldPanelSize.y * -0.5f, 0);
+                        WidgetExpand.SetTransform(SelfRect, Lpos, PanelSize, new Vector2(0.5f, 0));
 
-                        WidgetExpand.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0.5f,0));
+                        FoldSize = (PanelSize - Vector2.up * TitleHeight);
                     }
                     else
                     {
-                        //SelfRect.sizeDelta = new Vector2(FoldPanelSize.x, TitleHeight);
+                        WidgetExpand.SetTransform(SelfRect, Lpos, new Vector2(PanelSize.x, TitleHeight), new Vector2(0.5f, 0));
 
-                        WidgetExpand.SetTransform(SelfRect, Lpos, new Vector2(FoldPanelSize.x, TitleHeight), new Vector2(0.5f, 0));
-
+                        FoldSize = Vector2.right * PanelSize;
                     }
 
                     {
-                        WidgetExpand.SetPadding(buttonRect, 0, 0, 0, (open ? (SelfRect.rect.size.y - TitleHeight) : 0));
-                        WidgetExpand.SetPadding(FoldContent, 0, TitleHeight, 0, 0);
+                        WidgetExpand.SetTransform(buttonRect, new Vector2(0, -TitleHeight), new Vector2(PanelSize.x, TitleHeight), new Vector2(0.5f, 1));
+                        WidgetExpand.SetTransform(FoldContent, Vector2.zero, FoldSize, new Vector2(0.5f, 1));
                     }
                     break;
                 }
             case FoldDirection.ButtomToTop:
                 {
+                    SelfRect.pivot = new Vector2(0.5f, 0);
+                    if (AnchoredPanel)
+                    {
+                        SelfRect.anchorMin = Vector2.zero;
+                        SelfRect.anchorMax = Vector2.right;
+                    }
+
+                    buttonRect.anchorMin = Vector2.zero;
+                    buttonRect.anchorMax = Vector2.right;
+                    buttonRect.pivot = new Vector2(0.5f, 0);
+
                     if (open)
                     {
-                        //SelfRect.sizeDelta = FoldPanelSize;
-                        //SelfRect.localPosition = new Vector3(0, FoldPanelSize.y * 0.5f, 0);
+                        WidgetExpand.SetTransform(SelfRect, Lpos, PanelSize, new Vector2(0.5f, 1));
 
-                        WidgetExpand.SetTransform(SelfRect, Lpos, FoldPanelSize, new Vector2(0.5f, 0));
+                        FoldSize = (PanelSize - Vector2.up * TitleHeight);
                     }
                     else
                     {
-                        //SelfRect.sizeDelta = new Vector2(FoldPanelSize.x, TitleHeight);
-                        WidgetExpand.SetTransform(SelfRect, Lpos, new Vector2(FoldPanelSize.x, TitleHeight), new Vector2(0.5f, 0));
+                        WidgetExpand.SetTransform(SelfRect, Lpos, new Vector2(PanelSize.x, TitleHeight), new Vector2(0.5f, 1));
+
+                        FoldSize = Vector2.right * PanelSize;
                     }
 
                     {
-                        WidgetExpand.SetPadding(buttonRect, 0, (open ? (SelfRect.rect.size.y - TitleHeight) : 0), 0, 0);
-                        WidgetExpand.SetPadding(FoldContent, 0, 0, 0, TitleHeight);
+                        WidgetExpand.SetTransform(buttonRect, new Vector2(0, TitleHeight), new Vector2(PanelSize.x, TitleHeight), new Vector2(0.5f, 0));
+                        WidgetExpand.SetTransform(FoldContent, Vector2.zero, FoldSize, new Vector2(0.5f, 0));
                     }
                     break;
                 }
@@ -156,12 +206,15 @@ public class FoldPanel : MonoBehaviour
         {
             OpenEvnet.Invoke(gameObject, open);
         }
-    }
+    }//폴드를 방향에 맞춰 피봇이 정해지므로 , 피봇에 맞춰 위치만 설정
 
     public void ReDraw()
     {
+        if (Test_Reseting)
+            WidgetExpand.SetTransform(SelfRect, SelfRect.anchoredPosition, Vector2.zero, SelfRect.pivot);
+
         SetOpen(isOpen, false);//FoldContent (비)활성화 설정
-    }
+    }//폴드가 지멋대로 변경될때 있음
 }
 
 #if UNITY_EDITOR

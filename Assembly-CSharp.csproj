@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,6 +53,9 @@
     <UnityVersion>2021.2.0f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Assets\Script\VariableCollection\VariableCollection.cs" />
     <Compile Include="Assets\Script\Map\CustomDictionary.cs" />
     <Compile Include="Assets\Script\SquareCalculate\SquareCalculate.cs" />
@@ -60,8 +63,10 @@
     <Compile Include="Assets\Widget\Script\Test\TestWidgetExpand.cs" />
     <Compile Include="Assets\Script\AlertWin_Delegate\AlertWindowScript.cs" />
     <Compile Include="Assets\Script\AlertWin_Delegate\TestAlertDelegate.cs" />
+    <Compile Include="Assets\Widget\Script\TabWidget.cs" />
     <Compile Include="Assets\Widget\Script\Test\TestListScrollbar.cs" />
     <Compile Include="Assets\Script\SquareCalculate\TestRactCal.cs" />
+    <Compile Include="Assets\Widget\Script\MainCanvasSingleton.cs" />
     <Compile Include="Assets\Script\ObjectPool\ObjPoolKillVoulme.cs" />
     <Compile Include="Assets\Widget\Script\SingleItemSlot.cs" />
     <Compile Include="Assets\Widget\Script\InventorySystem.cs" />
@@ -87,8 +92,6 @@
     <Compile Include="Assets\Widget\Script\RatePanel.cs" />
     <Compile Include="Assets\Script\EditorExpand.cs" />
     <Compile Include="Assets\Script\ReOrderableList\ReOrderableTemplate.cs" />
-    <Compile Include="Assets\Widget\Script\MainCanvasSingleton.cs" />
-    <Compile Include="Assets\Widget\Script\TabWidget.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Script\SaveLoad\SaveFile.txt" />

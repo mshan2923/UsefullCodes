@@ -23,8 +23,11 @@ public class TestInputWidget : MonoBehaviour
     void PressButton()
     {
         var Temp = GameObject.Instantiate(InputDetectWidget);
-        Temp.transform.SetParent(gameObject.transform);
+
+        Temp.transform.SetParent(MainCanvasSingleton.Instance.MainCanvas.transform);
         Temp.GetComponent<InputDetect>().SelectedEvent += new InputDetect.DelegateSelected(SelectKey);
+
+        WidgetExpand.SetPadding(Temp.gameObject.GetComponent<RectTransform>(), 0, 0, 0, 0);
     }
 
     void SelectKey(KeyCode key, GameObject sender)

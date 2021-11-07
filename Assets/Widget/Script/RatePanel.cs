@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class RatePanel : MonoBehaviour
 {
@@ -30,6 +31,8 @@ public class RatePanel : MonoBehaviour
 
     public void UIUpdate(bool UseCanvasSize = false)//UseCanvasSize -> Before Play
     {
+        //Debug.Log(MainCanvasSingleton.Instance.MainCanvas.renderingDisplaySize);
+
         for (int i = 0; i < ObjRect.Count; i++)
         {
             var RectT = ObjRect.GetKey(i).GetComponent<RectTransform>();
@@ -50,6 +53,7 @@ public class RatePanel : MonoBehaviour
 
         }
     }
+
 }
 
 [UnityEditor.CustomEditor(typeof(RatePanel))]

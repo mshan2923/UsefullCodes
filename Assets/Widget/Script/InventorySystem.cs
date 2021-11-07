@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEditor;
 
 public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
 {
@@ -49,9 +50,11 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
     RectTransform MainPanel;
     public RectTransform TitlePanel;
     public RectTransform StoragePanel;
+    bool UseScroll;
+    ScrollRect Scroll;
 
     [Header("Panel , Slot")]
-    public Vector2 InventoryPanelSize = new Vector2(250, 350);//==========
+    public Vector2 InventoryPanelSize = new Vector2(250, 350);
     public float TitleHeight = 30f;
     public Vector2 SlotSize = new Vector2(30, 30);
     public Vector2 SlotOffset = new Vector2(10, 10);
@@ -63,6 +66,9 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
     public FoldPanel.FoldDirection foldDirection = FoldPanel.FoldDirection.TopToButtom;
     public float FoldTitleHeight = 30f;
     public float FoldHeight = 100;
+    Map<int, bool> FoldState = new Map<int, bool>();
+    bool ActiveScrollbar = false;
+    public int WidthAmount = 0;
 
     [Space(10), Header("Data"), SerializeField]
     private InventorySlotData defaultSlot = new InventorySlotData();
@@ -90,9 +96,10 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
     void Start()
     {
         MainPanel = gameObject.GetComponent<RectTransform>();
+        Scroll = StoragePanel.gameObject.GetComponentInParent<ScrollRect>();
+        UseScroll = Scroll != null;
 
         Redraw();
-
     }
 
     // Update is called once per frame
@@ -117,26 +124,193 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
     }
     public void FoldOpenEvent(GameObject Sender, bool OpenState)
     {
-        FoldRePosition();
-    }
-    public void FoldRePosition()
-    {
-        float DrawHight = 0;
+        //float DrawHight = 0;
+        Vector2 DrawPos = Vector2.zero;
+
         if (UseFold)
         {
-            for (int i = 0; i < StoragePanel.transform.childCount; i++)
+            int Lcount = 0;
+
+            for (int i = -1; i <= FoldName.Count; i++)
             {
-                var childObj = StoragePanel.transform.GetChild(i).gameObject;
-                var childFold = childObj.GetComponent<FoldPanel>();
-                childObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -DrawHight);//위치지정
+                int LfoldIndex = SortInventory.GetKey().FindIndex(k => k == i);
 
-                DrawHight += (childFold.IsOpen ? childFold.FoldPanelSize.y : childFold.TitleHeight) + SlotOffset.y;
+                if (LfoldIndex >= 0)
+                {
+                    var childObj = StoragePanel.transform.GetChild(Lcount).gameObject;
+                    var childFold = childObj.GetComponent<FoldPanel>();
 
+                    if (childObj == Sender)
+                    {
+                        FoldState.SetVaule((FoldState.GetKey().FindIndex(t => t == LfoldIndex)), OpenState);
+                        //childFold.IsOpen = OpenState;
+                    }
+
+                    //DrawPos = FoldRePosition(childFold, LfoldIndex, childFold.Direction, DrawPos);
+                    Lcount++;
+                }
             }
+
+            Redraw();
         }
+    }
+    public Vector2 FoldRePosition(FoldPanel obj, int FoldIndex, FoldPanel.FoldDirection direction, Vector2 DrawPos)
+    {
+        obj.TitleHeight = FoldTitleHeight;
+        obj.Direction = direction;
+
+        float ScrollBarSize = 0;
+        ScrollBarSize = ActiveScrollbar ? (Scroll.verticalScrollbar.handleRect.sizeDelta.x) : 0;
+
+        int LineAmount = Mathf.Max(1, Mathf.CeilToInt((float)SortInventory.GetVaule(FoldIndex).Count / WidthAmount) + 0);
+        Vector2 LFoldSize = Vector2.zero;
+
+        var Lrect = obj.gameObject.GetComponent<RectTransform>();
+        {
+            Lrect.anchorMin = new Vector2(0, 1);
+            Lrect.anchorMax = new Vector2(1, 1);
+            Lrect.pivot = new Vector2(0, 1);//===Redraw 할때 foldPanel 에서 변경
+        }//TopStretch으로 앵커
+
+        switch (direction)
+        {
+            case FoldPanel.FoldDirection.RightToLeft:
+            case FoldPanel.FoldDirection.LeftToRight:
+                {
+                    obj.PanelSize = new Vector2(InventoryPanelSize.x - ScrollBarSize, (LineAmount * (SlotSize.y + SlotOffset.y))) + Vector2.up * SlotOffset;
+                    LFoldSize = obj.IsOpen ? obj.PanelSize : new Vector2(FoldTitleHeight, FoldHeight);
+                    obj.CloseHorizonHeight = FoldHeight;
+                    break;
+                }
+            case FoldPanel.FoldDirection.TopToButtom:
+            case FoldPanel.FoldDirection.ButtomToTop:
+                {
+                    obj.PanelSize = new Vector2(InventoryPanelSize.x - ScrollBarSize, (LineAmount * (SlotSize.y + SlotOffset.y) + FoldTitleHeight)) + Vector2.up * SlotOffset;
+                    LFoldSize = obj.IsOpen ? obj.PanelSize : (new Vector2(obj.PanelSize.x, FoldTitleHeight));
+                    break;
+                }
+        }//Set PanelSize, LFoldSize
+
+
+        switch (direction)
+        {
+            case FoldPanel.FoldDirection.RightToLeft:
+                {
+                    //WidgetExpand.SetTransform(Lrect, new Vector2(-ScrollBarSize, DrawPos.y - LFoldSize.y * 0.5f), LFoldSize, new Vector2(1, 0));
+                    if (obj.IsOpen)
+                        Lrect.anchoredPosition = new Vector2(-ScrollBarSize, DrawPos.y - LFoldSize.y * 0.5f);
+                    else
+                        Lrect.anchoredPosition = new Vector2(InventoryPanelSize.x - FoldTitleHeight, DrawPos.y - LFoldSize.y * 0.5f);
+
+                    DrawPos -= new Vector2(0, LFoldSize.y + SlotOffset.y);
+                    break;
+                }
+            case FoldPanel.FoldDirection.LeftToRight:
+                {
+                    //WidgetExpand.SetTransform(Lrect, new Vector2(0, DrawPos.y - LFoldSize.y * 0.5f), LFoldSize, new Vector2(0, 0));
+                    Lrect.anchoredPosition = new Vector2(0, DrawPos.y - LFoldSize.y * 0.5f);
+                    DrawPos -= new Vector2(0, LFoldSize.y + SlotOffset.y);
+                    break;
+                }
+            case FoldPanel.FoldDirection.TopToButtom:
+                {
+                    //WidgetExpand.SetTransform(Lrect, new Vector2(0, DrawPos.y), LFoldSize, new Vector2(0, 0));
+                    Lrect.anchoredPosition = new Vector2(0, DrawPos.y);
+                    DrawPos -= new Vector2(0, LFoldSize.y + SlotOffset.y);
+                    break;
+                }
+            case FoldPanel.FoldDirection.ButtomToTop:
+                {
+                    //WidgetExpand.SetTransform(Lrect, new Vector2(0, DrawPos.y), LFoldSize, new Vector2(0, 0));
+                    Lrect.anchoredPosition = new Vector2(0, DrawPos.y - LFoldSize.y);
+                    DrawPos -= new Vector2(0, LFoldSize.y + SlotOffset.y);
+                    break;
+                }
+
+        }
+        // Inventory Line OR Size
+        obj.ReDraw();
+
+        return DrawPos;
     }
     public void Redraw()
     {
+        if (Scroll)
+        {
+            Vector2 Lsize = Vector2.zero;
+            for (int i = 0; i < StoragePanel.childCount; i++)
+            {
+                var Lfold = StoragePanel.GetChild(i).gameObject.GetComponent<FoldPanel>();
+
+                switch (Lfold.Direction)
+                {
+                    case FoldPanel.FoldDirection.RightToLeft:
+                    case FoldPanel.FoldDirection.LeftToRight:
+                        {
+                            if (i == 0)
+                                Lsize = Lfold.IsOpen ? Lfold.PanelSize : new Vector2(Lfold.PanelSize.x, FoldHeight);
+                            else
+                                Lsize += new Vector2(0, (Lfold.IsOpen ? Lfold.PanelSize.y : FoldHeight));
+                            break;
+                        }
+                    case FoldPanel.FoldDirection.TopToButtom:
+                    case FoldPanel.FoldDirection.ButtomToTop:
+                        {
+                            if (i == 0)
+                                Lsize = Lfold.IsOpen ? Lfold.PanelSize : new Vector2(Lfold.PanelSize.x, FoldTitleHeight);
+                            else
+                                Lsize += new Vector2(0, (Lfold.IsOpen ? Lfold.PanelSize.y : FoldTitleHeight));
+                            Lsize += SlotOffset * Vector2.up;
+
+                            break;
+                        }
+                }
+            }
+
+            {
+                int Lcount = 0;
+
+                for (int i = -1; i <= FoldName.Count; i++)
+                {
+                    int LfoldIndex = SortInventory.GetKey().FindIndex(k => k == i);
+
+                    if (LfoldIndex >= 0)
+                    {
+                        var Lfold = StoragePanel.transform.GetChild(Lcount).gameObject.GetComponent<FoldPanel>();
+
+                        switch (Lfold.Direction)
+                        {
+                            case FoldPanel.FoldDirection.RightToLeft:
+                            case FoldPanel.FoldDirection.LeftToRight:
+                                {
+                                    if (Lcount == 0)
+                                        Lsize = Lfold.IsOpen ? Lfold.PanelSize : new Vector2(Lfold.PanelSize.x, FoldHeight);
+                                    else
+                                        Lsize += new Vector2(0, (Lfold.IsOpen ? Lfold.PanelSize.y : FoldHeight));
+                                    break;
+                                }
+                            case FoldPanel.FoldDirection.TopToButtom:
+                            case FoldPanel.FoldDirection.ButtomToTop:
+                                {
+                                    if (Lcount == 0)
+                                        Lsize = Lfold.IsOpen ? Lfold.PanelSize : new Vector2(Lfold.PanelSize.x, FoldTitleHeight);
+                                    else
+                                        Lsize += new Vector2(0, (Lfold.IsOpen ? Lfold.PanelSize.y : FoldTitleHeight));
+                                    Lsize += SlotOffset * Vector2.up;
+
+                                    break;
+                                }
+                        }
+
+                        Lcount++;
+                    }
+                }
+            }
+
+            ActiveScrollbar = Lsize.y >= (InventoryPanelSize.y - TitleHeight);
+            print("Scrollbar : " + ActiveScrollbar);
+        }//Get ActiveScrollbar
+
         {
             List<GameObject> Lchild = new List<GameObject>();
 
@@ -161,8 +335,19 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
 
             MainPanel.sizeDelta = InventoryPanelSize;
             TitlePanel.sizeDelta = new Vector2(TitlePanel.sizeDelta.x, TitleHeight);
-            //WidgetExpandScript.SetTransform(StoragePanel, new Vector2(0, TitleHeight), (InventoryPanelSize - new Vector2(0, TitleHeight)), new Vector2(0.5f, 0));
-            WidgetExpand.SetPadding(StoragePanel, 0, TitleHeight, 0, 0);
+
+            //WidgetExpand.SetPadding(StoragePanel, 0, TitleHeight, 0, 0);
+
+            Vector2 LoffsetSize = new Vector2(0, TitleHeight);
+            if (Scroll)
+            {
+                float ScrollBarSize = Scroll.verticalScrollbar.IsActive() ? (Scroll.verticalScrollbar.handleRect.sizeDelta.x) : 0;
+                WidgetExpand.SetTransform(StoragePanel, Vector2.zero, new Vector2(InventoryPanelSize.x - ScrollBarSize, 0), Vector2.zero);
+            }
+            else
+            {
+                WidgetExpand.SetTransform(StoragePanel, new Vector2(0, TitleHeight), (InventoryPanelSize - LoffsetSize), new Vector2(0.5f, 0));
+            }
 
         }//Title 크기 , Storage 크기
 
@@ -174,14 +359,6 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
             {
                 MainPanel = gameObject.GetComponent<RectTransform>();
             }
-
-            Vector2 StartPos = StoragePanel.position - new Vector3(((XAmount + 1) * (SlotSize.x + SlotOffset.x) * 0.5f), 0); ;//메인페널 가운데 ,
-            {
-                float HighestPoint = StoragePanel.position.y + (MainPanel.sizeDelta.y - TitleHeight) * 0.5f - (SlotSize.y * 0.5f);
-                float LowestPoint = StoragePanel.position.y - (MainPanel.sizeDelta.y - TitleHeight) * 0.5f + (YAmount * (SlotSize.y + SlotOffset.y) - SlotOffset.y);
-
-                StartPos = new Vector2(StartPos.x, (HighestPoint - LowestPoint) * SlotStartHeight + LowestPoint);
-            }//최솟값이 Slot의 높이 , 최댓값이 Storage높이 - Slots높이
 
 
             {
@@ -226,7 +403,15 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
                 Vector2 DrawPos = Vector2.zero;// new Vector2(StoragePanel.offsetMin.x, -StoragePanel.offsetMax.y);//StoragePanel 좌상단
                 RectTransform rectParent = null;
                 FoldPanel Lfold = null;
-                int widthAmount = Mathf.RoundToInt((InventoryPanelSize.x - SlotOffset.x) / (SlotSize.x + SlotOffset.x));
+
+                float ScrollBarSize = 0;
+                ScrollBarSize = ActiveScrollbar ? (Scroll.verticalScrollbar.handleRect.sizeDelta.x) : 0;
+
+                float foldWidth = InventoryPanelSize.x - SlotSize.x - SlotOffset.x - ScrollBarSize;
+                if (foldDirection == FoldPanel.FoldDirection.RightToLeft || foldDirection == FoldPanel.FoldDirection.LeftToRight)
+                    foldWidth = InventoryPanelSize.x - SlotSize.x - SlotOffset.x - FoldTitleHeight - ScrollBarSize;
+
+                WidthAmount = Mathf.RoundToInt((foldWidth) / (SlotSize.x + SlotOffset.x));
                 int LineAmount = 1;
 
                 if (UseFold)
@@ -238,7 +423,7 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
 
                         if (LfoldIndex >= 0)
                         {
-                            LineAmount = Mathf.CeilToInt((float)SortInventory.GetVaule(LfoldIndex).Count / widthAmount) + 0;
+                            LineAmount = Mathf.CeilToInt((float)SortInventory.GetVaule(LfoldIndex).Count / WidthAmount) + 0;
 
                             string LfoldTitle = "";
                             {
@@ -248,11 +433,11 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
                                 }
                                 else
                                 {
-                                    LfoldTitle = FoldName[i + 1] + " FoldIndex : " + i;
+                                    LfoldTitle = FoldName[i + 1];
                                 }
                             }//Set FoldTitle
 
-                            DrawPos = CreateFold(DrawPos, LineAmount, LfoldTitle, ref Lfold);//Mathf.ceil(아이템수 / 가로 슬롯수) + 1(여백줄)
+                            DrawPos = CreateFold(DrawPos, LfoldIndex, LfoldTitle, ref Lfold);//Mathf.ceil(아이템수 / 가로 슬롯수) + 1(여백줄)
                             rectParent = Lfold.FoldContent;
                             Lfold.OpenEvnet += new FoldPanel.OpenDelegate(FoldOpenEvent);
 
@@ -260,13 +445,13 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
                                 GameObject LitemObj = null;
                                 var LPos = SlotOffset * new Vector2(1, -1);
 
-                                for (int v = 0; v < LineAmount * widthAmount; v++)//Mathf.ceil(아이템수 / 가로 슬롯수) * 여백줄
+                                for (int v = 0; v < LineAmount * WidthAmount; v++)//Mathf.ceil(아이템수 / 가로 슬롯수) * 여백줄
                                 {
                                     if (v == 0)
                                     {
                                         LPos = CreateItem(LPos, rectParent, ref LitemObj);
                                     }
-                                    else if (v % widthAmount == 0)
+                                    else if (v % WidthAmount == 0)
                                     {
                                         LPos = new Vector2(SlotOffset.x, (LPos.y - (SlotSize.y + SlotOffset.y)));
                                         LPos = CreateItem(LPos, rectParent, ref LitemObj);
@@ -285,8 +470,6 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
 
                                         LitemObj.GetComponent<Image>().material = LinvenSlot.material;
                                         LitemObj.GetComponent<Image>().color = LinvenSlot.color;
-
-                                        LitemObj.GetComponentInChildren<Text>().text = i + " - " + v;
                                     }
                                     else
                                     {
@@ -303,58 +486,67 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
                             }//Draw Items
                         }
                     }
+
+                    SetScrollFoldHeight();
+
                 }
                 else
                 {
-                    LineAmount = Mathf.CeilToInt((float)InventorySlotAmount / widthAmount);
+                    LineAmount = Mathf.CeilToInt((float)InventorySlotAmount / WidthAmount);
                     rectParent = StoragePanel;
 
-                    GameObject LitemObj = null;
-                    var LPos = SlotOffset * new Vector2(1, -1);
-
-                    for (int v = 0; v < LineAmount * widthAmount; v++)//인벤 슬롯 크기를 넘을때 표시할껀지 , 한다면 색상
                     {
-                        if (v < InventoryDatas.Count && InventoryDatas.Count < InventorySlotAmount)
-                        {
-                            AddItem(-1, null, false);
-                        }
+                        GameObject LitemObj = null;
+                        var LPos = SlotOffset * new Vector2(1, -1);
 
-                        if (v == 0)
+                        for (int v = 0; v < LineAmount * WidthAmount; v++)//인벤 슬롯 크기를 넘을때 표시할껀지 , 한다면 색상
                         {
-                            LPos = CreateItem(LPos, rectParent, ref LitemObj);
-                        }
-                        else if (v % widthAmount == 0)
-                        {
-                            LPos = new Vector2(SlotOffset.x, (LPos.y - (SlotSize.y + SlotOffset.y)));
-                            LPos = CreateItem(LPos, rectParent, ref LitemObj);
-                        }
-                        else
-                        {
-                            LPos = CreateItem(LPos, rectParent, ref LitemObj);
-                        }
+                            if (v < InventoryDatas.Count && InventoryDatas.Count < InventorySlotAmount)
+                            {
+                                AddItem(-1, null, false);
+                            }
+
+                            if (v == 0)
+                            {
+                                LPos = CreateItem(LPos, rectParent, ref LitemObj);
+                            }
+                            else if (v % WidthAmount == 0)
+                            {
+                                LPos = new Vector2(SlotOffset.x, (LPos.y - (SlotSize.y + SlotOffset.y)));
+                                LPos = CreateItem(LPos, rectParent, ref LitemObj);
+                            }
+                            else
+                            {
+                                LPos = CreateItem(LPos, rectParent, ref LitemObj);
+                            }
 
 
-                        if (v < InventoryDatas.Count)
-                        {
-                            var Ltemp = InventoryDatas.GetVaule(v);
-                            Ltemp.Object = LitemObj;
-                            InventoryDatas.SetVaule(v, Ltemp);
+                            if (v < InventoryDatas.Count)
+                            {
+                                var Ltemp = InventoryDatas.GetVaule(v);
+                                Ltemp.Object = LitemObj;
+                                InventoryDatas.SetVaule(v, Ltemp);
 
-                            LitemObj.GetComponent<Image>().material = InventoryDatas.GetVaule(v).material;
-                            LitemObj.GetComponent<Image>().color = InventoryDatas.GetVaule(v).color;
-                        }
-                        else
-                        {
-                            LitemObj.GetComponent<Image>().material = null;
-                            LitemObj.GetComponent<Image>().color = EmptyItemSlot;//빈 슬롯일때
-                        }
+                                LitemObj.GetComponent<Image>().material = InventoryDatas.GetVaule(v).material;
+                                LitemObj.GetComponent<Image>().color = InventoryDatas.GetVaule(v).color;
+                            }
+                            else
+                            {
+                                LitemObj.GetComponent<Image>().material = null;
+                                LitemObj.GetComponent<Image>().color = EmptyItemSlot;//빈 슬롯일때
+                            }
 
-                        DragNDrop itemDND;
-                        if (LitemObj.TryGetComponent<DragNDrop>(out itemDND))
-                        {
-                            itemDND.DragNDropEvent += new DragNDrop.DragNDropDelegate(ReceiveDragNDrop);
+                            DragNDrop itemDND;
+                            if (LitemObj.TryGetComponent<DragNDrop>(out itemDND))
+                            {
+                                itemDND.DragNDropEvent += new DragNDrop.DragNDropDelegate(ReceiveDragNDrop);
+                            }
                         }
-                    }
+                    }//Draw Items
+
+                    WidgetExpand.SetTransform(StoragePanel, Vector2.zero, InventoryPanelSize ,
+                        new Vector2(InventoryPanelSize.x - ScrollBarSize, (SlotSize.y + SlotOffset.y) * LineAmount), Vector2.zero);
+                    //Manualy ParentSize
                 }
 
             }//Spawn Fold , Slot
@@ -362,7 +554,51 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
         }//Slot 위치지정 , 머티리얼 + 색상 적용
 
     }
-    Vector2 CreateFold(Vector2 DrawPos, int DrawLine, string FoldTitle ,ref FoldPanel Fold)
+
+    bool SetScrollFoldHeight()
+    {
+        if (Scroll)
+        {
+            Vector2 Lsize = Vector2.zero;
+            for (int i = 0; i < StoragePanel.childCount; i++)
+            {
+                var Lfold = StoragePanel.GetChild(i).gameObject.GetComponent<FoldPanel>();
+
+                switch (Lfold.Direction)
+                {
+                    case FoldPanel.FoldDirection.RightToLeft:
+                    case FoldPanel.FoldDirection.LeftToRight:
+                        {
+                            if (i == 0)
+                                Lsize = Lfold.IsOpen ? Lfold.PanelSize : new Vector2(Lfold.PanelSize.x, FoldHeight);
+                            else
+                                Lsize += new Vector2(0, (Lfold.IsOpen ? Lfold.PanelSize.y : FoldHeight));
+                            break;
+                        }
+                    case FoldPanel.FoldDirection.TopToButtom:
+                    case FoldPanel.FoldDirection.ButtomToTop:
+                        {
+                            if (i == 0)
+                                Lsize = Lfold.IsOpen ? Lfold.PanelSize : new Vector2(Lfold.PanelSize.x, FoldTitleHeight);
+                            else
+                                Lsize += new Vector2(0, (Lfold.IsOpen ? Lfold.PanelSize.y : FoldTitleHeight));
+                            Lsize += SlotOffset * Vector2.up;
+
+                            break;
+                        }
+                }
+            }
+
+            WidgetExpand.SetTransform(StoragePanel, Vector2.zero, Lsize, Vector2.zero);
+
+            return true;
+        }//Set ScrollHeight
+        else 
+        {
+            return false;
+        }
+    }
+    Vector2 CreateFold(Vector2 DrawPos, int FoldIndex, string FoldTitle ,ref FoldPanel Fold)
     {
         RectTransform rectParent;
 
@@ -374,23 +610,28 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
             rectParent = Lfold.gameObject.GetComponent<RectTransform>();
             Lfold.transform.SetParent(StoragePanel);
 
-            {
-                rectParent.anchorMin = new Vector2(0, 1);
-                rectParent.anchorMax = new Vector2(1, 1);
-                rectParent.pivot = new Vector2(0.5f, 1);
-            }//TopStretch으로 앵커
-
-            rectParent.anchoredPosition = new Vector3(0, DrawPos.y);
+            Lfold.transform.name = "Fold " + StoragePanel.childCount;
+            Lfold.FoldButton.GetComponentInChildren<Text>().text = FoldTitle;
 
             {
-                Lfold.Direction = foldDirection;
-                Lfold.TitleHeight = FoldTitleHeight;
-                Lfold.FoldPanelSize = new Vector2(StoragePanel.rect.width, ((SlotSize.y + SlotOffset.y) * DrawLine + FoldTitleHeight + SlotOffset.y));
-                Lfold.FoldButton.GetComponentInChildren<Text>().text = FoldTitle;
-            }//폴드 방향, 폴드 크기, 폴드 이름
+                if (FoldState.GetKey().Exists(t => t == FoldIndex))
+                {
+                    Lfold.IsOpen = FoldState.GetVaule(FoldState.GetKey().FindIndex(v => v == FoldIndex));
+                }else
+                {
+                    FoldState.Add(FoldIndex, false);
+                }
+            }//FoldState
+
             Lfold.ReDraw();
 
-            DrawPos = new Vector2(0, DrawPos.y - (Lfold.TitleHeight + SlotOffset.y));//new Vector2(0, DrawPos.y + (SlotSize.y + SlotOffset.y) * DrawLine);//new Vector2(0, Slot 높이 * 즐 갯수)
+            return FoldRePosition(Lfold, FoldIndex, foldDirection, DrawPos);
+
+            //Lfold.PanelSize = new Vector2(StoragePanel.rect.width, ((SlotSize.y + SlotOffset.y) * DrawLine + FoldTitleHeight + SlotOffset.y));
+
+
+            //DrawPos = new Vector2(0, DrawPos.y - (Lfold.TitleHeight + SlotOffset.y));//new Vector2(0, DrawPos.y + (SlotSize.y + SlotOffset.y) * DrawLine);
+            //new Vector2(0, Slot 높이 * 즐 갯수)
 
         }//폴드의 생성 + 크기할당  , 부모 지정
         else
@@ -413,6 +654,7 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
         ItemObj = Lslot;
 
         Lslot.transform.SetParent(ParentFold);
+        Lslot.transform.name = "Slot " + (ParentFold.transform.childCount - 1);
 
         {
             slotRect.anchorMin = new Vector2(0, 1);
@@ -523,7 +765,7 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
             case DragNDrop.MouseState.Press:
                 {
                     //PointingObject가 색변하거나 상호작용
-                    gameObject.transform.SetAsLastSibling();//Layer Draw 우선순위 변경
+                    //gameObject.transform.SetAsLastSibling();//Layer Draw 우선순위 변경  --> 클론이 맨앞으로가서 불필요
                     break;
                 }
             case DragNDrop.MouseState.Up:
@@ -578,15 +820,19 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
                         }//DragObject 와 PointingObject가 같은 인터페이스를 쓰는경우 맨뒤로 옮기기 / 다르다면 인터페이스 보내기
 
                         return false;
-                    }
+                    }//Export
                     else if (DragIndex == -1 && TargetIndex >= 0)
                     {
-                        //외부 데이터 - 인터페이스로 처리해서...
-                    }else
+                        //외부 데이터 - 인터페이스로 처리
+                    }//OutSide Data --> ChangeItem
+                    else
                     {
                         // 딴걸 끌어왔거나
                         return false;
                     }
+
+                    if (DragIndex >= 0 || TargetIndex >= 0)
+                        Redraw();
                     break;
                 }
                 
@@ -628,6 +874,43 @@ public class InventoryEditor : UnityEditor.Editor
             Onwer.InventorySlotAmount = 10;
             Onwer.InventoryDatas.Clear();
             Onwer.Redraw();
+        }
+    }
+}
+
+//[CustomPropertyDrawer(typeof(InventorySystem.InventorySlotData))]
+public class InventorySlotDataEditor : PropertyDrawer
+{
+    bool LFold = false;
+    Rect DrawRect;
+
+    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+    {
+        return LFold ? 120 : 20;
+    }
+
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        //base.OnGUI(position, property, label);
+        DrawRect = new Rect(position.x, position.y, position.width, 20);
+
+        if (GUI.Button(DrawRect, (property.displayName + (LFold ? "  (Open)" : "  (Close)"))))
+        {
+            LFold = !LFold;
+        }
+
+        if (LFold)
+        {
+            DrawRect = Expand.EditorExpand.NextLine(position, DrawRect);
+            EditorGUI.PropertyField(DrawRect, property.FindPropertyRelative("Object"));
+            DrawRect = Expand.EditorExpand.NextLine(position, DrawRect);
+            EditorGUI.PropertyField(DrawRect, property.FindPropertyRelative("material"));
+            DrawRect = Expand.EditorExpand.NextLine(position, DrawRect);
+            EditorGUI.PropertyField(DrawRect, property.FindPropertyRelative("color"));
+            DrawRect = Expand.EditorExpand.NextLine(position, DrawRect);
+            EditorGUI.PropertyField(DrawRect, property.FindPropertyRelative("Data"));
+            DrawRect = Expand.EditorExpand.NextLine(position, DrawRect);
+            EditorGUI.PropertyField(DrawRect, property.FindPropertyRelative("IsDefaultVaule"));
         }
     }
 }

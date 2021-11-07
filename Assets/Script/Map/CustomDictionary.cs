@@ -317,10 +317,12 @@ public class Map<T, V>
     {
         //return Key;
         List<T> result = new List<T>();
-
-        for (int i = 0; i < Slots.Count; i++)
+        if (Slots != null)
         {
-            result.Add(Slots[i].Key);
+            for (int i = 0; i < Slots.Count; i++)
+            {
+                result.Add(Slots[i].Key);
+            }
         }
         return result;
     }
@@ -553,7 +555,7 @@ public class MapEditor : PropertyDrawer
                 DrawRect = EditorExpand.NextLine(SlotSize, DrawRect, 0 , SlotLineSize);
                 DrawRect = new Rect(DrawRect.x + SlotOffset, DrawRect.y, DrawRect.width - SlotOffset, DrawRect.height);
 
-                EditorGUI.PropertyField(DrawRect, vaule.GetArrayElementAtIndex(i), new GUIContent { text = "" });
+                EditorGUI.PropertyField(DrawRect, vaule.GetArrayElementAtIndex(i), new GUIContent { text = "" }, true);
                 //DrawRect = new Rect((position.width - position.x - 25), DrawRect.y, 50, DrawRect.height);
                 DrawRect = new Rect(DrawRect.x + DrawRect.width, DrawRect.y, 50, DrawRect.height);
                 if (GUI.Button(DrawRect, " - "))
@@ -666,9 +668,9 @@ public class IntMapSlotEditor : PropertyDrawer
         vaule = property.FindPropertyRelative("vaule");
 
         DrawRect = EditorExpand.RateRect(position, DrawRect, 0, 2, SlotOffset, 20);
-        EditorGUI.PropertyField(DrawRect, key, new GUIContent { text = "" });
+        EditorGUI.PropertyField(DrawRect, key, new GUIContent { text = "" }, true);
         DrawRect = EditorExpand.RateRect(position, DrawRect, 1, 2, SlotOffset, 20);
-        EditorGUI.PropertyField(DrawRect, vaule, new GUIContent { text = "" });
+        EditorGUI.PropertyField(DrawRect, vaule, new GUIContent { text = "" }, true);
     }
 }
 
@@ -764,9 +766,9 @@ public class MapSlotEditor : PropertyDrawer
         vaule = property.FindPropertyRelative("Vaule");
 
         DrawRect = EditorExpand.RateRect(position, DrawRect, 0, 2, SlotOffset, 20);
-        EditorGUI.PropertyField(DrawRect, key, new GUIContent { text = "" });
+        EditorGUI.PropertyField(DrawRect, key, new GUIContent { text = "" }, true);
         DrawRect = EditorExpand.RateRect(position, DrawRect, 1, 2, SlotOffset, 20);
-        EditorGUI.PropertyField(DrawRect, vaule, new GUIContent { text = "" });
+        EditorGUI.PropertyField(DrawRect, vaule, new GUIContent { text = "" }, true);
     }
 }
 
