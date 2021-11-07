@@ -5,14 +5,18 @@ using UnityEngine.UI;
 
 public class AlarmWidget : MonoBehaviour
 {
+    [System.Serializable]
+    public class AlarmEvent : UnityEngine.Events.UnityEvent<bool>
+    {
+
+    }
     public bool AutoDestroy = true;
 
     public Button ApplyButton;
     [Header("Optional")]
     public Button CencleButton;
 
-    public UnityEngine.Events.UnityEvent onApply;
-    //인수가 있는거는 클래스 재정의 필요 
+    public AlarmEvent onApply;
 
     /*
     [System.Serializable]
@@ -35,15 +39,15 @@ public class AlarmWidget : MonoBehaviour
     public void ApplyEvent()
     {
         if (onApply != null)
-            onApply.Invoke();
+            onApply.Invoke(true);
 
         if (AutoDestroy)
             Destroy(gameObject);
     }
     public void CencleEvent()
     {
-        //if (onCancle != null)
-        //    onCancle.Invoke("Test");
+        if (onApply != null)
+            onApply.Invoke(false);
 
         if (AutoDestroy)
             Destroy(gameObject);

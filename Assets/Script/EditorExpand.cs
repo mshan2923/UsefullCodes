@@ -13,6 +13,14 @@ namespace Expand
         {
             return new Rect(Pos.x + Offset, (DrawRect.y + DrawRect.height), Pos.width - Offset, LineHeight);//Test LineHeight >> DrawRect.height
         }
+        /// <summary>
+        /// Use Change LineHeight
+        /// </summary>
+        /// <param name="Pos"></param>
+        /// <param name="DrawRect"></param>
+        /// <param name="Offset"></param>
+        /// <param name="LineHeight"></param>
+        /// <returns></returns>
         public static Rect NextLineOverride(Rect Pos, Rect DrawRect, float Offset = 0, float LineHeight = 20)
         {
             return new Rect(Pos.x + Offset, (DrawRect.y + LineHeight), Pos.width - Offset, LineHeight);
@@ -302,6 +310,13 @@ namespace Expand
             return new Rect((LRect.x + ((pos.width) / LineAmount)), DrawRect.y, ((pos.width) / LineAmount), DrawRect.height);
         }
 
+        /// <summary>
+        /// NotWork Include List, Array But Can Make Support
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fieldInfo"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
         public static object GetPropertyDrawerTarget<T>(FieldInfo fieldInfo, SerializedProperty property)
         {
             object Lobj = null;

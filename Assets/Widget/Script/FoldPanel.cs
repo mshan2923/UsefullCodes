@@ -208,6 +208,9 @@ public class FoldPanel : MonoBehaviour
         }
     }//폴드를 방향에 맞춰 피봇이 정해지므로 , 피봇에 맞춰 위치만 설정
 
+    /// <summary>
+    /// 폴드를 방향에 맞춰 피봇이 정해지므로 , 피봇에 맞춰 위치만 설정
+    /// </summary>
     public void ReDraw()
     {
         if (Test_Reseting)

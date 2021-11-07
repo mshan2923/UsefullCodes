@@ -3,9 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Linq;
 
 public class WidgetExpand
 {
+    /// <summary>
+    /// 지멋대로임, 크기변할때 매우 비추천, Recommand SetTransform
+    /// </summary>
+    /// <param name="rect"></param>
+    /// <param name="left"></param>
+    /// <param name="top"></param>
+    /// <param name="right"></param>
+    /// <param name="bottom"></param>
     public static void SetPadding(RectTransform rect, float left, float top, float right, float bottom)//Setting Rect Position & Size
     {
         rect.offsetMax = new Vector2(-right, -top);
@@ -16,6 +25,14 @@ public class WidgetExpand
     }
     //Template --> SetPadding(Temp, Temp.offsetMin.x, -Temp.offsetMax.y, -Temp.offsetMax.x, -Temp.offsetMin.y);
 
+    /// <summary>
+    /// 부모가 Strech가 아닌경우 절대크기 설정 (rect이 Stretch이여도 됨) | 
+    /// DrawPivot == Vector2.Zero == LeftTop
+    /// </summary>
+    /// <param name="rect"></param>
+    /// <param name="LocalPosition"></param>
+    /// <param name="RectSize">부모가 Strech가 아닌경우 절대크기 설정 (rect이 Stretch이여도 됨)</param>
+    /// <param name="DrawPivot">Vector2.zero == LeftTop</param>
     public static void SetTransform(RectTransform rect , Vector2 LocalPosition, Vector2 RectSize, Vector2 DrawPivot)
     {
         Vector2 ParnetSize = GetWorldSize((RectTransform) rect.parent);
@@ -48,6 +65,14 @@ public class WidgetExpand
         //Debug.Log("Parent : " + rect.parent + " - " + ParnetSize + " \n Rect : " + rect.gameObject + " - " + RectSize);
 
     }//DrawRate == Vector2.Zero ->> LeftTop (Origin : Parent Pivot)
+    /// <summary>
+    /// 부모가 Strech인경우 쓰임 , 직접 크기 지정
+    /// </summary>
+    /// <param name="rect"></param>
+    /// <param name="LocalPosition"></param>
+    /// <param name="ParentSize"></param>
+    /// <param name="RectSize"></param>
+    /// <param name="DrawPivot"></param>
     public static void SetTransform(RectTransform rect, Vector2 LocalPosition, Vector2 ParentSize, Vector2 RectSize, Vector2 DrawPivot)
     {
         if (IsXStretch(rect) && IsYStretch(rect))
@@ -85,11 +110,22 @@ public class WidgetExpand
         //Anchored 왼-오 OR 상-하 차이가 1인경우 Stretch
 
     }//DrawPivot == Vector.zero == LeftTop (Origin : Screen Left Buttom)
+    /// <summary>
+    /// Strech인경우 문제발생 있음
+    /// </summary>
+    /// <param name="rect"></param>
+    /// <param name="LocalPosition"></param>
+    /// <param name="DrawPivot"></param>
     public static void SetPosition(RectTransform rect, Vector2 LocalPosition, Vector2 DrawPivot)
     {
         SetTransform(rect, LocalPosition, GetWorldSize(rect), DrawPivot);
     }
 
+    /// <summary>
+    /// Notworking Stretch
+    /// </summary>
+    /// <param name="rect"></param>
+    /// <returns></returns>
     public static Vector2 GetWorldSize(RectTransform rect)
     {
         Vector3[] rectCorners = new Vector3[4];
@@ -126,6 +162,12 @@ public class WidgetExpand
         return Mathf.Approximately(Mathf.Abs(rect.anchorMin.y - rect.anchorMax.y), 1);
     }
 
+    /// <summary>
+    /// Pos is WorldPosition
+    /// </summary>
+    /// <param name="Obj"></param>
+    /// <param name="pos">Recommand  Input.mousePosition</param>
+    /// <returns></returns>
     public static bool ContainWidget(GameObject Obj, Vector3 pos)
     {
         var Lrect = Obj.GetComponent<RectTransform>();
@@ -147,18 +189,24 @@ public class WidgetExpand
         }
     }//Pos is WorldPosition ( Recommand => Input.mousePosition)
 
-    public static List<RaycastResult> WidgetLineTrace(GraphicRaycaster gr)
+    /// <summary>
+    /// Pos가 Vector2.Zero일때 Input.mousePosition으로 변환
+    /// </summary>
+    /// <param name="gr"></param>
+    /// <param name="Pos"></param>
+    /// <returns></returns>
+    public static List<RaycastResult> WidgetLineTrace(GraphicRaycaster gr, Vector2 Pos = new Vector2())
     {
         var ped = new PointerEventData(null)
         {
-            position = Input.mousePosition
+            position = (Pos == Vector2.zero) ? Input.mousePosition : Pos
         };
         List<RaycastResult> results = new();
         gr.Raycast(ped, results);
 
         return results;
     }
-    public static GameObject GetBehideObject(GraphicRaycaster gr, System.Type Fillter)
+    public static GameObject GetBehideObject(GraphicRaycaster gr, System.Type Fillter , params GameObject[] exception)
     {
         List<RaycastResult> results = WidgetLineTrace(gr);
         for (int i = 0; i < results.Count; i++)
@@ -170,7 +218,8 @@ public class WidgetExpand
 
             if (results[i].gameObject.GetComponent(Fillter))// && results[i].gameObject != Target
             {
-                return results[i].gameObject;
+                if (!exception.Contains(results[i].gameObject))
+                    return results[i].gameObject;
             }//Fillter의 해당 컴포넌트를 가진것만 + Target이 아닌 첫번째 오브젝트를 리턴
         }
 

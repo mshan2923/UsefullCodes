@@ -19,6 +19,9 @@ public class DragNDrop : MonoBehaviour , IPointerDownHandler, IPointerUpHandler 
     public bool OnlyMoveObject = false;
     //드래그 , 드랍 따로 체크 - 드래그는 여기서 설정 , 드랍은 델리게이트 리턴으로 OR 강제 드랍
     //public GameObject DragArea;//++ 드래그 대상 제한
+
+    //private bool ConsolVersionDND = false;//DragClone - true  , ShowDrag - false , OnlyMoveObject - false
+    //콘솔 드래그드랍은 싱글톤으로 만들어야함, 이것도 드래그드랍은 가능하긴한데
     public bool DragClone = false;
 
     [Space(5)]
@@ -40,7 +43,6 @@ public class DragNDrop : MonoBehaviour , IPointerDownHandler, IPointerUpHandler 
     public float CloneZPos = -1;
     int InputButton;
 
-
     void Start()
     {
         ObjRect = gameObject.GetComponent<RectTransform>();
@@ -60,7 +62,7 @@ public class DragNDrop : MonoBehaviour , IPointerDownHandler, IPointerUpHandler 
             DragNDropEvent.Invoke(gameObject, MouseState.Down, gameObject, ref DCP);
         }
 
-        DragLoop = StartCoroutine(Dragging());
+            DragLoop = StartCoroutine(Dragging());
 
         if (DragClone)
         {
@@ -73,6 +75,7 @@ public class DragNDrop : MonoBehaviour , IPointerDownHandler, IPointerUpHandler 
             CloneRect.pivot = Vector2.up;
 
             CloneObject.transform.SetAsLastSibling();//Layer Draw 우선순위 변경
+
         }
         else
         {
@@ -247,7 +250,7 @@ public class DragNDrop : MonoBehaviour , IPointerDownHandler, IPointerUpHandler 
 
         return results;
     }
-    public GameObject GetBehideObject(GameObject Target, Component Fillter)
+    public GameObject GetBehideObject(GameObject ExceptionTarget, Component Fillter)
     {
         List<RaycastResult> results = WidgetLineTrace();
         for (int i = 0; i < results.Count; i++)
@@ -257,7 +260,7 @@ public class DragNDrop : MonoBehaviour , IPointerDownHandler, IPointerUpHandler 
                 return results[0].gameObject;
             }
 
-            if (results[i].gameObject.GetComponent(Fillter.GetType().Name) && results[i].gameObject != Target)
+            if (results[i].gameObject.GetComponent(Fillter.GetType().Name) && results[i].gameObject != ExceptionTarget)
             {
                 return results[i].gameObject;
             }//Fillter의 해당 컴포넌트를 가진것만 + Target이 아닌 첫번째 오브젝트를 리턴

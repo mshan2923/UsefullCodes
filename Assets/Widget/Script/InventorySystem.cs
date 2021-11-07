@@ -308,7 +308,6 @@ public class InventorySystem : MonoBehaviour , InventorySystem.IChangeItem
             }
 
             ActiveScrollbar = Lsize.y >= (InventoryPanelSize.y - TitleHeight);
-            print("Scrollbar : " + ActiveScrollbar);
         }//Get ActiveScrollbar
 
         {
