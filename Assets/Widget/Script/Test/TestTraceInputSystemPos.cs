@@ -30,9 +30,13 @@ public class TestTraceInputSystemPos : MonoBehaviour
     void Update()
     {
         //Vector2 Temp = new Vector2(InputSystem.Instance.ButtonSingleAxis[0].GetVaule(), 0);
-        Vector2 Temp = InputSystem.Instance.ButtonVector2Axis[0].GetVaule();
 
-        //gameObject.transform.position = Temp;
-        ParentRect.anchoredPosition = Temp;
+        if (InputSystem.Instance.ButtonDoubleAxis.Count > 0)
+        {
+            Vector2 Temp = InputSystem.Instance.ButtonDoubleAxis[0].GetVaule();
+
+            //gameObject.transform.position = Temp;
+            ParentRect.anchoredPosition = Temp;
+        }
     }
 }

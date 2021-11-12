@@ -27,6 +27,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -46,15 +47,15 @@ MonoBehaviour:
   MousePos: {x: 0, y: 0}
   MouseOffset:
     State: {x: 0, y: 0}
-    PassVaule: 0.01
+    PassVaule: 1
     Sensitivity: 1
     MaxVaule: -1
-    IncreaseRate: -1
-    IncreaseLimit: -1
+    IncreaseRate: 1
+    IncreaseLimit: 10
     SlowerScaleDistance: 1
-    DecreaseRate: -1
+    DecreaseRate: 1
     DecreaseSpeed: -1
-    BackToZero: 0
+    BackToZero: 1
     SmoothDecrease: 0
     Pressing: 0
     LastInputState: {x: 0, y: 0}
@@ -68,22 +69,78 @@ MonoBehaviour:
     State: 0
     PassVaule: 0.01
     Sensitivity: 1
-    MaxVaule: 1
-    IncreaseRate: 0.5
+    MaxVaule: 0
+    IncreaseRate: -1
     IncreaseLimit: -1
     SlowerScaleDistance: 1
-    DecreaseRate: 0.5
+    DecreaseRate: 1
     DecreaseSpeed: -1
-    BackToZero: 0
+    BackToZero: 1
     SmoothDecrease: 0
     Pressing: 0
     LastInputState: 0
     RelativeIncrement: 0
-  ButtonSingleAxis: []
-  ButtonVector2Axis: []
+  ButtonSingleAxis:
+  - Name: Temp
+    InputVaule:
+      Slots:
+      - Key: 275
+        Vaule: 1
+      - Key: 276
+        Vaule: -1
+    AxisInput:
+      State: 0
+      PassVaule: 0.01
+      Sensitivity: 100
+      MaxVaule: 100
+      IncreaseRate: 5
+      IncreaseLimit: 5
+      SlowerScaleDistance: 1
+      DecreaseRate: 2
+      DecreaseSpeed: 2
+      BackToZero: 1
+      SmoothDecrease: 0
+      Pressing: 0
+      LastInputState: 0
+      RelativeIncrement: 0
+    Event:
+      m_PersistentCalls:
+        m_Calls: []
+  ButtonDoubleAxis: []
   ActionEvent:
     inputSlots:
     - Name: Test
       Buttons: 710000007700000065000000
       AndEvent: 1
+      Event:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 0}
+            m_TargetAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_MethodName: set_name
+            m_Mode: 5
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: Test Action Event  - Recieve
+              m_BoolArgument: 0
+            m_CallState: 2
       Result: 0
+  KeySettings:
+  - DisplayName: Action Test
+    inputType: 0
+    ListIndex: 0
+    InputIndex: 0
+    Mutiply: 0
+  - DisplayName: 
+    inputType: 1
+    ListIndex: 0
+    InputIndex: 0
+    Mutiply: 1
+  - DisplayName: 
+    inputType: 1
+    ListIndex: 0
+    InputIndex: 1
+    Mutiply: 1

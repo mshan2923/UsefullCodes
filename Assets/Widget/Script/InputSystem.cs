@@ -76,10 +76,19 @@ return instance;*/
         Selection.activeObject = Instance;
     }
 
+    public void SavePrefab()
+    {
+        PrefabUtility.SaveAsPrefabAsset(gameObject, (SettingFileDirectory + "/" + SettingFileName + ".prefab"));
+        instance = GetComponent<InputSystem>();
+    }
+    public void LoadPrefab()
+    {
+         instance = PrefabUtility.LoadPrefabContents(SettingFileDirectory + "/" + SettingFileName + ".prefab").GetComponent<InputSystem>();
+    }
     public void Save()
     {
         SaveLoad.Save(ButtonSingleAxis, SettingFileDirectory, "ButtonSingleAxis", SaveExt);
-        SaveLoad.Save(ButtonVector2Axis, SettingFileDirectory, "ButtonVector2Axis", SaveExt);
+        SaveLoad.Save(ButtonDoubleAxis, SettingFileDirectory, "ButtonVector2Axis", SaveExt);
         SaveLoad.Save(ActionEvent, SettingFileDirectory, "ActionEvent", SaveExt);
     }
     public bool Load()
@@ -100,7 +109,7 @@ return instance;*/
 
         if (SaveLoad.Load(SettingFileDirectory, "ButtonVector2Axis", SaveExt, out List<ButtonVector2AxisInput> VectorData))
         {
-            ButtonVector2Axis = VectorData;
+            ButtonDoubleAxis = VectorData;
             Loaded++;
         }
 
@@ -663,16 +672,38 @@ return instance;*/
     }
     #endregion
 
+    public enum InputType
+    {
+        Action, Single, Double
+    }
+    [System.Serializable]
+    public struct KeySetting
+    {
+        [AttributeLocalizedText]
+        public string DisplayName;
+        public InputType inputType;
+        public int ListIndex;
+        public int InputIndex;
+        public float Mutiply;
+        public const float MinVaule = 0.01f;
+    }
+    //지금 마우스랑 마우스휠도 기본값으로 , 따로 변수로 하지 말고
+    //기본값 파일도 따로 생성
+    //UI 키설정 옵션 => 종류 {Action , Single, Vector2} , InputIndex , Mutiply (최솟값 : 0.01)
+    //     Action일경우는 키가 여러개 보여줘야함 + InputIndex 필요X
 
     public Vector2 MousePos;
-    public Vector2AxisInput MouseOffset = new Vector2AxisInput();
+    public Vector2AxisInput MouseOffset = new Vector2AxisInput();//ButtonVector2Axis의 기본값으로
 
-    public SingleAxisInput MouseYScroll = new SingleAxisInput();
+    public SingleAxisInput MouseYScroll = new SingleAxisInput();// ButtonVector2Axis의 기본값으로
 
     [Header("Custom")]
     public List<ButtonAxisInput> ButtonSingleAxis = new List<ButtonAxisInput>();
-    public List<ButtonVector2AxisInput> ButtonVector2Axis = new List<ButtonVector2AxisInput>();
+    public List<ButtonVector2AxisInput> ButtonDoubleAxis = new List<ButtonVector2AxisInput>();
     public ActionInput ActionEvent = new ActionInput();
+
+    [Space(10)]
+    public List<KeySetting> KeySettings = new List<KeySetting>();
 
     void Start()
     {
@@ -733,24 +764,24 @@ return instance;*/
             }
         }//ButtonSingleAxis
 
-        for (int i = 0; i < ButtonVector2Axis.Count; i++)
+        for (int i = 0; i < ButtonDoubleAxis.Count; i++)
         {
             Vector2 Lvaule = Vector2.zero;
-            for (int v = 0; v < ButtonVector2Axis[i].InputVaule.Count; v++)
+            for (int v = 0; v < ButtonDoubleAxis[i].InputVaule.Count; v++)
             {
-                if (Input.GetKey(ButtonVector2Axis[i].InputVaule.GetKey(v)))
+                if (Input.GetKey(ButtonDoubleAxis[i].InputVaule.GetKey(v)))
                 {
-                    Lvaule += ButtonVector2Axis[i].InputVaule.GetVaule(v);
+                    Lvaule += ButtonDoubleAxis[i].InputVaule.GetVaule(v);
                 }
             }
 
-            if (ButtonVector2Axis[i].InputVaule.Count > 0)
+            if (ButtonDoubleAxis[i].InputVaule.Count > 0)
             {
-                ButtonVector2Axis[i].AxisInput.GetVaule(Lvaule);
+                ButtonDoubleAxis[i].AxisInput.GetVaule(Lvaule);
 
-                if (ButtonVector2Axis[i].Event != null)
+                if (ButtonDoubleAxis[i].Event != null)
                 {
-                    ButtonVector2Axis[i].Event.Invoke(ButtonVector2Axis[i].GetVaule());
+                    ButtonDoubleAxis[i].Event.Invoke(ButtonDoubleAxis[i].GetVaule());
                 }
             }
         }//ButtonVector2Axis
@@ -758,6 +789,7 @@ return instance;*/
         ActionEvent.Update();
     }
 
+    /*
     void OnGUI()
     {
         Event e = Event.current;
@@ -770,6 +802,157 @@ return instance;*/
             //Debug.Log("Mouse " + e.button + " Event");//Mouse 3, 4 인식 X
         }
     }
+    *///Test DetectKeys
+
+    #region KeySetting
+    void AddKeySetting(InputType type, int listIndex)
+    {
+        switch (type)
+        {
+            case InputType.Action:
+                KeySettings.Add(new KeySetting { inputType = type, ListIndex = listIndex, InputIndex = -1, Mutiply = 1});
+                break;
+            case InputType.Single:
+                {
+                    for (int i = 0; i < ButtonSingleAxis[listIndex].InputVaule.Count; i++)
+                    {
+                        KeySettings.Add(new KeySetting { inputType = type, ListIndex = listIndex, InputIndex = i, Mutiply = 1 });
+                    }
+                    break;
+                }
+            case InputType.Double:
+                {
+                    for (int i = 0; i < ButtonDoubleAxis[listIndex].InputVaule.Count; i++)
+                    {
+                        KeySettings.Add(new KeySetting { inputType = type, ListIndex = listIndex, InputIndex = i, Mutiply = 1 });
+                    }
+                    break;
+                }
+        }
+    }
+    public KeyCode GetKeyCode(InputType type, int listIndex, int InputIndex)
+    {
+        if (listIndex >= 0 && InputIndex >= 0)
+        {
+            switch (type)
+            {
+                case InputType.Action:
+                    {
+                        if (listIndex < ActionEvent.inputSlots.Count)
+                        {
+                            if (InputIndex < ActionEvent.inputSlots[listIndex].Buttons.Count)
+                                return ActionEvent.inputSlots[listIndex].Buttons[InputIndex];
+                        }
+                        return KeyCode.None;
+                    }
+                case InputType.Single:
+                    {
+                        if (listIndex < ButtonSingleAxis.Count)
+                        {
+                            if (InputIndex < ButtonSingleAxis[listIndex].InputVaule.Count)
+                                return ButtonSingleAxis[listIndex].InputVaule.GetKey(InputIndex);
+                        }
+                        return KeyCode.None;
+                    }
+                case InputType.Double:
+                    {
+                        if (listIndex < ButtonDoubleAxis.Count)
+                        {
+                            if (InputIndex < ButtonDoubleAxis[listIndex].InputVaule.Count)
+                                return ButtonDoubleAxis[listIndex].InputVaule.GetKey(InputIndex);
+                        }
+                        return KeyCode.None;
+                    }
+            }
+        }
+
+        return KeyCode.None;
+    }
+    public List<KeyCode> GetKeyCode(InputType type, int listIndex)
+    {
+        if (listIndex >= 0)
+        {
+            switch (type)
+            {
+                case InputType.Action:
+                    {
+                        if (listIndex < ActionEvent.inputSlots.Count)
+                        {
+                            return ActionEvent.inputSlots[listIndex].Buttons;
+                        }
+                        break;
+                    }
+                case InputType.Single:
+                    {
+                        if (listIndex < ButtonSingleAxis.Count)
+                        {
+                            return ButtonSingleAxis[listIndex].InputVaule.GetKey();
+                        }
+                        break;
+                    }
+                case InputType.Double:
+                    {
+                        if (listIndex < ButtonDoubleAxis.Count)
+                        {
+                            return ButtonDoubleAxis[listIndex].InputVaule.GetKey();
+                        }
+                        break;
+                    }
+            }
+        }
+
+        return null;
+    }
+    /// <summary>
+    /// Action -> Keys , Single + Double -> Key
+    /// </summary>
+    /// <param name="KeySettingIndex"></param>
+    /// <returns></returns>
+    public List<KeyCode> GetKeyCode(int KeySettingIndex)
+    {
+        switch (KeySettings[KeySettingIndex].inputType)
+        {
+            case InputType.Action:
+                return GetKeyCode(KeySettings[KeySettingIndex].inputType, KeySettings[KeySettingIndex].ListIndex);
+            case InputType.Single:
+            case InputType.Double:
+                return new List<KeyCode> { GetKeyCode(KeySettings[KeySettingIndex].inputType, KeySettings[KeySettingIndex].ListIndex, KeySettings[KeySettingIndex].InputIndex) };
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Use Editor , Not Setting DisplayName , Mutiply
+    /// </summary>
+    public void ResetKeySetting()
+    {
+        KeySettings.Clear();
+        int i = 0;
+        for (i = 0; i < ButtonSingleAxis.Count; i++)
+        {
+            AddKeySetting(InputType.Single, i);
+        }
+
+        for (i = 0; i < ButtonDoubleAxis.Count; i++)
+        {
+            AddKeySetting(InputType.Double, i);
+        }
+
+        for (i = 0; i < ActionEvent.inputSlots.Count; i++)
+        {
+            AddKeySetting(InputType.Action, i);
+        }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns>KeySettings Index</returns>
+    public int FindKeySetting(InputType type, int listIndex, int InputIndex)
+    {
+        return KeySettings.FindIndex(t => t.inputType == type && t.ListIndex == listIndex && t.InputIndex == InputIndex);
+    }
+    #endregion
 
 #if UNITY_EDITOR
     public void TestEvent(Vector2 vaule)
@@ -815,9 +998,163 @@ public class InputSystemEditor : Editor
             }
             EditorGUILayout.EndHorizontal();
 
+            if (GUILayout.Button("Reset KeySetting"))
+            {
+                Onwer.ResetKeySetting();
+            }
             //List<ButtonAxisInput> ButtonSingleAxis
             //List<ButtonVector2AxisInput> ButtonVector2Axis
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Save Prefab"))
+            {
+                Onwer.SavePrefab();
+            }
+            if (GUILayout.Button("Load Prefab"))
+            {
+                Onwer.LoadPrefab();
+            }
+            EditorGUILayout.EndHorizontal();
         }
+    }
+}
+[CustomPropertyDrawer(typeof(InputSystem.KeySetting))]
+public class KeySettingEditort : PropertyDrawer
+{
+    Rect DrawRect;
+    float LineHeight = 20;
+    bool FoldState = false;
+
+    InputSystem onwer;
+    InputSystem.InputType inputType;
+    List<KeyCode> Keys = new List<KeyCode>();
+
+    /*        public string DisplayName;
+        public InputType inputType;
+        public int ListIndex;
+        public int InputIndex;
+        public float Mutiply;*/
+    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+    {
+        if (PlayerPrefs.GetInt(property.propertyPath) == 1)
+            return EditorGUI.GetPropertyHeight(property.FindPropertyRelative("DisplayName")) * (6 + 1) + 10;
+        else
+            return EditorGUI.GetPropertyHeight(property.FindPropertyRelative("DisplayName"));
+    }
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        //base.OnGUI(position, property, label);
+        LineHeight = EditorGUI.GetPropertyHeight(property.FindPropertyRelative("DisplayName"));
+        DrawRect = new Rect(position.x, position.y, position.width, LineHeight);
+        onwer = property.serializedObject.targetObject as InputSystem;
+        inputType = (InputSystem.InputType)(property.FindPropertyRelative("inputType").enumValueIndex);
+
+        FoldState = PlayerPrefs.GetInt(property.propertyPath) == 1;
+        if (GUI.Button(DrawRect, (property.FindPropertyRelative("DisplayName").stringValue + "  - " + (FoldState ? "(Open)" : "(Close)"))))
+        {
+            FoldState = !FoldState;
+        }
+        PlayerPrefs.SetInt(property.propertyPath, FoldState ? 1 : 0);
+
+        if (FoldState)
+        {
+            {
+                DrawRect = Expand.EditorExpand.NextLine(position, DrawRect);
+
+                EditorGUI.PropertyField(DrawRect, property.FindPropertyRelative("DisplayName"));
+                DrawRect = Expand.EditorExpand.NextLine(position, DrawRect);
+
+                EditorGUI.PropertyField(DrawRect, property.FindPropertyRelative("inputType"));
+                DrawRect = Expand.EditorExpand.NextLine(position, DrawRect);
+
+                EditorGUI.PropertyField(DrawRect, property.FindPropertyRelative("ListIndex"));
+                DrawRect = Expand.EditorExpand.NextLine(position, DrawRect);
+
+                if (inputType != InputSystem.InputType.Action)
+                {
+                    EditorGUI.PropertyField(DrawRect, property.FindPropertyRelative("InputIndex"));
+                    DrawRect = Expand.EditorExpand.NextLine(position, DrawRect);
+                }
+
+                EditorGUI.PropertyField(DrawRect, property.FindPropertyRelative("Mutiply"));
+                DrawRect = Expand.EditorExpand.NextLine(position, DrawRect);
+            }//Draw Main Property
+
+            {
+                Keys = new List<KeyCode>();
+                switch (inputType)
+                {
+                    case InputSystem.InputType.Action:
+                        {
+                            Keys = onwer.GetKeyCode(inputType, property.FindPropertyRelative("ListIndex").intValue);
+                            break;
+                        }
+                    case InputSystem.InputType.Single:
+                    case InputSystem.InputType.Double:
+                        {
+                            Keys.Add(onwer.GetKeyCode(inputType, property.FindPropertyRelative("ListIndex").intValue, property.FindPropertyRelative("InputIndex").intValue));
+                            break;
+                        }
+                }
+
+                if (Keys != null)
+                {
+                    DrawRect = Expand.EditorExpand.ResizedLabel(position, DrawRect, " Key : ");
+                    Rect KeyRect = new Rect(position.x + DrawRect.width, position.y, position.width - DrawRect.width, position.height);
+
+                    if (inputType == InputSystem.InputType.Action)
+                    {
+                        bool AndEvent = onwer.ActionEvent.inputSlots[property.FindPropertyRelative("ListIndex").intValue].AndEvent;
+                        float LTextWidth = 30f;
+
+                        for (int i = 0; i < Keys.Count; i++)
+                        {
+                            DrawRect = Expand.EditorExpand.RateRect(KeyRect, DrawRect, i, Keys.Count);
+                            DrawRect = new Rect(DrawRect.x, DrawRect.y, DrawRect.width - LTextWidth, DrawRect.height);
+                            EditorGUI.EnumPopup(DrawRect, Keys[i]);
+
+                            if (i != Keys.Count - 1)
+                            {
+                                DrawRect = new Rect(DrawRect.x + DrawRect.width, DrawRect.y, LTextWidth, DrawRect.height);
+                                EditorGUI.LabelField(DrawRect, (AndEvent ? " + " : " | "));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < Keys.Count; i++)
+                        {
+                            if (Keys[i] != KeyCode.None)
+                            {
+                                DrawRect = Expand.EditorExpand.RateRect(KeyRect, DrawRect, i, Keys.Count);
+                                EditorGUI.EnumPopup(DrawRect, Keys[i]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        {
+            //object Temp = Expand.EditorExpand.GetPropertyDrawerTarget<List<InputSystem.KeySetting>>(property.GetType().GetField("KeySettings"), property);
+            //Debug.Log("Find : "  + (Temp is List<InputSystem.KeySetting>) + " - " + Temp.GetType());//Working
+
+            //var paths = property.propertyPath.Split('.');
+            //object LChildObj = property.serializedObject.targetObject.GetType().GetField(paths[0])
+            //    .GetValue(property.serializedObject.targetObject);
+            //Debug.Log("Path[0] : " + paths[0] + "  " + LChildObj);//Keysettings  / List [inputSystem + keysetting]
+            //path[1] : Array
+            //Path[2] : data[0]
+
+            //System.Reflection.FieldInfo LChildField = property.serializedObject.targetObject.GetType().GetField(paths[0]);//List [inputSystem + keysetting] KeySettings
+
+            //Debug.Log(LChildObj as List<InputSystem.KeySetting>);//Working
+
+            //Debug.Log((property.serializedObject.targetObject as InputSystem));//Working
+        }// EditorExpand.GetPropertyDrawerTarget Test
+        //property.serializedObject.targetObject 으로 InputSystem 접근 
+
     }
 }
 #endif

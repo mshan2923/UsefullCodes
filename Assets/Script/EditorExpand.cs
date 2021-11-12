@@ -311,9 +311,9 @@ namespace Expand
         }
 
         /// <summary>
-        /// NotWork Include List, Array But Can Make Support
+        /// NotWork Include List, Array But Can Make Support / T - Find Type
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">Find Type</typeparam>
         /// <param name="fieldInfo"></param>
         /// <param name="property"></param>
         /// <returns></returns>
@@ -331,6 +331,12 @@ namespace Expand
                     .GetValue(property.serializedObject.targetObject);
                 FieldInfo LChildField = property.serializedObject.targetObject.GetType().GetField(paths[0]);
                 //Debug.Log(property.serializedObject.targetObject.GetType().GetField(paths[0]) + " | " + paths[0]);
+
+                if (typeof(T) == LChildObj.GetType())
+                {
+                    Lobj = LChildObj;
+                    return Lobj;
+                }
 
                 if (LChildField != null)
                 {
