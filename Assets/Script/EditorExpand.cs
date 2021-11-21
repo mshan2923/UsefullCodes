@@ -58,7 +58,7 @@ namespace Expand
             return new Rect(LdrawRect.x + Size, LdrawRect.y, Size, LdrawRect.height);
         }
 
-        [System.Obsolete("Use PropertyField insteed(Replaced)")]        //Not Work Rect, Bound , Gradient , Not Recommand Use 
+        [System.Obsolete("Use PropertyField insteed(Replaced) OR Use EditorGUI.PropertyField")]        //Not Work Rect, Bound , Gradient , Not Recommand Use 
         public static Rect InputField(Rect pos, Rect DrawRect, SerializedProperty property, string Text, int LineAmount, float Space = 0, bool ResizedText = true)
         {
             EditorGUI.indentLevel = 0;
@@ -210,6 +210,7 @@ namespace Expand
             LRect = GetNextSpace(pos, LRect, 0, InputWidth);
             return LRect;
         }
+        [System.Obsolete("Try Use EditorGUI.PropertyField", false)]
         public static Rect PropertyField(Rect pos, Rect DrawRect, SerializedProperty Property, string Text, int LineAmount, float Space = 0, bool ResizedText = true)
         {
             EditorGUI.indentLevel = 0;
@@ -456,7 +457,8 @@ namespace Expand
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return Mathf.Min(20, GUI.skin.label.CalcSize(new GUIContent(Text)).y) + 20;
+            //return Mathf.Min(20, GUI.skin.label.CalcSize(new GUIContent(Text)).y) + 20;
+            return EditorGUI.GetPropertyHeight(property, true) + Mathf.Min(20, GUI.skin.label.CalcSize(new GUIContent(Text)).y);
         }
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -480,15 +482,17 @@ namespace Expand
             {
                 EditorGUI.HelpBox(DrawRect, Text, MessageType.None);
                 DrawRect = EditorExpand.NextLine(position, DrawRect);
-                TypeEnum Ltype = VariableCollection.ConvertTypeEnum(EditorExpand.PropertyTypeToType(property.type).Name);
-                EditorExpand.PropertyField(position, DrawRect, property, property.displayName, 1);
+                //TypeEnum Ltype = VariableCollection.ConvertTypeEnum(EditorExpand.PropertyTypeToType(property.type).Name);
+                EditorGUI.PropertyField(DrawRect, property, new GUIContent(property.displayName), true);
+                //EditorExpand.PropertyField(position, DrawRect, property, property.displayName, 1);
             }
             else
             {
                 EditorGUI.LabelField(DrawRect, Text);
                 DrawRect = EditorExpand.NextLine(position, DrawRect);
-                TypeEnum Ltype = VariableCollection.ConvertTypeEnum(EditorExpand.PropertyTypeToType(property.type).Name);
-                EditorExpand.PropertyField(position, DrawRect, property, property.displayName, 1);
+                //TypeEnum Ltype = VariableCollection.ConvertTypeEnum(EditorExpand.PropertyTypeToType(property.type).Name);
+                //ditorExpand.PropertyField(position, DrawRect, property, property.displayName, 1);
+                EditorGUI.PropertyField(DrawRect, property, new GUIContent(property.displayName), true);
             }
         }
     }//[AttributeLabel("Testing", true, true)]
