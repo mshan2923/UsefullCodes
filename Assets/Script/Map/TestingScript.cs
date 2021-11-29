@@ -4,13 +4,21 @@ using UnityEngine;
 
 public class TestingScript : MonoBehaviour
 {
+    public struct TestData
+    {
+        public string name;
+        public float data;
+    }
+
+    //[Expand.AttributeLabel("", true, true)]//===========아니 씨벌 IntMap 구현에 영향
     public IntMap<string> IntMap = new IntMap<string>();
     IntMap<string>.Vaule vaule;
 
-    public Map<string> Map = new Map<string>();
-    public Map<VarCollection, float> Map_KV = new Map<VarCollection, float>();
+    public Map<Rect> map = new();
+    public Map<VarCollection, float> Map_KV = new();
     public GroupMap<string> GroupMap = new GroupMap<string>();
 
+    public Map<LayerMask, float> Map_KV2 = new();
     void Start()
     {
         vaule.key = 2;
