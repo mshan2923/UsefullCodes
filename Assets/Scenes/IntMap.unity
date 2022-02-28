@@ -153,19 +153,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IntMap:
-    Vaules: []
-  Map:
+    Vaules:
+    - key: 0
+      vaule: 
+  map:
     Vaule: []
   Map_KV:
-    Slots:
-    - Key:
-        Data: 
-        DataType: 
-      Vaule: 0
-    - Key:
-        Data: 
-        DataType: 
-      Vaule: 0
+    Slots: []
   GroupMap:
     Key:
     - 

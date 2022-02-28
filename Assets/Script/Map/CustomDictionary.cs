@@ -598,6 +598,7 @@ public class MapEditor : PropertyDrawer
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
         vaule = property.FindPropertyRelative("Vaule");
+
         if (list == null)
         {
             DrawList();        

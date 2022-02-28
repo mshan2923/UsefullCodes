@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TestingScript : MonoBehaviour
 {
-    public struct TestData
+    public class TestData
     {
         public string name;
         public float data;
@@ -14,7 +14,7 @@ public class TestingScript : MonoBehaviour
     public IntMap<string> IntMap = new IntMap<string>();
     IntMap<string>.Vaule vaule;
 
-    public Map<Rect> map = new();
+    public Map<Wrap<Rect>> map = new();//===================TestData을 쓰면 초기화가 안되나봄..?
     public Map<VarCollection, float> Map_KV = new();
     public GroupMap<string> GroupMap = new GroupMap<string>();
 
