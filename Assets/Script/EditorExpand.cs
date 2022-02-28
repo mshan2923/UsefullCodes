@@ -55,10 +55,10 @@ namespace Expand
             Rect LdrawRect = new Rect(DrawRect.x, DrawRect.y, Size, DrawRect.height);
 
             EditorGUI.LabelField(LdrawRect, Text);
-            return new Rect(LdrawRect.x + Size, LdrawRect.y, Size, LdrawRect.height);
+            return new Rect(LdrawRect.x + Size, LdrawRect.y, Pos.width - Size, LdrawRect.height);
         }
 
-        [System.Obsolete("Use PropertyField insteed(Replaced) OR Use EditorGUI.PropertyField")]        //Not Work Rect, Bound , Gradient , Not Recommand Use 
+        [System.Obsolete("Use PropertyField OR Use EditorGUI.PropertyField")]        //Not Work Rect, Bound , Gradient , Not Recommand Use 
         public static Rect InputField(Rect pos, Rect DrawRect, SerializedProperty property, string Text, int LineAmount, float Space = 0, bool ResizedText = true)
         {
             EditorGUI.indentLevel = 0;
@@ -69,7 +69,7 @@ namespace Expand
             {
                 LRect = ResizedLabel(pos, LRect, Text);
 
-                InputWidth = Mathf.Max(0, (((pos.width) / LineAmount) - LRect.width));
+                InputWidth = LRect.width;
             }
             else
             {
@@ -210,10 +210,9 @@ namespace Expand
             LRect = GetNextSpace(pos, LRect, 0, InputWidth);
             return LRect;
         }
-        [System.Obsolete("Try Use EditorGUI.PropertyField", false)]
+
         public static Rect PropertyField(Rect pos, Rect DrawRect, SerializedProperty Property, string Text, int LineAmount, float Space = 0, bool ResizedText = true)
         {
-            EditorGUI.indentLevel = 0;
             Rect LRect = new Rect(DrawRect.x + Space, DrawRect.y, DrawRect.width - Space, DrawRect.height);
 
             float InputWidth = 0;
@@ -221,7 +220,7 @@ namespace Expand
             {
                 LRect = ResizedLabel(pos, LRect, Text);
 
-                InputWidth = Mathf.Max(0, (((pos.width) / LineAmount) - LRect.width));
+                InputWidth = LRect.width;
             }
             else
             {
@@ -273,9 +272,7 @@ namespace Expand
             Rect LRect = new Rect(pos.x + Space, pos.y, pos.width - Space, pos.height);
             LRect = ResizedLabel(pos, LRect, label);
 
-            float InputWidth = Mathf.Max(0, (pos.width - LRect.width));
-
-            LRect = GetNextSpace(pos, LRect, InputWidth);
+            LRect = GetNextSpace(pos, LRect, LRect.width);
 
             return EditorGUI.MaskField(LRect, Layers, UnityEditorInternal.InternalEditorUtility.layers);
         }

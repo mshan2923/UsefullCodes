@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class TestingScript : MonoBehaviour
 {
+    [System.Serializable]
     public class TestData
     {
         public string name;
@@ -19,6 +20,8 @@ public class TestingScript : MonoBehaviour
     public GroupMap<string> GroupMap = new GroupMap<string>();
 
     public Map<LayerMask, float> Map_KV2 = new();
+    public Map<string, Rect> Map_KV3 = new();
+
     void Start()
     {
         vaule.key = 2;

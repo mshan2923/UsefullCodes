@@ -880,62 +880,36 @@ public class MapEditor_KV : PropertyDrawer
     }
     */
     #endregion
-    public void DrawList()
-    {
-        list = new UnityEditorInternal.ReorderableList(Slot.serializedObject, Slot, true, true, true, true)
-        {
-            headerHeight = 0,
-            elementHeightCallback = (int index) =>
-            {
-                return Mathf.Max(EditorGUI.GetPropertyHeight(Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Key")),
-                    EditorGUI.GetPropertyHeight(Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Vaule")));
-            },
-            drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
-            {
-                rect.y += 2;
-                rect.x += 10;
-                rect.width -= 10;
-
-                EditorGUI.PropertyField(new Rect(rect.x, rect.y, rect.width * 0.5f, rect.height),
-                    Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Key"), GUIContent.none, true);
-
-                EditorGUI.PropertyField(new Rect((rect.x + rect.width * 0.5f), rect.y, rect.width * 0.5f, rect.height),
-                    Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Vaule"), GUIContent.none, true);
-            }
-        };
-    }
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
         Slot = property.FindPropertyRelative("Slots");
         if (list == null)
         {
-            DrawList();
+            list = new UnityEditorInternal.ReorderableList(Slot.serializedObject, Slot, true, true, true, true)
+            {
+                headerHeight = 0,
+                //elementHeight = EditorGUIUtility.singleLineHeight,
+                elementHeightCallback = (int index) =>
+                {
+                    return Mathf.Max(EditorGUI.GetPropertyHeight(Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Key"), true),
+                        EditorGUI.GetPropertyHeight(Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Vaule"), true));
+                },
+                drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+                {
+                    rect.y += 2;
+                    rect.x += 10;
+                    rect.width -= 10;
+
+                    EditorGUI.PropertyField(new Rect(rect.x, rect.y, rect.width * 0.5f, rect.height),
+                        Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Key"), GUIContent.none, true);
+
+                    EditorGUI.PropertyField(new Rect((rect.x + rect.width * 0.5f), rect.y, rect.width * 0.5f, rect.height),
+                        Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Vaule"), GUIContent.none, true);
+                }
+            };
         }
 
-        //return list.elementHeight * (property.isExpanded ? (Mathf.Max(1, Slot.arraySize) + 3) : 1);
-        {
-            if (property.isExpanded)
-            {
-                float Lheight = 40;
-                if (Slot.arraySize == 0)
-                {
-                    Lheight += 20;
-                }
-                else
-                {
-                    for (int i = 0; i < Slot.arraySize; i++)
-                    {
-                        Lheight += Mathf.Max(EditorGUI.GetPropertyHeight(Slot.GetArrayElementAtIndex(i).FindPropertyRelative("Key")),
-                                EditorGUI.GetPropertyHeight(Slot.GetArrayElementAtIndex(i).FindPropertyRelative("Vaule")), 20);
-                    }
-                }
-                return Lheight;
-            }
-            else
-            {
-                return EditorGUIUtility.singleLineHeight;
-            }
-        }//Return Property Height
+        return EditorGUIUtility.singleLineHeight + (property.isExpanded ? list.GetHeight() : 0);
     }
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {

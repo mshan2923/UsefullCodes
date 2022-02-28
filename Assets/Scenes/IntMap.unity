@@ -159,7 +159,15 @@ MonoBehaviour:
   map:
     Vaule: []
   Map_KV:
-    Slots: []
+    Slots:
+    - Key:
+        Data: '{"data":0}'
+        DataType: 
+      Vaule: 0
+    - Key:
+        Data: 
+        DataType: 
+      Vaule: 0
   GroupMap:
     Key:
     - 
@@ -188,6 +196,15 @@ MonoBehaviour:
         serializedVersion: 2
         m_Bits: 0
       Vaule: 0
+  Map_KV3:
+    Slots:
+    - Key: 
+      Vaule:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
 --- !u!4 &2670898
 Transform:
   m_ObjectHideFlags: 0
