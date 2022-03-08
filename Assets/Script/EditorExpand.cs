@@ -644,5 +644,104 @@ namespace Expand
     #endregion AttributeLayerMask
 
 
+    [CustomPropertyDrawer(typeof(Gradient))]
+    public class GradientEditor : PropertyDrawer
+    {
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return EditorGUIUtility.singleLineHeight;
+        }
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            //base.OnGUI(position, property, label);
+
+            if (property.FindPropertyRelative("colorKeys") == null || property.FindPropertyRelative("alphaKeys") == null)
+            {
+                EditorGUI.PropertyField(position, property, label, true);
+
+                Debug.Log("Can't Enable HDR GradientField \n" + property.propertyPath);
+            }
+            else
+            {
+                Gradient gradient = EditorGUI.GradientField(position, label, GradientVaule(property), true);
+
+                GradientVaule(property, gradient);
+            }
+        }
+        public Gradient GradientVaule(SerializedProperty property)
+        {
+            if (property != null)
+            {
+                return new Gradient();
+            }
+
+            var p_color = property.FindPropertyRelative("colorKeys");
+            var p_alpha = property.FindPropertyRelative("alphaKeys");
+
+            if (p_color != null || p_alpha != null)
+            {
+                GradientColorKey[] colorKeys = new GradientColorKey[p_color.arraySize];
+                GradientAlphaKey[] alphaKeys = new GradientAlphaKey[p_alpha.arraySize];
+
+                for (int i = 0; i < colorKeys.Length; i++)
+                {
+                    colorKeys[i] = new GradientColorKey(p_color.GetArrayElementAtIndex(i).FindPropertyRelative("color").colorValue,
+                        p_color.GetArrayElementAtIndex(i).FindPropertyRelative("time").floatValue);
+                }
+                for (int i = 0; i < alphaKeys.Length; i++)
+                {
+                    alphaKeys[i] = new GradientAlphaKey(p_alpha.GetArrayElementAtIndex(i).FindPropertyRelative("alpha").floatValue,
+                        p_alpha.GetArrayElementAtIndex(i).FindPropertyRelative("time").floatValue);
+                }
+                GradientMode mode = property.FindPropertyRelative("mode").enumValueIndex == 0 ? GradientMode.Blend : GradientMode.Fixed;
+
+                Gradient result = new();
+                result.SetKeys(colorKeys, alphaKeys);
+                result.mode = mode;
+
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }//Get
+        public bool GradientVaule(SerializedProperty property, Gradient gradient)
+        {
+            if (gradient != null)
+            {
+                if (property.FindPropertyRelative("colorKeys") != null)
+                {
+                    for (int c = 0; c < gradient.colorKeys.Length; c++)
+                    {
+                        property.FindPropertyRelative("colorKeys").arraySize = gradient.colorKeys.Length;
+
+                        property.FindPropertyRelative("colorKeys").GetArrayElementAtIndex(c).FindPropertyRelative("color").colorValue =
+                            gradient.colorKeys[c].color;
+                        property.FindPropertyRelative("colorKeys").GetArrayElementAtIndex(c).FindPropertyRelative("time").floatValue =
+                            gradient.colorKeys[c].time;
+                    }
+                }
+
+                if (property.FindPropertyRelative("alphaKeys") != null)
+                {
+                    for (int c = 0; c < gradient.alphaKeys.Length; c++)
+                    {
+                        property.FindPropertyRelative("alphaKeys").arraySize = gradient.colorKeys.Length;
+
+                        property.FindPropertyRelative("alphaKeys").GetArrayElementAtIndex(c).FindPropertyRelative("alpha").floatValue =
+                            gradient.alphaKeys[c].alpha;
+                        property.FindPropertyRelative("alphaKeys").GetArrayElementAtIndex(c).FindPropertyRelative("time").floatValue =
+                            gradient.alphaKeys[c].time;
+                    }
+                }
+
+                if (property.FindPropertyRelative("mode") != null)
+                    property.FindPropertyRelative("mode").enumValueIndex = gradient.mode == GradientMode.Blend ? 0 : 1;
+            }
+
+            return gradient != null;
+        }//Set
+    }//Fix PropertyField , Surpport HDR Gradient
 }
 #endif
