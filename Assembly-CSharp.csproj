@@ -76,6 +76,7 @@
     <Compile Include="Assets\Widget\Script\Test\TestTraceInputSystemPos.cs" />
     <Compile Include="Assets\Script\Localization\LocalizationManager.cs" />
     <Compile Include="Assets\Script\AutoVarAccess.cs" />
+    <Compile Include="Assets\Script\Math\MathReflect.cs" />
     <Compile Include="Assets\Script\SaveLoad\SaveLoad.cs" />
     <Compile Include="Assets\Script\ObjectScreenSize.cs" />
     <Compile Include="Assets\Widget\Script\DragNDrop.cs" />
@@ -90,11 +91,13 @@
     <Compile Include="Assets\Script\VariableCollection\Disable\CustomSerialization.cs" />
     <Compile Include="Assets\Script\VariableCollection\Example\TestCollection.cs" />
     <Compile Include="Assets\Script\SaveLoad\TestSaveLoad.cs" />
+    <Compile Include="Assets\Script\Math\MathOrtho.cs" />
     <Compile Include="Assets\Widget\Script\InputWidget\InputDetect.cs" />
     <Compile Include="Assets\Script\Localization\LocalizedText.cs" />
     <Compile Include="Assets\Widget\Script\RatePanel.cs" />
     <Compile Include="Assets\Script\EditorExpand.cs" />
     <Compile Include="Assets\Script\ReOrderableList\ReOrderableTemplate.cs" />
+    <Compile Include="Assets\Script\Math\MathProjectOnPlane.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Script\SaveLoad\SaveFile.txt" />
