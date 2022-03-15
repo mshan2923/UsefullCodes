@@ -170,22 +170,17 @@ MonoBehaviour:
       Vaule: 0
   GroupMap:
     Key:
-    - 
-    - 
-    - 
-    - 
-    Vaule: 0100000000000000ffffffffffffffff
+    - b
+    - a
+    Vaule: 0000000001000000
     SortList:
       Slots:
-      - Key: 1
-        Vaule:
-          Vaule: 00000000
       - Key: 0
         Vaule:
-          Vaule: 01000000
-      - Key: -1
+          Vaule: 00000000
+      - Key: 1
         Vaule:
-          Vaule: 0300000002000000
+          Vaule: 01000000
   Map_KV2:
     Slots:
     - Key:

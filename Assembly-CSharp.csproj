@@ -84,6 +84,7 @@
     <Compile Include="Assets\Script\ObjectPool\ObjPoolSpawner.cs" />
     <Compile Include="Assets\Script\ObjectPool\ObjectPool.cs" />
     <Compile Include="Assets\Widget\Script\FoldPanel.cs" />
+    <Compile Include="Assets\Script\Math\MathProjectOnPlane.cs" />
     <Compile Include="Assets\Widget\Script\AlarmWidget.cs" />
     <Compile Include="Assets\Widget\Script\InputWidget\InputWidget.cs" />
     <Compile Include="Assets\Script\Map\TestingScript.cs" />
@@ -97,7 +98,6 @@
     <Compile Include="Assets\Widget\Script\RatePanel.cs" />
     <Compile Include="Assets\Script\EditorExpand.cs" />
     <Compile Include="Assets\Script\ReOrderableList\ReOrderableTemplate.cs" />
-    <Compile Include="Assets\Script\Math\MathProjectOnPlane.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Script\SaveLoad\SaveFile.txt" />

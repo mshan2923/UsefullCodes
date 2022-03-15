@@ -1067,15 +1067,20 @@ public class GroupMapEditor : PropertyDrawer
                                 break;
                             }
 
-                            DrawRect = EditorExpand.PropertyField(position, DrawRect, key.GetArrayElementAtIndex(Lindex), (i + " - " + j + " "), 2);
+                            //DrawRect = EditorExpand.PropertyField(position, DrawRect, key.GetArrayElementAtIndex(Lindex), (i + " - " + j + " "), 2);
+                            DrawRect = EditorExpand.ResizedLabel(position, DrawRect, (i + " - " + j + " "));
+                            EditorGUI.PropertyField(DrawRect, key.GetArrayElementAtIndex(Lindex),GUIContent.none, true);
 
                             int temp = vaule.GetArrayElementAtIndex(Lindex).intValue;
                             DrawRect = EditorExpand.RateRect(position, DrawRect, 1, 2, (SlotOffset * 2), LineSize);
 
                             Rect TempRect = new Rect(position.x, position.y, position.width - RemoveButton * 2, DrawRect.height);
-                            DrawRect = EditorExpand.PropertyField(TempRect, DrawRect, vaule.GetArrayElementAtIndex(Lindex), "", 2);
+                            //DrawRect = EditorExpand.PropertyField(TempRect, DrawRect, vaule.GetArrayElementAtIndex(Lindex), "", 2);
 
-                            DrawRect = new Rect(DrawRect.x, DrawRect.y, RemoveButton, LineSize);
+                            DrawRect = new Rect(DrawRect.x, DrawRect.y, DrawRect.width - RemoveButton, DrawRect.height);
+                            EditorGUI.PropertyField(DrawRect, vaule.GetArrayElementAtIndex(Lindex), GUIContent.none, true);
+
+                            DrawRect = new Rect(position.width - RemoveButton * 0.5f, DrawRect.y, RemoveButton, LineSize);
                             if (GUI.Button(DrawRect, " - "))
                             {
                                 RemoveGroup = i;
@@ -1110,7 +1115,7 @@ public class GroupMapEditor : PropertyDrawer
                 SortMap(property);
             }
 
-            DrawRect = EditorExpand.NextLine(position, DrawRect, (SlotOffset * 2), 20);
+            DrawRect = EditorExpand.NextLine(position, DrawRect, 0, 20);
             if (GUI.Button(DrawRect, "Add"))
             {
                 key.arraySize++;
@@ -1120,7 +1125,7 @@ public class GroupMapEditor : PropertyDrawer
                 //키, 값 추가함
             }
 
-            DrawRect = EditorExpand.NextLine(position, DrawRect, SlotOffset);
+            DrawRect = EditorExpand.NextLine(position, DrawRect, 0);
             if (GUI.Button(DrawRect, "Clear"))
             {
                 property.FindPropertyRelative("Key").arraySize = 0;
