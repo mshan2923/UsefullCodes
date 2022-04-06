@@ -150,3 +150,10 @@ Update Mode: updateDependencies
 
 The following packages were 업데이트됨:
   com.unity.ide.vscode 1.2.4 버전에서 1.2.5버전으로  com.unity.timeline 1.6.3 버전에서 1.6.4버전으로
+=== Sun Apr  3 05:47:21 2022
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were 업데이트됨:
+  com.unity.collab-proxy 1.15.12 버전에서 1.15.13버전으로  com.unity.test-framework 1.1.29 버전에서 1.1.31버전으로

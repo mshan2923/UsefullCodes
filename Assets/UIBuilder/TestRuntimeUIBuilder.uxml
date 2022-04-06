@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:GroupBox style="flex-grow: 0; width: 250px; height: 250px; transform-origin: left top; background-color: rgba(0, 0, 0, 0.3);">
+        <ui:Label text="Label" display-tooltip-when-elided="true" name="TestLabel" style="-unity-text-align: upper-center;" />
+        <ui:Button text="First" display-tooltip-when-elided="true" name="first" style="-unity-text-align: middle-center; justify-content: space-between; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); flex-grow: 0; flex-shrink: 0; bottom: 0; top: auto;" />
+        <ui:Button text="Secon" display-tooltip-when-elided="true" name="secon" />
+    </ui:GroupBox>
+</ui:UXML>

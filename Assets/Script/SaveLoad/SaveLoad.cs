@@ -45,7 +45,9 @@ public class SaveLoad<T>
         return true;
 
     }
-}
+
+
+}//SaveLoad 기반으로 대체
 
 public static class SaveLoad
 {
@@ -96,4 +98,18 @@ public static class SaveLoad
         return true;
     }//ext는 확장자 . 빼고 입력 / Auto Wrapping
 
+
+    public static string Serialized<T>(T data)
+    {
+        return JsonUtility.ToJson(new Wrapping<T>(data));
+    }
+    public static T Deserialized<T>(string data)
+    {
+        if (string.IsNullOrEmpty(data))
+        {
+            return default;
+        }
+
+        return JsonUtility.FromJson<Wrapping<T>>(data).Data;
+    }
 }
