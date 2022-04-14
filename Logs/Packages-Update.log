@@ -157,3 +157,10 @@ Update Mode: updateDependencies
 
 The following packages were 업데이트됨:
   com.unity.collab-proxy 1.15.12 버전에서 1.15.13버전으로  com.unity.test-framework 1.1.29 버전에서 1.1.31버전으로
+=== Wed Apr 13 12:37:57 2022
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were 업데이트됨:
+  com.unity.collab-proxy 1.15.13 버전에서 1.15.15버전으로  com.unity.ide.rider 3.0.12 버전에서 3.0.13버전으로

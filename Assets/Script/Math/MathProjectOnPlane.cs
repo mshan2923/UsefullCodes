@@ -43,7 +43,7 @@ public class MathProjectOnPlane : MonoBehaviour
                 OutObject.transform.rotation = Quaternion.LookRotation(Result);
             }
 
-            Debug.Log(TargetObject.transform.position);
+            //Debug.Log(TargetObject.transform.position);
         }
     }
 }
