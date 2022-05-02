@@ -1,7 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
-    <ui:Label text="Label" display-tooltip-when-elided="true" />
-    <ui:Button text="Button" display-tooltip-when-elided="true" view-data-key="button" name="button" />
-    <uie:ObjectField label="Object Field" allow-scene-objects="false" style="opacity: 1; overflow: hidden; visibility: visible; display: flex;" />
-    <uie:PropertyField binding-path="Test" usage-hints="None" style="opacity: 1;" />
-    <uie:PropertyField binding-path="Test2" usage-hints="None" style="opacity: 1;" />
-</ui:UXML>

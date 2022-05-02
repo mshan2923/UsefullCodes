@@ -1,8 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <ui:Foldout text="Foldout" value="true">
-        <ui:RadioButtonGroup label="Radio Button Group" value="5" tabindex="0" name="radio" style="height: 79px; justify-content: flex-start; align-items: center; flex-direction: row;" />
-        <ui:Button text="Button" display-tooltip-when-elided="true" enable-rich-text="true" name="button" />
-    </ui:Foldout>
-    <ui:TextField picking-mode="Ignore" label="Text Field" value="filler text" text="filler text" password="false" name="text" />
-    <ui:DropdownField label="Dropdown" index="5" choices="1, 2, 3, 4, 5" tabindex="5" name="Dropdown" />
-</ui:UXML>

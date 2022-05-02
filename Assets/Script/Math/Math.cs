@@ -42,5 +42,20 @@ public static class Math
         float project_length = Mathf.Clamp(Vector3.Dot(target - origin, direction), 0f, length);
         return origin + direction * project_length;
     }
-
+    public static bool InRange(float vaule, float min, float max, bool equalPass = true)
+    {
+        if (equalPass)
+        {
+            return vaule >= min && vaule <= max;
+        }else
+        {
+            return vaule > min && vaule < max;
+        }
+    }
+    public static bool InRange(Vector3 vaule, Vector3 min, Vector3 max, bool equalPass = true)
+    {
+        return InRange(vaule.x, min.x, max.x, equalPass)
+            && InRange(vaule.y, min.y, max.y, equalPass)
+            && InRange(vaule.z, min.z, max.z, equalPass);
+    }
 }
