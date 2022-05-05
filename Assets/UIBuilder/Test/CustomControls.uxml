@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <TabBox_UIBuilder focusable="true" style="height: 100px; flex-direction: column;">
+        <ui:Button text="Button" display-tooltip-when-elided="true" style="height: 20px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; top: 69px;" />
+        <ui:GroupBox style="background-color: rgb(250, 250, 250); margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+        <ui:GroupBox style="background-color: rgb(77, 77, 77); margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+        <ui:Button text="Button" display-tooltip-when-elided="true" style="height: 25px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+    </TabBox_UIBuilder>
+    <Parition_UIBuilder focusable="true" style="flex-direction: row;">
+        <ui:Button text="Button" display-tooltip-when-elided="true" style="height: 25px;" />
+        <ui:Button text="Button" display-tooltip-when-elided="true" style="height: 20px;" />
+    </Parition_UIBuilder>
+</ui:UXML>

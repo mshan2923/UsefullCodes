@@ -23,7 +23,7 @@ public class TabBox_UIBuilder : VisualElement
     {
         UxmlIntAttributeDescription activeTab = new() { name = "Detected Tab", defaultValue = 0 };
         UxmlIntAttributeDescription activeContainer = new() { name = "Detected Container", defaultValue = 0 };
-        UxmlIntAttributeDescription defaultTab = new() { name = "Default Tab index", defaultValue = 0 };
+        UxmlIntAttributeDescription defaultTab = new() { name = "Default Tab index", defaultValue = 0};
 
         //public override IEnumerable<UxmlAttributeDescription> uxmlAttributesDescription
         //{ get { yield break; } }
@@ -34,7 +34,7 @@ public class TabBox_UIBuilder : VisualElement
 
             var onwer = ve as TabBox_UIBuilder;
 
-            //onwer.ActiveTab = activeTab.GetValueFromBag(bag, cc);
+            //onwer.DetectedTab = activeTab.GetValueFromBag(bag, cc);
             onwer.DefaultTab = defaultTab.GetValueFromBag(bag, cc);
         }
     }
@@ -48,7 +48,6 @@ public class TabBox_UIBuilder : VisualElement
         focusable = true;
         pickingMode = PickingMode.Position;
 
-        Debug.Log("Init TabBox");
     }
     public TabBox_UIBuilder(string text, VisualElement target)
     {
@@ -113,6 +112,7 @@ public class TabBox_UIBuilder : VisualElement
 
 
                     ElementAt(TabList[i]).style.width = (paddingRect.width / TabList.Count);
+                    //ElementAt(TabList[i]).style.height = e_hight;//이거 쓰면 계예속 높이 고정
 
                 }//버튼 가로방향으로 배치
                 else
@@ -129,10 +129,12 @@ public class TabBox_UIBuilder : VisualElement
                     ElementAt(TabList[i]).style.top = (paddingRect.height / TabList.Count) * i;
 
 
+                    //ElementAt(TabList[i]).style.width = e_width;
                     ElementAt(TabList[i]).style.height = (paddingRect.height / TabList.Count);
 
                 }//버튼 세로 방향으로 배치
             }//Tab RePosition
+
 
             ContainerReposition(IsVectical, ElementMaxHeight);
         }
@@ -166,17 +168,10 @@ public class TabBox_UIBuilder : VisualElement
         if (ContainerList.Count > 0)
         {
             int selct = (SelectTab >= 0) ? SelectTab : Mathf.Max(DefaultTab, 0);
-            if (selct >= ContainerList.Count)
-            {
-                selct = 0;
-#if UNITY_EDITOR
-                Debug.LogWarning("Need More GroupBox");
-#endif
-            }
 
             for (int i = 0; i < ContainerList.Count; i++)
             {
-                ElementAt(ContainerList[i]).visible = (selct == i);
+                ElementAt(ContainerList[i]).visible = (selct == TabList[i]);
 
                 ElementAt(ContainerList[i]).style.position = Position.Absolute;
 

@@ -67,7 +67,6 @@
     <Compile Include="Assets\UIBuilder\Template\UIBuildPropertyDrawer.cs" />
     <Compile Include="Assets\Script\AlertWin_Delegate\TestAlertDelegate.cs" />
     <Compile Include="Assets\Widget\Script\TabWidget.cs" />
-    <Compile Include="Assets\UIBuilder\Partition_UIBuilder.cs" />
     <Compile Include="Assets\Widget\Script\Test\TestListScrollbar.cs" />
     <Compile Include="Assets\Script\SquareCalculate\TestRactCal.cs" />
     <Compile Include="Assets\Widget\Script\MainCanvasSingleton.cs" />
@@ -76,6 +75,7 @@
     <Compile Include="Assets\Widget\Script\InventorySystem.cs" />
     <Compile Include="Assets\UIBuilder\Resource\PropertyDrawer_UIBuild.cs" />
     <Compile Include="Assets\Widget\Script\WidgetExpand.cs" />
+    <Compile Include="Assets\UIBuilder\BaseUIBuilderControl.cs" />
     <Compile Include="Assets\Script\InputSystem.cs" />
     <Compile Include="Assets\Script\Math\DebugCloseOnLine.cs" />
     <Compile Include="Assets\Widget\Script\SingleTonDT.cs" />
@@ -99,6 +99,7 @@
     <Compile Include="Assets\Script\Map\TestingScript.cs" />
     <Compile Include="Assets\Widget\Script\Test\TestInputWidget.cs" />
     <Compile Include="Assets\Script\VariableCollection\Disable\CustomSerialization.cs" />
+    <Compile Include="Assets\UIBuilder\Parition_UIBuilder.cs" />
     <Compile Include="Assets\Script\VariableCollection\Example\TestCollection.cs" />
     <Compile Include="Assets\Script\SaveLoad\TestSaveLoad.cs" />
     <Compile Include="Assets\UIBuilder\Resource\SelectPropertyDrawer.cs" />
@@ -111,9 +112,9 @@
     <Compile Include="Assets\Script\ReOrderableList\ReOrderableTemplate.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\UIBuilder\Test\Test_CustomControls.uxml" />
     <None Include="Assets\UIBuilder\Test\Test.uxml" />
     <None Include="Assets\UIBuilder\Test\TestRuntimeUIBuilder.uxml" />
+    <None Include="Assets\UIBuilder\Test\CustomControls.uxml" />
     <None Include="Assets\UIBuilder\Test\NewUXMLTemplate.uxml" />
     <None Include="Assets\UIBuilder\Template\UIBuilderTemplate.uxml" />
     <None Include="Assets\Script\SaveLoad\SaveFile.txt" />
