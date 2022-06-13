@@ -525,6 +525,122 @@ namespace Expand
     }
     #endregion AttributeLayerMask
 
+    #region AttributrOnChanged
+    public interface IParameterChanged
+    {
+        /// <summary>
+        /// AttributeOnChanged : Recieve Event Fuction
+        /// </summary>
+        void OnParameterChanged(object Origin, object New, string Name);
+    }
+    /// <summary>
+    /// Need IParameterChanged / Send Event Change Vaule On Inspector(Editor)
+    /// </summary>
+    public class AttributeOnChanged : PropertyAttribute
+    {
+        //public delegate void ParameterChanged(object Origin, object New);
+        //public ParameterChanged OnChanged;//델리게이트를 생성자에 못씀
+
+        public System.Type Type;
+        public AttributeOnChanged(System.Type type)
+        {
+            Type = type;
+        }
+    }
+    [CustomPropertyDrawer(typeof(AttributeOnChanged))]
+    public class AttributeOnChangedEditor : PropertyDrawer
+    {
+        AttributeOnChanged attributeField;
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return base.GetPropertyHeight(property, label);
+        }
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            if (attributeField == null)
+            {
+                attributeField = attribute as AttributeOnChanged;
+            }
+
+            //base.OnGUI(position, property, label);
+            //EditorGUI.PropertyField(position, property, label, true);
+
+            bool Changed = false;
+            object originVaule = null;
+            object newVaule = null;
+
+            if (attributeField.Type == typeof(int))
+            {
+                int field = EditorGUI.IntField(position, label, property.intValue);
+
+                if (field != property.intValue)
+                {
+                    originVaule = property.intValue;
+                    newVaule = field;
+
+                    Changed = true;
+                    property.intValue = field;
+                }
+            }
+            else if (attributeField.Type == typeof(float))
+            {
+                float field = EditorGUI.FloatField(position, label, property.floatValue);
+
+                if (field != property.floatValue)
+                {
+                    originVaule = property.floatValue;
+                    newVaule = field;
+
+                    Changed = true;
+                    property.floatValue = field;
+                }
+            }
+            else if (string.Equals(property.propertyType.ToString(), "ObjectReference"))
+            {
+                Object field = EditorGUI.ObjectField(position, label, property.objectReferenceValue, attributeField.Type, true);
+
+                if (field != property.objectReferenceValue)
+                {
+                    originVaule = property.objectReferenceValue;
+                    newVaule = field;
+
+                    Changed = true;
+                    property.objectReferenceValue = field;
+                }
+            }//ALL Component InputField
+            else
+            {
+                Debug.LogWarning("Not Support OR Not Intilized");
+            }
+
+            //Debug.Log(property.type + " / " + attributeField.Type.Name + " =>" + string.Compare(attributeField.Type.Name, property.type, true));
+            //이걸로 컨포넌트인 경우 이름이 같으면 1
+            //Debug.Log(property.propertyType.ToString());//=====Object를 상속한다면 Tostring 으로 ObjectReference 라뜨는데..?
+
+            if (property.serializedObject.targetObject is MonoBehaviour)
+            {
+                var Target = (property.serializedObject.targetObject as MonoBehaviour).GetComponent<IParameterChanged>();
+                if (Target != null)
+                {
+                    //Debug.Log(property.type);//int
+                    //Debug.Log(property.type + " / " + property.propertyType + " / " + typeof(int).Name + "\n" + EditorExpand.PropertyTypeToType(property.type).Name);//int / Integer / Int32
+                    //property.propertyType.GetType() // SerializedPropertyType
+
+                    //PropertyTypeToType 는 기본제공이 아닌 클래스인경우는 안되는데
+                    //attributeField.Type //===============그냥 생성자에 타입을 넣어서 
+
+                    if (Changed)
+                        Target.OnParameterChanged(originVaule, newVaule, label.text);
+                }
+                else
+                {
+                    Debug.LogWarning("Need 'IParameterChanged' interface");
+                }
+            }
+        }
+    }
+    #endregion
+
     [CustomPropertyDrawer(typeof(Gradient))]
     public class GradientEditor : PropertyDrawer
     {
