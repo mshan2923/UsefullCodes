@@ -136,4 +136,25 @@ public static class Math
             return null;
         }
     }
+    /// <summary>
+    /// LookDirection is Local
+    /// </summary>
+    /// <param name="bound"></param>
+    /// <param name="LookDirection"></param>
+    /// <returns></returns>
+    public static Rect Bound2Rect(Bounds bound, Quaternion LookDirection)
+    {
+        Rect result = new Rect();
+        Vector3 Look = LookDirection.eulerAngles;
+        Vector3 Size = bound.extents * 2;
+
+        result.width = Size.x * Mathf.Abs(Cos2(Look.y)) + Size.z * Mathf.Abs(Sin2(Look.y));
+
+        float Depth = Size.x * Mathf.Abs(Sin2(Look.y)) + Size.z * Mathf.Abs(Cos2(Look.y));
+        //Debug.Log("X side Depth : " + Mathf.Abs(Sin2(Look.y)) + "Z side Depth : " + Mathf.Abs(Cos2(Look.y)));//정면인상태에서 Yaw 할때 Bound의 깊이
+
+        result.height = Size.y * Mathf.Abs(Cos2(Look.x)) + Depth * Mathf.Abs(Sin2(Look.x));
+
+        return result;
+    }
 }

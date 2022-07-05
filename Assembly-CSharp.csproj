@@ -78,6 +78,7 @@
     <Compile Include="Assets\UIBuilder\BaseUIBuilderControl.cs" />
     <Compile Include="Assets\Script\InputSystem.cs" />
     <Compile Include="Assets\Script\Math\Debug\DebugCloseOnLine.cs" />
+    <Compile Include="Assets\Script\Math\Debug\DebugVisibleSize.cs" />
     <Compile Include="Assets\Widget\Script\SingleTonDT.cs" />
     <Compile Include="Assets\Widget\Script\Test\TestTraceInputSystemPos.cs" />
     <Compile Include="Assets\Script\Localization\LocalizationManager.cs" />
@@ -111,6 +112,7 @@
     <Compile Include="Assets\Script\EditorExpand.cs" />
     <Compile Include="Assets\Script\Math\Debug\Debug_IK.cs" />
     <Compile Include="Assets\Script\ReOrderableList\ReOrderableTemplate.cs" />
+    <Compile Include="Assets\Script\Map\BitCompression.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\UIBuilder\Test\Test.uxml" />
