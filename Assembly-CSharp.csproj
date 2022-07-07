@@ -63,6 +63,7 @@
     <Compile Include="Assets\Script\SquareCalculate\SquareCalculate.cs" />
     <Compile Include="Assets\Widget\Script\ListScroll.cs" />
     <Compile Include="Assets\Widget\Script\Test\TestWidgetExpand.cs" />
+    <Compile Include="Assets\Script\Map\BitCompression.cs" />
     <Compile Include="Assets\UIBuilder\Template\UIBuildPropertyDrawer.cs" />
     <Compile Include="Assets\Script\AlertWin_Delegate\AlertWindowScript.cs" />
     <Compile Include="Assets\Script\AlertWin_Delegate\TestAlertDelegate.cs" />
@@ -112,7 +113,6 @@
     <Compile Include="Assets\Script\EditorExpand.cs" />
     <Compile Include="Assets\Script\Math\Debug\Debug_IK.cs" />
     <Compile Include="Assets\Script\ReOrderableList\ReOrderableTemplate.cs" />
-    <Compile Include="Assets\Script\Map\BitCompression.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\UIBuilder\Test\Test.uxml" />
