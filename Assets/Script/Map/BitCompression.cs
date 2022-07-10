@@ -6,12 +6,11 @@ using UnityEngine;
 public class BitCompression// : MonoBehaviour
 {
     /*
-    //public List<List<int>> Example = new();
-    public List<int> Example = new();
+    public int[] Example = new int[0];
     private void Start()
     {
         //Example = BitCompression_Inti(Vector2.one * 50);
-        Example = BC_Inti(Vector2.one * 50);
+        BC_Inti(ref Example, Vector2Int.one * 50);
 
     }
     
@@ -19,35 +18,8 @@ public class BitCompression// : MonoBehaviour
     {
         // 1<<31 되면 음수값인데? , 모두 더하면(0~31) : -1 
         //  1 << (0 ~ 30) 을 전부 더하면 int.max
-        {
-            
-Example = BitCompression_Inti(Vector2.one * 50);
 
-BC_Set(ref Example, Vector2Int.one, true);
-
-Debug.Log(BC_Get(Example, Vector2Int.one));
-
-BC_Set(ref Example, Vector2Int.one , false);
-
-Debug.Log(BC_Get(Example, Vector2Int.one));
-
-
-BC_SetRange(ref Example, Vector2Int.zero, Vector2Int.one * 35, false);
-
-Debug.Log(BC_Get(Example, Vector2Int.one * 2));
-Debug.Log(BC_Get(Example, Vector2Int.one * 35));
-
-{
-
-    BC_Set(ref Example, Vector2Int.one * 2, true);
-    BC_Reverse(ref Example);
-
-    Debug.Log(BC_Get(Example, Vector2Int.one * 2));
-    Debug.Log(BC_Get(Example, Vector2Int.one * 35));
-}
-
-        }
-        Example = BC_Inti(Vector2.one * 50);
+        BC_Inti(ref Example, Vector2Int.one * 50);
 
         Debug.Log(BC_Get(Example, Vector2Int.one * 50, Vector2Int.one));
         Debug.Log(BC_Get(Example, Vector2Int.one * 50, Vector2Int.one * 40));
@@ -60,7 +32,7 @@ Debug.Log(BC_Get(Example, Vector2Int.one * 35));
 
         Debug.Log(BC_Get(Example, Vector2Int.one * 50, Vector2Int.one * 40));
 
-        Debug.Log(BC_Get(Example, Vector2Int.one * 50, Vector2Int.one * 50));
+        Debug.Log(BC_Get(Example, Vector2Int.one * 50, Vector2Int.one * 49));
 
 
         {
@@ -81,30 +53,35 @@ Debug.Log(BC_Get(Example, Vector2Int.one * 35));
 
     }//Test Code (MonoBehaviour)
     *///Test Code
-
-    #region List<>
-    public static List<int> BC_Inti(Vector2 Size, bool Full = true)
+    
+    #region Int[]
+    public static void BC_Inti(ref int[] list, Vector2Int Size, bool Full = true)
     {
-        List<int> Result = new();
+        //List<int> Result = new();
+        int ySize = (Size.y / 31) + 1;
+        list = new int[Size.x * ySize];
+
         for (int x = 0; x < Size.x; x++)
         {
-            for (int y = 0; y <= (Size.y / 31); y++)
+            for (int y = 0; y < ySize; y++)
             {
                 if (Full)
                 {
-                    Result.Add(int.MaxValue);
+                    list[x * ySize + y] = int.MaxValue;
+                    //Result.Add(int.MaxValue);
                 }
                 else
                 {
-                    Result.Add(0);
+                    list[x * ySize + y] = 0;
+                    //Result.Add(0);
                 }
+
             }
         }
-        return Result;
     }
-    public static void BC_Clear(ref List<int> list, bool Vaule)
+    public static void BC_Clear(ref int[] list, bool Vaule)
     {
-        for (int x = 0; x < list.Count; x++)
+        for (int x = 0; x < list.Length; x++)
         {
             if (Vaule)
             {
@@ -124,10 +101,10 @@ Debug.Log(BC_Get(Example, Vector2Int.one * 35));
         }
         else
         {
-            return (((Size.y / 31) + 1) * (index.x - 1)) + (index.y / 31);
+            return (((Size.y / 31) + 1) * (index.x)) + (index.y / 31);//============ index.x - 1 아닌거 같은데?
         }
     }
-    public static int BC_Get(List<int> list, Vector2Int Size, Vector2Int index)
+    public static int BC_Get(int[] list, Vector2Int Size, Vector2Int index)
     {
         if (Size.y < 31)
         {
@@ -138,7 +115,7 @@ Debug.Log(BC_Get(Example, Vector2Int.one * 35));
             return list[BC_ToIndex(Size, index)] & (1 << (index.y % 31));
         }
     }
-    public static void BC_Set(ref List<int> list, Vector2Int Size, Vector2Int index, bool Vaule)
+    public static void BC_Set(ref int[] list, Vector2Int Size, Vector2Int index, bool Vaule)
     {
         if (Vaule)
         {
@@ -148,7 +125,7 @@ Debug.Log(BC_Get(Example, Vector2Int.one * 35));
             list[BC_ToIndex(Size, index)] &= ~(1 << (index.y % 31));
         }
     }
-    public static void BC_SetRange(ref List<int> list, Vector2Int Size, Vector2Int Min, Vector2Int Max, bool Vaule)
+    public static void BC_SetRange(ref int[] list, Vector2Int Size, Vector2Int Min, Vector2Int Max, bool Vaule)
     {
         for (int i = BC_ToIndex(Size, Min); i <= BC_ToIndex(Size, Max); i++)
         {
@@ -171,9 +148,9 @@ Debug.Log(BC_Get(Example, Vector2Int.one * 35));
             }
         }
     }
-    public static void BC_Reverse(ref List<int> list)
+    public static void BC_Reverse(ref int[] list)
     {
-        for (int i = 0; i < list.Count; i++)
+        for (int i = 0; i < list.Length; i++)
         {
             list[i] = ~list[i];
         }
@@ -181,6 +158,7 @@ Debug.Log(BC_Get(Example, Vector2Int.one * 35));
     #endregion
 
     #region List<List<>>
+    [System.Obsolete("Replace int[]")]
     public static List<List<int>> BitCompression_Inti(Vector2 Size, bool Full = true)
     {
         List<List<int>> Result = new();
