@@ -19,7 +19,16 @@ public class UnityMeshCreator : MonoBehaviour
 
         _cube = gameObject;
         MeshFilter meshFilter = GetComponent<MeshFilter>();
-        Mesh mesh = meshFilter.mesh;
+
+        Mesh mesh = null;
+        if (runInEditMode)
+        {
+            mesh = meshFilter.sharedMesh;
+        }else
+        {
+            mesh = meshFilter.mesh;
+        }
+
 
         //Create a 'Cube' mesh...
 

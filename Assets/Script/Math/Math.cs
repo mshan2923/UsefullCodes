@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -71,7 +71,7 @@ public static class Math
         float XZLength = new Vector3(Dir.x, 0, Dir.z).magnitude;
         float YOffset = Mathf.Abs(1 / Mathf.Max(Mathf.Sin(Lrot.y * Mathf.Deg2Rad), Mathf.Cos(Lrot.y * Mathf.Deg2Rad)));
 
-        //Lrot.z = Mathf.Atan(Dir.y) * Mathf.Rad2Deg;//ÀÌ°Ç 45 ÀÌ»óÀ¸·Î ¾ÈµÊ
+        //Lrot.z = Mathf.Atan(Dir.y) * Mathf.Rad2Deg;//ì´ê±´ 45 ì´ìƒìœ¼ë¡œ ì•ˆë¨
         Lrot.z = Mathf.Atan((Dir.y * YOffset) / XZLength) * Mathf.Rad2Deg;
 
         return Lrot;
@@ -151,10 +151,27 @@ public static class Math
         result.width = Size.x * Mathf.Abs(Cos2(Look.y)) + Size.z * Mathf.Abs(Sin2(Look.y));
 
         float Depth = Size.x * Mathf.Abs(Sin2(Look.y)) + Size.z * Mathf.Abs(Cos2(Look.y));
-        //Debug.Log("X side Depth : " + Mathf.Abs(Sin2(Look.y)) + "Z side Depth : " + Mathf.Abs(Cos2(Look.y)));//Á¤¸éÀÎ»óÅÂ¿¡¼­ Yaw ÇÒ¶§ BoundÀÇ ±íÀÌ
+        //Debug.Log("X side Depth : " + Mathf.Abs(Sin2(Look.y)) + "Z side Depth : " + Mathf.Abs(Cos2(Look.y)));//ì •ë©´ì¸ìƒíƒœì—ì„œ Yaw í• ë•Œ Boundì˜ ê¹Šì´
 
         result.height = Size.y * Mathf.Abs(Cos2(Look.x)) + Depth * Mathf.Abs(Sin2(Look.x));
 
         return result;
+    }
+    public static bool InArea(Bounds area, Vector3 Pos)
+    {
+        return InArea(area.center, area.extents, Pos);
+    }
+    public static bool InArea(Vector3 areaCenter, Vector3 areaExtent, Vector3 Pos)
+    {
+        return Math.InRange(Pos, areaCenter - (areaExtent), areaCenter + (areaExtent));
+    }
+    public static bool InCircle(Bounds area, Vector3 Pos)
+    {
+        // (x - c)^2 / a^2 + (y - d)^2 / b^2 + (z - e)^2 / c^2 = 1
+        // a : area.Extents.x  * 0.5f / b : area.Extents.y  * 0.5f / c : area.Extents.z  * 0.5f
+
+        //(Pos.x * Pos.x) / (area.extents.x * 0.5f * area.extents.x * 0.5f) + (Pos.z * Pos.z) / (area.extents.z * 0.5f * area.extents.z * 0.5f)
+
+        return Math.Pow2(Pos.x - area.center.x) / Math.Pow2(area.extents.x) + Math.Pow2(Pos.z - area.center.z) / Math.Pow2(area.extents.z) <= 1;
     }
 }
