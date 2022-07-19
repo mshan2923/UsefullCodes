@@ -10,9 +10,14 @@ public class SwarmTerrain : MonoBehaviour
 
     [SerializeField] Vector3[] vertices;
     [SerializeField] int[] triangles;
+    [SerializeField] Vector2[] UVs;
+    [SerializeField] Color[] colors;
 
     public Vector2Int Size = Vector2Int.one * 10;
     public Vector2 Interval = Vector2.one;
+
+    public float MinTerrainHeight = 0;
+    public float MaxTerrainHeight = 1;
 
     public GameObject[] TempDebugObj;
 
@@ -144,6 +149,32 @@ public class SwarmTerrain : MonoBehaviour
 
         }//Set Triangles
 
+        {
+            UVs = new Vector2[vertices.Length];
+            colors = new Color[vertices.Length];
+
+            var ToCount = new Vector2((1 / Interval.x), (1 / Interval.y));
+
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                UVs[i] = new Vector2((vertices[i].x * ToCount.x) / Size.x, (vertices[i].z * ToCount.y) / Size.y);
+
+                colors[i] = Color.white * Mathf.InverseLerp(MinTerrainHeight, MaxTerrainHeight, vertices[i].y);
+                /*
+                if (vertices[i].y >= MaxTerrainHeight)
+                {
+                    colors[i] = Color.white;
+                }else if (vertices[i].y <= MinTerrainHeight)
+                {
+                    colors[i] = Color.red;
+                }else
+                {
+                    colors[i] = Color.white * Mathf.InverseLerp(MinTerrainHeight, MaxTerrainHeight, vertices[i].y);
+                }*/
+            }
+        }//Set UV
+        //============== 버텍스컬러로 비활성화 지역을 투명화
+
     }//생성은 한번만 하면 되니까 + Job에서 못하는거
 
     void CreateTerrain()
@@ -195,6 +226,14 @@ public class SwarmTerrain : MonoBehaviour
 
         mesh.vertices = vertices;
         mesh.triangles = triangles;
+        mesh.uv = UVs;
+
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            colors[i] = Color.white * Mathf.InverseLerp(MinTerrainHeight, MaxTerrainHeight, vertices[i].y);
+        }
+
+        mesh.colors = colors;
 
         mesh.RecalculateNormals();//조명 업데이트
 

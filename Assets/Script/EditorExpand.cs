@@ -656,7 +656,7 @@ namespace Expand
             {
                 EditorGUI.PropertyField(position, property, label, true);
 
-                Debug.Log("Can't Enable HDR GradientField \n" + property.propertyPath);
+                Debug.Log("Can't Enable HDR GradientField : " + property.propertyPath + "\n Need [GradientUsage(true)]");
             }
             else
             {
