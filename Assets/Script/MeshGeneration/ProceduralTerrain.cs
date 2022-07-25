@@ -117,6 +117,38 @@ public class ProceduralTerrain : MonoBehaviour
             }
         }//VertexColor
     }
+    Vector3[] CalculateNormals()
+    {
+        Vector3[] LNormals = new Vector3[vertices.Length];
+        int triangleCount = triangles.Length / 3;
+
+        for (int i = 0; i < triangleCount; i++)
+        {
+            int normalTriangIndex = i * 3;
+            int VerIndA = triangles[normalTriangIndex];
+            int VerIndB = triangles[normalTriangIndex + 1];
+            int VerIndC = triangles[normalTriangIndex + 2];
+
+            Vector3 trianleNormal = SufaceNormalFromIndices(VerIndA, VerIndB, VerIndC);
+            LNormals[VerIndA] = (LNormals[VerIndA] + trianleNormal).normalized;
+            LNormals[VerIndB] = (LNormals[VerIndB] + trianleNormal).normalized;
+            LNormals[VerIndC] = (LNormals[VerIndC] + trianleNormal).normalized;
+        }
+
+
+        return LNormals;
+    }
+    Vector3 SufaceNormalFromIndices(int indexA, int indexB, int indexC)
+    {
+        Vector3 PointA = vertices[indexA];
+        Vector3 pointB = vertices[indexB];
+        Vector3 pointC = vertices[indexC];
+
+        Vector3 sideAB = pointB - PointA;
+        Vector3 sideAC = pointC - PointA;
+
+        return Vector3.Cross(sideAB, sideAC).normalized;
+    }
 
     public void UpadateMesh()
     {
@@ -127,7 +159,8 @@ public class ProceduralTerrain : MonoBehaviour
         mesh.uv = UVs;
         mesh.colors = colors;
 
-        mesh.RecalculateNormals();//조명 업데이트
+        //mesh.RecalculateNormals();//되긴 되지만
+        mesh.normals = CalculateNormals();
 
         // 위치,회전,스케일 수정가능,Rigid Body 적용가능
     }

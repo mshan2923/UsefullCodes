@@ -174,4 +174,9 @@ public static class Math
 
         return Math.Pow2(Pos.x - area.center.x) / Math.Pow2(area.extents.x) + Math.Pow2(Pos.z - area.center.z) / Math.Pow2(area.extents.z) <= 1;
     }
+    public static float CircleRadiusRate(Bounds area, Vector3 Pos)
+    {
+        return Math.Pow2(Pos.x - area.center.x) / Math.Pow2(area.extents.x) + Math.Pow2(Pos.z - area.center.z) / Math.Pow2(area.extents.z);
+    }
+
 }

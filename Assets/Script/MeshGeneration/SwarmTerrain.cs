@@ -18,6 +18,7 @@ public class SwarmTerrain : MonoBehaviour
 
     public float MinTerrainHeight = 0;
     public float MaxTerrainHeight = 1;
+    public AnimationCurve curve = new AnimationCurve(new Keyframe(0,1), new Keyframe(1,0));
 
     public GameObject[] TempDebugObj;
 
@@ -235,7 +236,8 @@ public class SwarmTerrain : MonoBehaviour
 
         mesh.colors = colors;
 
-        mesh.RecalculateNormals();//조명 업데이트
+        //mesh.RecalculateNormals();//조명 업데이트
+        mesh.normals = CalculateNormals();
 
         // 위치,회전,스케일 수정가능,Rigid Body 적용가능
     }
@@ -244,7 +246,6 @@ public class SwarmTerrain : MonoBehaviour
     {
         return vertices[index];
     }
-    //============ 버택스를 움직일때 사각형의 중점도 움직여야하니깐 ...
     [System.Obsolete("Change To SetVertexHeight(Vector3, Vector3, float)")]
     public void SetVertexHeight(int[] GridVertex , float height)//....GetVertexIndexs 내장해야될듯
     {
@@ -306,8 +307,11 @@ public class SwarmTerrain : MonoBehaviour
         }//Vertex
     }//되는데 사각형 , 원형은...
 
-    //SetVertexHeightCircle //----> GetSelectVertexCircle 의 범위내 모든 Vertex 거리 비교.... 테스트 필요
-    public void SetVertexHeightCircle(Vector3 LocalA, Vector3 LocalB, float Height, float BorderHeightRate = 0.5f)
+    //SetVertexHeightCircle //----> 감쇠거리.... 흠...
+    /// <summary>
+    /// 사다리꼴 모양
+    /// </summary>
+    public void SetVertexHeightCircle(Vector3 LocalA, Vector3 LocalB, float Height, float BorderHeightRate)
     {
         Vector2Int PosA = GetVertexPosition(Interval, LocalA);
         Vector2Int PosB = GetVertexPosition(Interval, LocalB);
@@ -355,8 +359,79 @@ public class SwarmTerrain : MonoBehaviour
             }
         }
     }
+    // 경계부분 없애고, 중심부터 낮아짐
+    public void SetVertexHeightCircle(Vector3 LocalA, Vector3 LocalB, float Height)
+    {
+        Vector2Int PosA = GetVertexPosition(Interval, LocalA);
+        Vector2Int PosB = GetVertexPosition(Interval, LocalB);
+
+        //List<int> result = new();
+        Bounds SelectBounds = new Bounds()
+        {
+            center = new Vector3(Mathf.Abs(PosA.x + PosB.x) * 0.5f, 0, Mathf.Abs(PosA.y + PosB.y) * 0.5f),
+            size = new Vector3(Mathf.Abs(PosA.x - PosB.x), 0, Mathf.Abs(PosA.y - PosB.y))
+        };
+
+        for (int y = Mathf.Min(PosA.y, PosB.y) - 1; y <= Mathf.Max(PosA.y, PosB.y); y++)
+        {
+            for (int x = Mathf.Min(PosA.x, PosB.x) - 1; x <= Mathf.Max(PosA.x, PosB.x); x++)
+            {
+                //result[i] = GetVertexPos2Index(Size, new Vector2Int(x, y));
+
+                int vertexIndex = GetVertexPos2Index(Size, new Vector2Int(x, y));
+
+                float temp = Math.CircleRadiusRate(SelectBounds, new Vector3(x, 0, y));
+                if (temp <= 1)
+                {
+                    vertices[vertexIndex].y = Height * curve.Evaluate(temp);
+                }
+
+
+                int areaIndex = ((Size.x + 1) * (Size.y + 1)) + GetAreaIndex(vertices[vertexIndex] + (new Vector3(Interval.x, 0, Interval.y) * 0.5f));
+
+                temp = Math.CircleRadiusRate(SelectBounds, new Vector3(x + 0.5f, 0, y + 0.5f));
+                if (temp <= 1)
+                {
+                    vertices[areaIndex].y = Height * curve.Evaluate(temp);
+                }//사각 중점
+            }
+        }
+    }
 
     #region Calculate Fuction
+    Vector3[] CalculateNormals()
+    {
+        Vector3[] LNormals = new Vector3[vertices.Length];
+        int triangleCount = triangles.Length / 3;
+
+        for (int i = 0; i < triangleCount; i++)
+        {
+            int normalTriangIndex = i * 3;
+            int VerIndA = triangles[normalTriangIndex];
+            int VerIndB = triangles[normalTriangIndex + 1];
+            int VerIndC = triangles[normalTriangIndex + 2];
+
+            Vector3 trianleNormal = SufaceNormalFromIndices(VerIndA, VerIndB, VerIndC);
+            LNormals[VerIndA] = (LNormals[VerIndA] + trianleNormal).normalized;
+            LNormals[VerIndB] = (LNormals[VerIndB] + trianleNormal).normalized;
+            LNormals[VerIndC] = (LNormals[VerIndC] + trianleNormal).normalized;
+        }
+
+
+        return LNormals;
+    }
+    Vector3 SufaceNormalFromIndices(int indexA, int indexB, int indexC)
+    {
+        Vector3 PointA = vertices[indexA];
+        Vector3 pointB = vertices[indexB];
+        Vector3 pointC = vertices[indexC];
+
+        Vector3 sideAB = pointB - PointA;
+        Vector3 sideAC = pointC - PointA;
+
+        return Vector3.Cross(sideAB, sideAC).normalized;
+    }
+
     public int GetVertexIndex(Vector3 LocalPosition)
     {
         return SwarmTerrain.GetVertexIndex(Size, Interval, LocalPosition);
@@ -499,6 +574,8 @@ public class SwarmTerrainEditor : UnityEditor.Editor
     {
         base.OnInspectorGUI();
 
+        UnityEditor.EditorGUILayout.HelpBox("ToDo : SetVertexHeightCircle  감쇠거리.... 흠...", UnityEditor.MessageType.Info);
+
         if (GUILayout.Button("ReCalculate"))
         {
             Onwer.CreateSwarm();
@@ -545,7 +622,7 @@ public class SwarmTerrainEditor : UnityEditor.Editor
                     //GetSelectVertexCircle
 
                     Onwer.SetVertexHeightCircle(Onwer.World2LocalGrid(Onwer.TempDebugObj[0].transform.position),
-                        Onwer.World2LocalGrid(Onwer.TempDebugObj[1].transform.position), Onwer.GetVertexPosition(Temp[0]).y + 0.25f);
+                        Onwer.World2LocalGrid(Onwer.TempDebugObj[1].transform.position), (Onwer.GetVertexPosition(Temp[0]).y + 0.25f));//
                     Onwer.UpadateMesh();
                 }
             }
