@@ -192,3 +192,17 @@ Update Mode: updateDependencies
 
 The following packages were 업데이트됨:
   com.unity.collab-proxy 1.15.17 버전에서 1.15.18버전으로
+=== Tue Jul 26 11:23:32 2022
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were 업데이트됨:
+  com.unity.ide.rider 3.0.14 버전에서 3.0.15버전으로
+=== Wed Sep  7 16:10:29 2022
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were 업데이트됨:
+  com.unity.collab-proxy 1.15.18 버전에서 1.17.2버전으로

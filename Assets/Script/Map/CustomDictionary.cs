@@ -263,7 +263,8 @@ public class Map<T, V>
         public V Vaule;
     }
     [SerializeField]
-    private List<MapSlot> Slots = new List<MapSlot>();
+    private List<MapSlot> slots = new List<MapSlot>();
+    public List<MapSlot> Slots { get => slots; set => slots = value; }
     //[SerializeField]
     //List<T> Key = new List<T>();
     //[SerializeField]

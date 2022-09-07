@@ -194,7 +194,20 @@ namespace Expand
         public static object GetPropertyDrawerTarget(SerializedProperty property)
         {
             var paths = property.propertyPath.Split('.');
-            object LChildObj = property.serializedObject.targetObject.GetType().GetField(paths[0])
+
+            {
+                
+                //if (property.serializedObject.targetObject.GetType().GetField(paths[0]) == null)
+                //{
+                //    if (property.serializedObject.targetObject.GetType().GetField(paths[0], BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance) != null)
+                //    {
+                //        Debug.LogWarning("pravate \n" + property.serializedObject.targetObject.name + " == " + property.propertyPath);
+                //    }
+                //}
+                
+            }//Acess Even Pravate - Disable
+
+            object LChildObj = property.serializedObject.targetObject.GetType().GetField(paths[0], BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                                 .GetValue(property.serializedObject.targetObject);
             int arrayIndex = -1;
             for (int i = 1; i < paths.Length; i++)
@@ -216,7 +229,7 @@ namespace Expand
 
                         if (i + 1 != paths.Length)
                         {
-                            LChildObj = LChildObj.GetType().GetField(paths[i]).GetValue(LChildObj);
+                            LChildObj = LChildObj.GetType().GetField(paths[i], BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).GetValue(LChildObj);
                         }//LChildField 보다 1단계 상위에 있어야함
                     }
                 }
