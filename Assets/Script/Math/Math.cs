@@ -137,7 +137,7 @@ public static class Math
         }
     }
     /// <summary>
-    /// LookDirection is Local
+    /// LookDirection is Local / Get LookSize
     /// </summary>
     /// <param name="bound"></param>
     /// <param name="LookDirection"></param>
@@ -179,4 +179,101 @@ public static class Math
         return Math.Pow2(Pos.x - area.center.x) / Math.Pow2(area.extents.x) + Math.Pow2(Pos.z - area.center.z) / Math.Pow2(area.extents.z);
     }
 
+    public static float AngleNormalize(float Angle)
+    {
+        var NorAngle = Mathf.Abs(Mathf.Abs(Angle) < 360 ? Angle : Angle % 360);
+
+        if (NorAngle > 180)
+        {
+            NorAngle -= 360;
+        }//Normalize Angle (-180 ~ 180)
+
+        return NorAngle;
+    }
+    static float SideToDistance(float Angle, float MaxSizeRot, float HalfLength)
+    {
+        var temp = Mathf.Abs(Mathf.Abs(Angle) < 360 ? Angle : Angle % 360);
+
+        if (temp > 180)
+        {
+            temp -= 360;
+        }//Normalize Angle (-180 ~ 180)
+
+        temp = Mathf.Abs(temp);//좌우 미러
+
+        //float Rate = 0;
+
+        if (temp < 90)
+        {
+            if (temp < MaxSizeRot)
+            {
+                //Rate = temp / MaxSizeRot;
+                //return Mathf.Lerp(0, MaxSizeRot, Rate);
+                return HalfLength / Math.Cos2(Mathf.Lerp(0, MaxSizeRot, (temp / MaxSizeRot)));
+            }
+            else
+            {
+                //Rate = 1 - ((temp - MaxSizeRot) / (90 - MaxSizeRot));
+                //return Mathf.Lerp(0, 90 - MaxSizeRot, Rate);
+                return HalfLength / Math.Cos2(Mathf.Lerp(0, 90 - MaxSizeRot,
+                    (1 - ((temp - MaxSizeRot) / (90 - MaxSizeRot)))));
+            }
+        }
+        else
+        {
+            if (temp < (180 - MaxSizeRot))
+            {
+                //Rate = ((temp - 90) / (90 - MaxSizeRot));
+                //return Mathf.Lerp(0, MaxSizeRot, Rate);
+                return HalfLength / Math.Cos2(Mathf.Lerp(0, 90 - MaxSizeRot, ((temp - 90) / (90 - MaxSizeRot))));
+            }
+            else
+            {
+                //Rate = (Mathf.Abs(temp - 180) / MaxSizeRot);
+                //return Mathf.Lerp(0, 90 - MaxSizeRot, Rate);
+                return HalfLength / Math.Cos2(Mathf.Lerp(0, MaxSizeRot, (Mathf.Abs(temp - 180) / MaxSizeRot)));
+            }
+        }
+    }
+    /// <summary>
+    /// Distance For (Origin ~ ClosestPoint In Quad)
+    /// </summary>
+    public static float ClosestQuadToDistance(float Wide, float Height, float Rotation)
+    {
+        float MaxSizeRot = Mathf.Atan2(Wide * 0.5f, Height * 0.5f) * Mathf.Rad2Deg;
+
+        var NorAngle = Mathf.Abs(Mathf.Abs(Rotation) < 360 ? Rotation : Rotation % 360);
+
+        if (NorAngle > 180)
+        {
+            NorAngle -= 360;
+        }//Normalize Angle (-180 ~ 180)
+
+        NorAngle = Mathf.Abs(NorAngle);//좌우 미러
+
+        if (NorAngle < MaxSizeRot || (180 - MaxSizeRot) < NorAngle)
+        {
+            return SideToDistance(NorAngle, MaxSizeRot, Height * 0.5f);
+        }
+        else
+        {
+            return SideToDistance(NorAngle, MaxSizeRot, Wide * 0.5f);
+        }
+    }
+    /// <summary>
+    /// Distance For (Origin ~ ClosestPoint In Quad)
+    /// </summary>
+    public static float ClosestQuadToDistance(Vector3 Size, Transform Origin, Vector3 Target)
+    {
+        float LookAngle = Math.Dot(Origin.forward, (Target - Origin.position).normalized);
+
+        return ClosestQuadToDistance(Size.x, Size.z, LookAngle);
+    }
+    /// <summary>
+    /// Apply Origin Rotation
+    /// </summary>
+    public static bool InQuad(Vector3 Size, Transform Origin, Vector3 Target)
+    {
+        return Vector3.SqrMagnitude(Target - Origin.position) <= Math.Pow2(ClosestQuadToDistance(Size, Origin, Target));
+    }
 }
