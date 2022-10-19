@@ -60,6 +60,7 @@ public static class Math
     }
     public static Vector3 Direction2Rotation(Vector3 Dir)
     {
+        /*
         Vector3 Lrot = Vector3.zero;
 
         Lrot.y = Mathf.Acos(Vector3.Normalize(new Vector3(Dir.x, 0, Dir.z)).x) * Mathf.Rad2Deg;
@@ -74,10 +75,13 @@ public static class Math
         //Lrot.z = Mathf.Atan(Dir.y) * Mathf.Rad2Deg;//이건 45 이상으로 안됨
         Lrot.z = Mathf.Atan((Dir.y * YOffset) / XZLength) * Mathf.Rad2Deg;
 
-        return Lrot;
+        return Lrot;*/
+
+        return Quaternion.LookRotation(Dir).eulerAngles;
     }
     public static Vector3 Rotation2Direction(Vector3 Rot)
     {
+        /*
         Vector3 temp = new Vector3(Cos2(Rot.y), (Sin2(Rot.z) / Cos2(Rot.z)), Sin2(Rot.y));
         float YawRate = Mathf.Min(Mathf.Abs(temp.x), Mathf.Abs(temp.z)) / Mathf.Max(Mathf.Abs(temp.x), Mathf.Abs(temp.z));
 
@@ -88,7 +92,9 @@ public static class Math
         else
         {
             return new Vector3((temp.x > 0 ? YawRate : YawRate * -1), temp.y, (temp.z > 0 ? 1 : -1));
-        }
+        }*/
+
+        return Quaternion.Euler(Rot) * Vector3.forward;
     }
 
     public static float Sin2(float Degreese)
@@ -173,6 +179,25 @@ public static class Math
         //(Pos.x * Pos.x) / (area.extents.x * 0.5f * area.extents.x * 0.5f) + (Pos.z * Pos.z) / (area.extents.z * 0.5f * area.extents.z * 0.5f)
 
         return Math.Pow2(Pos.x - area.center.x) / Math.Pow2(area.extents.x) + Math.Pow2(Pos.z - area.center.z) / Math.Pow2(area.extents.z) <= 1;
+    }
+    /// <summary>
+    /// Apply Origin Rotation
+    /// </summary>
+    public static bool InCircle(Bounds bounds, float Yaw, Vector3 Target)
+    {
+        return InCircle(bounds.center, bounds.extents, Yaw, Target);
+    }
+    /// <summary>
+    /// Apply Origin Rotation
+    /// </summary>
+    public static bool InCircle(Vector3 Origin, Vector3 HalfSize, float Yaw, Vector3 Target)
+    {
+        var forwardDir = Quaternion.Euler(new Vector3(0, Yaw, 0)) * Vector3.forward;
+
+        var BorderDis = Mathf.Lerp(HalfSize.x, HalfSize.z,
+            Mathf.Abs(Vector3.Dot(forwardDir, (Target - Origin).normalized)));
+
+        return (Target - Origin).sqrMagnitude <= Math.Pow2(BorderDis);
     }
     public static float CircleRadiusRate(Bounds area, Vector3 Pos)
     {
@@ -263,10 +288,9 @@ public static class Math
     /// <summary>
     /// Distance For (Origin ~ ClosestPoint In Quad)
     /// </summary>
-    public static float ClosestQuadToDistance(Vector3 Size, Transform Origin, Vector3 Target)
+    public static float ClosestQuadToDistance(Vector3 Size, Vector3 Origin, float Yaw, Vector3 Target)
     {
-        float LookAngle = Math.Dot(Origin.forward, (Target - Origin.position).normalized);
-
+        float LookAngle = Math.Dot(YawToDirection(Yaw), (Target - Origin).normalized);
         return ClosestQuadToDistance(Size.x, Size.z, LookAngle);
     }
     /// <summary>
@@ -274,6 +298,49 @@ public static class Math
     /// </summary>
     public static bool InQuad(Vector3 Size, Transform Origin, Vector3 Target)
     {
-        return Vector3.SqrMagnitude(Target - Origin.position) <= Math.Pow2(ClosestQuadToDistance(Size, Origin, Target));
+        //================================================ Rotation 은 Yaw만
+        return Vector3.SqrMagnitude(Target - Origin.position) <=
+            Math.Pow2(ClosestQuadToDistance(Size, Origin.position, Origin.rotation.eulerAngles.y, Target));
+    }
+    /// <summary>
+    /// Apply Origin Rotation
+    /// </summary>
+    public static bool InQuad(Vector3 Size, Vector3 Origin, Quaternion Rotation, Vector3 Target)
+    {
+        return Vector3.SqrMagnitude(Target - Origin) <=
+            Math.Pow2(ClosestQuadToDistance(Size, Origin, Rotation.eulerAngles.y, Target));
+    }
+
+
+    public static Vector3 RotatedBound2D(Bounds bounds, float diagonal, float Yaw)
+    {
+        Vector3 RotatedBound = Vector3.zero;
+        var YAngle = Quaternion.Euler(0, Yaw, 0);
+
+        Vector3 MaxPos = (Quaternion.LookRotation(bounds.extents) * YAngle) * Vector3.forward * diagonal;
+
+        //Debug.DrawLine(bounds.center - MaxPos, bounds.center + MaxPos, Color.green, Time.deltaTime);
+        RotatedBound = new Vector3(Mathf.Abs(MaxPos.x),
+            0,//Mathf.Abs(MaxPos.y),
+            Mathf.Abs(MaxPos.z));
+
+        MaxPos = (Quaternion.LookRotation(new Vector3(bounds.extents.x, bounds.extents.y, bounds.extents.z * -1)) * YAngle) * Vector3.forward * diagonal;
+        //Debug.DrawLine(bounds.center - MaxPos, bounds.center + MaxPos, Color.red, Time.deltaTime);
+
+        RotatedBound = new Vector3(Mathf.Max(RotatedBound.x, Mathf.Abs(MaxPos.x)),
+            0,//Mathf.Max(RotatedBound.y, Mathf.Abs(MaxPos.y)),
+            Mathf.Max(RotatedBound.z, Mathf.Abs(MaxPos.z)));
+
+        return RotatedBound;
+    }
+    public static Vector3 Snap(Vector3 pos, float gridSize)
+    {
+        float multiplied = 1 / gridSize;
+        return new Vector3(Mathf.Round(pos.x * multiplied),
+            Mathf.Round(pos.y * multiplied), Mathf.Round(pos.z * multiplied)) * gridSize;
+    }
+    public static Vector3 YawToDirection(float Yaw)
+    {
+        return new Vector3(Math.Sin2(Yaw), 0, Math.Cos2(Yaw));
     }
 }
