@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -610,7 +611,7 @@ namespace Expand
             }
             else if (string.Equals(property.propertyType.ToString(), "ObjectReference"))
             {
-                Object field = EditorGUI.ObjectField(position, label, property.objectReferenceValue, attributeField.Type, true);
+                UnityEngine.Object field = EditorGUI.ObjectField(position, label, property.objectReferenceValue, attributeField.Type, true);
 
                 if (field != property.objectReferenceValue)
                 {
@@ -649,6 +650,52 @@ namespace Expand
                 {
                     Debug.LogWarning("Need 'IParameterChanged' interface");
                 }
+            }
+        }
+    }
+    #endregion
+
+    #region ReadOnly
+    public enum ReadOnlyOption
+    {
+        Always,
+        EditMode,
+        PlayMode
+    }
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+    public class ReadOnlyAttribute : PropertyAttribute
+    {
+        public ReadOnlyOption Option { get; set; } = ReadOnlyOption.Always;
+
+        public ReadOnlyAttribute() { }
+        public ReadOnlyAttribute(ReadOnlyOption when) => Option = when;
+    }
+    [CustomPropertyDrawer(typeof(ReadOnlyAttribute), true)]
+    public class ReadOnlyAttributeEditor : PropertyDrawer
+    {
+        ReadOnlyAttribute Atr => attribute as ReadOnlyAttribute;
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return base.GetPropertyHeight(property, label);
+        }
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            bool disableNow = true;
+
+            switch (Atr.Option)
+            {
+                case ReadOnlyOption.EditMode:
+                    disableNow = !Application.isPlaying;
+                    break;
+
+                case ReadOnlyOption.PlayMode:
+                    disableNow = Application.isPlaying;
+                    break;
+            }
+
+            using (var scope = new EditorGUI.DisabledGroupScope(disableNow))
+            {
+                EditorGUI.PropertyField(position, property, label, true);
             }
         }
     }

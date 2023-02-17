@@ -293,6 +293,12 @@ public static class Math
         float LookAngle = Math.Dot(YawToDirection(Yaw), (Target - Origin).normalized);
         return ClosestQuadToDistance(Size.x, Size.z, LookAngle);
     }
+    public static Vector3 ClosestQuad(Vector3 Size, Vector3 Origin, float Yaw, Vector3 Target)
+    {
+        var CPoint = (Target - Origin).normalized * ClosestQuadToDistance(Size, Origin, Yaw, Target);
+
+        return Origin + CPoint;
+    }
     /// <summary>
     /// Apply Origin Rotation
     /// </summary>
@@ -312,6 +318,7 @@ public static class Math
     }
 
 
+    [System.Obsolete("Recommand use RotatedQuadSize")]
     public static Vector3 RotatedBound2D(Bounds bounds, float diagonal, float Yaw)
     {
         Vector3 RotatedBound = Vector3.zero;
@@ -333,6 +340,32 @@ public static class Math
 
         return RotatedBound;
     }
+    public static Vector2 RotatedQuadSize(Vector2 Extents, float Yaw)
+    {
+        Quaternion rotate = Quaternion.AngleAxis(Yaw, Vector3.up);
+
+        Vector3 FR = rotate * (Vector3.right * Extents.x) + rotate * (Vector3.forward * Extents.y);
+        Vector3 BL = rotate * (Vector3.left * Extents.x) + rotate * (Vector3.back * Extents.y);
+
+        Vector3 FL = rotate * (Vector3.left * Extents.x) + rotate * (Vector3.forward * Extents.y);
+        Vector3 BR = rotate * (Vector3.right * Extents.x) + rotate * (Vector3.back * Extents.y);
+
+        return new Vector2(Mathf.Max(Mathf.Abs(FR.x - BL.x), Mathf.Abs(FL.x - BR.x)),
+                            Mathf.Max(Mathf.Abs(FR.z - BL.z), Mathf.Abs(FL.z - BR.z))) * 0.5f;
+    }
+    public static Vector3 RotatedQuadSize(Vector3 Extents, float Yaw)
+    {
+        Quaternion rotate = Quaternion.AngleAxis(Yaw, Vector3.up);
+
+        Vector3 FR = rotate * (Vector3.right * Extents.x) + rotate * (Vector3.forward * Extents.z);
+        Vector3 BL = rotate * (Vector3.left * Extents.x) + rotate * (Vector3.back * Extents.z);
+
+        Vector3 FL = rotate * (Vector3.left * Extents.x) + rotate * (Vector3.forward * Extents.z);
+        Vector3 BR = rotate * (Vector3.right * Extents.x) + rotate * (Vector3.back * Extents.z);
+
+        return new Vector3(Mathf.Max(Mathf.Abs(FR.x - BL.x), Mathf.Abs(FL.x - BR.x)), 0,
+                            Mathf.Max(Mathf.Abs(FR.z - BL.z), Mathf.Abs(FL.z - BR.z))) * 0.5f;
+    }
     public static Vector3 Snap(Vector3 pos, float gridSize)
     {
         float multiplied = 1 / gridSize;
@@ -343,4 +376,76 @@ public static class Math
     {
         return new Vector3(Math.Sin2(Yaw), 0, Math.Cos2(Yaw));
     }
+
+    public static Vector3[] GetCloestLines(Vector3 Point1, Vector3 Vec1, Vector3 Point2, Vector3 Vec2, float intersectLength = 0.01f)
+    {
+        Vector3 Cloest1 = Vector3.zero;
+        Vector3 Cloest2 = Vector3.zero;
+
+        {
+            Vector3 Vec3 = Point2 - Point1;
+            Vector3 crossVec1and2 = Vector3.Cross(Vec1, Vec2);
+            Vector3 crossVec3and2 = Vector3.Cross(Vec3, Vec2);
+
+            float s = Vector3.Dot(crossVec3and2, crossVec1and2) / crossVec1and2.sqrMagnitude;
+            Cloest1 = Point1 + (Vec1 * s);
+        }
+        {
+            Vector3 vec3 = Point1 - Point2;
+            Vector3 cross1N2 = Vector3.Cross(Vec2, Vec1);
+            Vector3 cross3N1 = Vector3.Cross(vec3, Vec1);
+
+            float t = Vector3.Dot(cross3N1, cross1N2) / cross1N2.sqrMagnitude;
+            Cloest2 = Point2 + Vec2 * t;
+        }
+
+        if ((Cloest1 - Cloest2).sqrMagnitude < (intersectLength * intersectLength))
+        {
+            return new Vector3[] { Cloest1 };
+        }
+        else
+        {
+            return new Vector3[] { Cloest1, Cloest2 };
+        }
+    }
+    public static float GetCloestLinesDistance(Vector3 Point1, Vector3 Vec1, Vector3 Point2, Vector3 Vec2, float intersectLength = 0.01f, bool sqr = true)
+    {
+        Vector3 Cloest1 = Vector3.zero;
+        Vector3 Cloest2 = Vector3.zero;
+
+        {
+            Vector3 Vec3 = Point2 - Point1;
+            Vector3 crossVec1and2 = Vector3.Cross(Vec1, Vec2);
+            Vector3 crossVec3and2 = Vector3.Cross(Vec3, Vec2);
+
+            float s = Vector3.Dot(crossVec3and2, crossVec1and2) / crossVec1and2.sqrMagnitude;
+            Cloest1 = Point1 + (Vec1 * s);
+        }
+        {
+            Vector3 vec3 = Point1 - Point2;
+            Vector3 cross1N2 = Vector3.Cross(Vec2, Vec1);
+            Vector3 cross3N1 = Vector3.Cross(vec3, Vec1);
+
+            float t = Vector3.Dot(cross3N1, cross1N2) / cross1N2.sqrMagnitude;
+            Cloest2 = Point2 + Vec2 * t;
+        }
+
+        if ((Cloest1 - Cloest2).sqrMagnitude < (intersectLength * intersectLength))
+        {
+            return 0;
+        }
+        else
+        {
+            return sqr ? (Cloest1 - Cloest2).sqrMagnitude : (Cloest1 - Cloest2).magnitude;
+        }
+    }
+    public static Vector3 GetCollisionReflect(Quaternion Target, Quaternion Other, float TargetMass, float OtherMass)
+    {
+        var AddVecForward = (Target * Vector3.forward * TargetMass + Other * Vector3.forward * OtherMass).normalized;
+        var AddVecUp = (Target * Vector3.up * TargetMass + Other * Vector3.up * OtherMass).normalized;
+
+        var AddVecRot = Quaternion.LookRotation(AddVecForward, AddVecUp);
+
+        return Quaternion.LookRotation(Vector3.Reflect(Target * Vector3.forward, AddVecRot * Vector3.right)) * Vector3.forward * (TargetMass / (TargetMass + OtherMass));
+    }// 충돌을 했을때 기준 방향
 }
