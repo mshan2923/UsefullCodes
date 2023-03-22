@@ -439,6 +439,10 @@ public static class Math
             return sqr ? (Cloest1 - Cloest2).sqrMagnitude : (Cloest1 - Cloest2).magnitude;
         }
     }
+    /// <summary>
+    /// 두백터의 충돌 반사각
+    /// </summary>
+    /// <returns></returns>
     public static Vector3 GetCollisionReflect(Quaternion Target, Quaternion Other, float TargetMass, float OtherMass)
     {
         var AddVecForward = (Target * Vector3.forward * TargetMass + Other * Vector3.forward * OtherMass).normalized;
@@ -448,4 +452,27 @@ public static class Math
 
         return Quaternion.LookRotation(Vector3.Reflect(Target * Vector3.forward, AddVecRot * Vector3.right)) * Vector3.forward * (TargetMass / (TargetMass + OtherMass));
     }// 충돌을 했을때 기준 방향
+    public static bool GetSphereNormal(Vector3 TargetPos, Vector3 ProjectPos, Vector3 ProjectDir, float targetRadius, out Quaternion Normal)
+    {
+        var dis = (TargetPos - ProjectPos).magnitude;
+        var ProjectDot = Vector3.Dot(ProjectDir, (ProjectPos - TargetPos).normalized);
+        var ProjectRad = Mathf.Acos(ProjectDot);
+
+        var OthoLength = dis * Mathf.Sin(ProjectRad);
+        if (OthoLength > targetRadius)
+        {
+            Normal = Quaternion.identity;
+            return false;
+        }
+
+        var ProjectLength = dis * Mathf.Cos(ProjectRad);
+        var ProjectForwardPos = TargetPos + ProjectDir * ProjectLength;
+        var ProjectUp = (ProjectForwardPos + (ProjectPos - ProjectForwardPos).normalized * OthoLength) - ProjectForwardPos;
+
+        var RotationAxis = Quaternion.LookRotation(ProjectDir * -1, ProjectUp);
+        var CollisionRad = Mathf.Asin(OthoLength / targetRadius);
+
+        Normal = RotationAxis * Quaternion.AngleAxis(CollisionRad * Mathf.Rad2Deg * -1, Vector3.right);
+        return true;
+    }
 }

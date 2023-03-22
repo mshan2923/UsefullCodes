@@ -5,29 +5,29 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638120231284080252
-    m_Hash: 1566469951
+      ticks: 638148860186944423
+    m_Hash: 3017176385
   m_LockFileStatus:
     m_FilePath: C:/Git/UsefullCodes/Packages/packages-lock.json
     m_PathExists: 1
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638120231377047568
-    m_Hash: 1565715502
+      ticks: 638148860296953248
+    m_Hash: 2581940561
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
 m_LocalPackages:
   m_LocalFileStatus: []
 m_ProjectPath: C:/Git/UsefullCodes/Packages
-m_EditorVersion: 2021.3.18f1 (3129e69bc0c7)
+m_EditorVersion: 2021.3.21f1 (1b156197d683)
 m_ResolvedPackages:
-- packageId: com.unity.collab-proxy@2.0.0
+- packageId: com.unity.collab-proxy@2.0.1
   testable: 0
   isDirectDependency: 1
-  version: 2.0.0
+  version: 2.0.1
   source: 1
-  resolvedPath: C:\Git\UsefullCodes\Library\PackageCache\com.unity.collab-proxy@2.0.0
+  resolvedPath: C:\Git\UsefullCodes\Library\PackageCache\com.unity.collab-proxy@2.0.1
   assetPath: Packages/com.unity.collab-proxy
   name: com.unity.collab-proxy
   displayName: Version Control
@@ -37,10 +37,9 @@ m_ResolvedPackages:
     url: 
   category: Editor
   type: asset
-  description: The Version Control package gives you the ability to use either Collaborate
-    or Plastic SCM for Unity (beta) in the Unity editor. To use Plastic SCM for Unity
-    (beta), a Plastic SCM subscription is required. Learn more about how you can
-    get started for free by visiting plasticscm.com.
+  description: The package gives you the ability to use the Unity Version Control
+    in the Unity editor. To use Unity Version Control, a subscription is required.
+    Learn more about how you can get started for free by visiting plasticscm.com.
   status: 0
   errors: []
   versions:
@@ -105,15 +104,16 @@ m_ResolvedPackages:
     - 2.0.0-preview.21
     - 2.0.0-preview.22
     - 2.0.0
+    - 2.0.1
     - 2.1.0-preview.3
     - 2.1.0-preview.5
     - 2.1.0-preview.6
     compatible:
-    - 2.0.0
+    - 2.0.1
     - 2.1.0-preview.3
     - 2.1.0-preview.5
     - 2.1.0-preview.6
-    verified: 2.0.0
+    verified: 2.0.1
   dependencies: []
   resolvedDependencies: []
   keywords:
@@ -123,6 +123,7 @@ m_ResolvedPackages:
   - collaborate
   - collaboration
   - control
+  - devops
   - plastic
   - plasticscm
   - source
@@ -140,16 +141,16 @@ m_ResolvedPackages:
     configSource: 0
   hideInEditor: 0
   isAssetStorePackage: 0
-  datePublishedTicks: 638095491550000000
+  datePublishedTicks: 638125977010000000
   documentationUrl: https://docs.unity3d.com/Packages/com.unity.collab-proxy@2.0/manual/index.html
   hasRepository: 1
   repository:
     type: git
     url: https://github.cds.internal.unity3d.com/unity/com.unity.cloud.collaborate.git
-    revision: a1b1151e0c90bc327ea95678473c1f3a935b2c9e
+    revision: 8740b4e630f877841cfa8e22ddfbcb237b70a9e6
     path: 
   unityLifecycle:
-    version: 2.0.0
+    version: 2.0.1
     nextVersion: 
 - packageId: com.unity.ide.rider@3.0.18
   testable: 0
@@ -566,6 +567,7 @@ m_ResolvedPackages:
     - 1.3.0
     - 1.3.1
     - 1.3.2
+    - 1.3.3
     - 2.0.1-exp.1
     - 2.0.1-exp.2
     - 2.0.1-pre.12
@@ -576,6 +578,7 @@ m_ResolvedPackages:
     - 1.3.0
     - 1.3.1
     - 1.3.2
+    - 1.3.3
     - 2.0.1-exp.1
     - 2.0.1-exp.2
     - 2.0.1-pre.12
@@ -743,6 +746,7 @@ m_ResolvedPackages:
     - 3.2.0-pre.3
     - 3.2.0-pre.4
     - 4.0.0-pre.1
+    - 4.0.0-pre.2
     compatible:
     - 3.0.6
     - 3.2.0-pre.1
@@ -881,7 +885,11 @@ m_ResolvedPackages:
     - 1.7.0
     - 1.7.1
     - 1.7.2
+    - 1.7.3
+    - 1.7.4
     - 1.8.0
+    - 1.8.1
+    - 1.8.2
     compatible:
     - 1.6.4
     - 1.7.0-pre.1
@@ -889,7 +897,11 @@ m_ResolvedPackages:
     - 1.7.0
     - 1.7.1
     - 1.7.2
+    - 1.7.3
+    - 1.7.4
     - 1.8.0
+    - 1.8.1
+    - 1.8.2
     verified: 1.6.4
   dependencies:
   - name: com.unity.modules.director
@@ -3039,6 +3051,7 @@ m_ResolvedPackages:
     - 1.8.0
     - 1.8.1
     - 1.8.2
+    - 1.8.3
     compatible:
     - 1.6.6
     - 1.7.0-pre.1
@@ -3052,6 +3065,7 @@ m_ResolvedPackages:
     - 1.8.0
     - 1.8.1
     - 1.8.2
+    - 1.8.3
     verified: 1.6.6
   dependencies:
   - name: com.unity.mathematics
