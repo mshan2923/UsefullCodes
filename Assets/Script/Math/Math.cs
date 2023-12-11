@@ -47,7 +47,8 @@ public static class Math
         if (equalPass)
         {
             return vaule >= min && vaule <= max;
-        }else
+        }
+        else
         {
             return vaule > min && vaule < max;
         }
@@ -136,7 +137,8 @@ public static class Math
             //T5 , T6
 
             return result;
-        }else
+        }
+        else
         {
             Debug.Log("Not Contect / " + (OriginRadius + TargetRadius) + " / " + Dis);
             return null;
@@ -452,11 +454,18 @@ public static class Math
 
         return Quaternion.LookRotation(Vector3.Reflect(Target * Vector3.forward, AddVecRot * Vector3.right)) * Vector3.forward * (TargetMass / (TargetMass + OtherMass));
     }// 충돌을 했을때 기준 방향
+    public static Vector3 GetCollisionReflect(Vector3 TargetDir, Vector3 OtherDir, float TargetMass, float OtherMass)
+    {
+        var AddVecForward = (TargetDir.normalized * TargetMass + OtherDir.normalized * OtherMass).normalized;
+        var AddVecRot = Quaternion.LookRotation(AddVecForward);
+
+        return Quaternion.LookRotation(Vector3.Reflect(TargetDir, AddVecRot * Vector3.forward)) * Vector3.forward * (TargetMass / (TargetMass + OtherMass));
+    }
     public static bool GetSphereNormal(Vector3 TargetPos, Vector3 ProjectPos, Vector3 ProjectDir, float targetRadius, out Quaternion Normal)
     {
         var dis = (TargetPos - ProjectPos).magnitude;
-        var ProjectDot = Vector3.Dot(ProjectDir, (ProjectPos - TargetPos).normalized);
-        var ProjectRad = Mathf.Acos(ProjectDot);
+        //var ProjectDot = Vector3.Dot(ProjectDir, (ProjectPos - TargetPos).normalized);
+        var ProjectRad = Mathf.Acos(Vector3.Dot(ProjectDir, (ProjectPos - TargetPos).normalized));
 
         var OthoLength = dis * Mathf.Sin(ProjectRad);
         if (OthoLength > targetRadius)
@@ -474,5 +483,22 @@ public static class Math
 
         Normal = RotationAxis * Quaternion.AngleAxis(CollisionRad * Mathf.Rad2Deg * -1, Vector3.right);
         return true;
+    }
+    public static float GetCurveEvaluate(float t, Keyframe keyframe0, Keyframe keyframe1)
+    {
+        float dt = keyframe1.time - keyframe0.time;
+
+        float m0 = keyframe0.outTangent * dt;
+        float m1 = keyframe1.inTangent * dt;
+
+        float t2 = t * t;
+        float t3 = t2 * t;
+
+        float a = 2 * t3 - 3 * t2 + 1;
+        float b = t3 - 2 * t2 + t;
+        float c = t3 - t2;
+        float d = -2 * t3 + 3 * t2;
+
+        return a * keyframe0.value + b * m0 + c * m1 + d * keyframe1.value;
     }
 }
