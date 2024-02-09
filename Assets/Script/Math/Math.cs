@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 public static class Math
@@ -500,5 +501,57 @@ public static class Math
         float d = -2 * t3 + 3 * t2;
 
         return a * keyframe0.value + b * m0 + c * m1 + d * keyframe1.value;
+    }
+
+
+    /// <summary>
+    /// Not Support Camera Roll
+    /// </summary>
+    public static bool IsRenderable(Vector3 cameraPos, Vector3 cameraForward, float fov, float aspect, Vector3 targetPos)
+    {
+        /*
+        Unity.Mathematics.float2 targetDot = new()
+        {
+            x = Math.Dot(new Vector3(targetPos.x - cameraPos.x, 0 , targetPos.z - targetPos.z), cameraForward),
+            y = Math.Dot(new Vector3(0, targetPos.y - cameraPos.y, targetPos.z - targetPos.z), cameraForward),
+        };
+
+        float2 cameraView = new float2
+        {
+            x = Camera.VerticalToHorizontalFieldOfView(fov, aspect) * 0.5f,
+            y = fov * 0.5f
+        };
+        */
+
+        return (Math.Dot(new Vector3(targetPos.x - cameraPos.x, 0, targetPos.z - cameraPos.z).normalized, cameraForward)
+            <= (Camera.VerticalToHorizontalFieldOfView(fov, aspect) * 0.5f))
+            &&
+            (Math.Dot(new Vector3(0, targetPos.y - cameraPos.y, targetPos.z - cameraPos.z).normalized, cameraForward) <= (fov * 0.5f));
+    }
+    /// <summary>
+    /// Not Support Camera Roll
+    /// </summary>
+    public static bool IsRenderable(Camera camera, Vector3 targetPos)
+    {
+        return IsRenderable(camera.transform.position, camera.transform.forward, camera.fieldOfView, camera.aspect, targetPos);
+    }
+    /// <summary>
+    /// Not Support Camera Roll
+    /// </summary>
+    public static float2 GetRenderableRate(Vector3 cameraPos, Vector3 cameraForward, float fov, float aspect, Vector3 targetPos)
+    {
+        return new float2
+        {
+            x = (Math.Dot(new Vector3(targetPos.x - cameraPos.x, 0, targetPos.z - cameraPos.z).normalized, cameraForward)
+                / (Camera.VerticalToHorizontalFieldOfView(fov, aspect) * 0.5f)),
+            y = Math.Dot(new Vector3(0, targetPos.y - cameraPos.y, targetPos.z - cameraPos.z).normalized, cameraForward) / (fov * 0.5f)
+        };
+    }
+    /// <summary>
+    /// Not Support Camera Roll
+    /// </summary>
+    public static float2 GetRenderableRate(Camera camera, Vector3 targetPos)
+    {
+        return IsRenderableRate(camera.transform.position, camera.transform.forward, camera.fieldOfView, camera.aspect, targetPos);
     }
 }

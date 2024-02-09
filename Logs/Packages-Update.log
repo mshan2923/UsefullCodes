@@ -236,3 +236,10 @@ Update Mode: updateDependencies
 
 The following packages were 업데이트됨:
   com.unity.ide.rider 3.0.26 버전에서 3.0.27버전으로
+=== Fri Feb  9 10:49:09 2024
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were 업데이트됨:
+  com.unity.render-pipelines.universal 14.0.9 버전에서 14.0.10버전으로
