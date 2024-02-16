@@ -118,6 +118,7 @@
     <Compile Include="Assets\Script\AutoVarAccess.cs" />
     <Compile Include="Assets\Script\Math\Tester\MathCollision.cs" />
     <Compile Include="Assets\Widget\Script\FoldPanel.cs" />
+    <Compile Include="Assets\Script\Math\Tester\TestClosePlanePoint.cs" />
     <Compile Include="Assets\Script\ReOrderableList\ReOrderableTemplate.cs" />
     <Compile Include="Assets\Widget\Script\InventorySystem.cs" />
     <Compile Include="Assets\UIBuilder\Resource\PropertyDrawer_UIBuild.cs" />

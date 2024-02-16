@@ -504,54 +504,78 @@ public static class Math
     }
 
 
-    /// <summary>
-    /// Not Support Camera Roll
-    /// </summary>
-    public static bool IsRenderable(Vector3 cameraPos, Vector3 cameraForward, float fov, float aspect, Vector3 targetPos)
-    {
-        /*
-        Unity.Mathematics.float2 targetDot = new()
-        {
-            x = Math.Dot(new Vector3(targetPos.x - cameraPos.x, 0 , targetPos.z - targetPos.z), cameraForward),
-            y = Math.Dot(new Vector3(0, targetPos.y - cameraPos.y, targetPos.z - targetPos.z), cameraForward),
-        };
+    #region Camera
 
-        float2 cameraView = new float2
-        {
-            x = Camera.VerticalToHorizontalFieldOfView(fov, aspect) * 0.5f,
-            y = fov * 0.5f
-        };
-        */
+    public static float GetCameraConeAngle(Quaternion cameraRot, float fov, float horizonFov)
+    {
+        return Math.Dot(cameraRot * Vector3.forward,
+            (
+                cameraRot * Vector3.forward
+                + cameraRot * Vector3.up * math.tan(math.radians(fov * 0.5f))
+                + cameraRot * Vector3.right * math.tan(math.radians(horizonFov * 0.5f))
+            ).normalized);
+    }
+    public static float GetCameraConeAngle(Camera camera)
+    {
+        return GetCameraConeAngle(camera.transform.rotation, camera.fieldOfView, Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect));
+    }
 
-        return (Math.Dot(new Vector3(targetPos.x - cameraPos.x, 0, targetPos.z - cameraPos.z).normalized, cameraForward)
-            <= (Camera.VerticalToHorizontalFieldOfView(fov, aspect) * 0.5f))
-            &&
-            (Math.Dot(new Vector3(0, targetPos.y - cameraPos.y, targetPos.z - cameraPos.z).normalized, cameraForward) <= (fov * 0.5f));
-    }
-    /// <summary>
-    /// Not Support Camera Roll
-    /// </summary>
-    public static bool IsRenderable(Camera camera, Vector3 targetPos)
+    public static Vector2 GetRenderAreaAngle(Vector3 cameraPos, Quaternion cameraRot, Vector3 target)
     {
-        return IsRenderable(camera.transform.position, camera.transform.forward, camera.fieldOfView, camera.aspect, targetPos);
-    }
-    /// <summary>
-    /// Not Support Camera Roll
-    /// </summary>
-    public static float2 GetRenderableRate(Vector3 cameraPos, Vector3 cameraForward, float fov, float aspect, Vector3 targetPos)
-    {
-        return new float2
+        return new Vector2
         {
-            x = (Math.Dot(new Vector3(targetPos.x - cameraPos.x, 0, targetPos.z - cameraPos.z).normalized, cameraForward)
-                / (Camera.VerticalToHorizontalFieldOfView(fov, aspect) * 0.5f)),
-            y = Math.Dot(new Vector3(0, targetPos.y - cameraPos.y, targetPos.z - cameraPos.z).normalized, cameraForward) / (fov * 0.5f)
+            x = Math.Dot((cameraRot * Vector3.forward), Vector3.ProjectOnPlane(target - cameraPos, cameraRot * Vector3.up)),
+            y = Math.Dot((cameraRot * Vector3.forward), Vector3.ProjectOnPlane(target - cameraPos, cameraRot * Vector3.right))
         };
     }
-    /// <summary>
-    /// Not Support Camera Roll
-    /// </summary>
-    public static float2 GetRenderableRate(Camera camera, Vector3 targetPos)
+    public static Vector2 GetRenderAreaAngle(Camera camera, Vector3 target)
     {
-        return IsRenderableRate(camera.transform.position, camera.transform.forward, camera.fieldOfView, camera.aspect, targetPos);
+        return GetRenderAreaAngle(camera.transform.position, camera.transform.rotation, target);
     }
+
+    public static bool IsRenderArea(Vector3 cameraPos, Quaternion cameraRot, float fov, float horizonFov, Vector3 target)
+    {
+        var angles = GetRenderAreaAngle(cameraPos, cameraRot, target);
+        return (angles.x <= horizonFov * 0.5f) && (angles.y <= fov * 0.5f);
+    }
+    public static bool IsRenderArea(Camera camera, Vector3 target)
+    {
+        return IsRenderArea(camera.transform.position, camera.transform.rotation, camera.fieldOfView,
+            Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect), target);
+    }
+
+    public static bool IsRenderAreaLite(Vector3 cameraPos, Quaternion cameraRot, float CameraConeAngle, float horizonFov, Vector3 target)
+    {
+        if (Math.Dot(cameraRot * Vector3.forward, (target - cameraPos).normalized) > CameraConeAngle)
+        {
+            return false;
+        }
+        else
+        {
+            return (horizonFov * 0.5 <= (Math.Dot((cameraRot * Vector3.forward), Vector3.ProjectOnPlane(target - cameraPos, cameraRot * Vector3.right))));
+        }
+    }
+    public static bool IsRenderAreaLite(Camera camera, Vector3 target)
+    {
+        return IsRenderAreaLite(camera.transform.position, camera.transform.rotation, camera.fieldOfView,
+            Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect), target);
+    }
+
+    public static Vector2 IsRenderAreaRate(Vector3 cameraPos, Quaternion cameraRot, float fov, float horizonFov, Vector3 target)
+    {
+        var angles = GetRenderAreaAngle(cameraPos, cameraRot, target);
+        return new Vector2
+        {
+            x = angles.x / horizonFov,
+            y = angles.y / fov
+        };
+    }
+    public static Vector2 IsRenderAreaRate(Camera camera, Vector3 target)
+    {
+        return IsRenderAreaRate(camera.transform.position, camera.transform.rotation, camera.fieldOfView,
+            Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect), target);
+    }
+
+    #endregion
+
 }

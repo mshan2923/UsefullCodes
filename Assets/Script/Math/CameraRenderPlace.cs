@@ -34,48 +34,51 @@ public class CameraRenderPlace : MonoBehaviour
             Debug.DrawLine(camera.transform.position, GetConerResize(corner[2]), Color.blue, Time.deltaTime);
             Debug.DrawLine(camera.transform.position, GetConerResize(corner[3]), Color.white, Time.deltaTime);
 
-            Debug.DrawLine(camera.transform.position, GetResize(camera.transform.position, Target.transform.position)
-                , Color.black, Time.deltaTime);
+            //Debug.DrawLine(camera.transform.position, GetResize(camera.transform.position, Target.transform.position) , Color.black, Time.deltaTime);
 
-            // 카메라 중심에서 x,y축 최소 최대 dot 으로 카메라 영역 계산
+            //Regacy
+            //Debug.Log($"Result : {IsRenderable(camera, Target.transform.position)} / Rate : {IsRenderableRate(camera, Target.transform.position)}");
+            
+
             {
+                
+                float coneAngle = Math.Dot((corner[0] - camera.transform.position).normalized, camera.transform.forward);
+                Debug.Log($"Cone Angle : {coneAngle} | {GetCameraConeAngle(camera.transform.rotation, camera.fieldOfView, camera.aspect)} || {math.tan(math.radians(30))}");
+
+
+
                 /*
-                 
-            Vector2 CameraViewAngle = new Vector2
+                var DrawDir = Quaternion.Euler(0, coneAngle, 0) * Vector3.forward;
+                Quaternion DrawRot = new();
+
+                for (int i = 0; i < 360; i += 10)
+                {
+                    DrawRot.eulerAngles = new Vector3(0, 0, i);
+
+                    Debug.DrawLine(camera.transform.position, camera.transform.position + (DrawRot * DrawDir), Color.black, Time.deltaTime);
+                }*/
+            }//Draw Cone
+
             {
-                x = Math.Dot(GetCornerNormalized(corner[1]), GetCornerNormalized(corner[2])),
-                y = Math.Dot(GetCornerNormalized(corner[0]), GetCornerNormalized(corner[1]))
-            };
-            CameraViewAngle *= 0.5f;
+                var YawDir = Vector3.ProjectOnPlane(Target.transform.position - camera.transform.position, camera.transform.up);
+                var pitchDir = Vector3.ProjectOnPlane(Target.transform.position - camera.transform.position, camera.transform.right);
 
-            Vector2 TargetDot = new
-                (
-                    Math.Dot(GetCornerNormalized(new Vector3(Target.transform.position.x, camera.transform.position.y, Target.transform.position.z)), camera.transform.forward),
-                    Math.Dot(GetCornerNormalized(new Vector3(camera.transform.position.x, Target.transform.position.y, Target.transform.position.z)), camera.transform.forward)
-                );
+                Debug.DrawLine(camera.transform.position + YawDir, camera.transform.position + pitchDir, Color.black, Time.deltaTime);
 
+                var TargetPlaceYaw = Math.Dot(camera.transform.forward, YawDir.normalized);
+                var TargetPlacePitch = Math.Dot(camera.transform.forward, pitchDir.normalized);
 
-            Debug.Log($"CameraView X : {CameraViewAngle.x} , Y : {CameraViewAngle.y} / Target Dir : {GetCornerNormalized(Target.transform.position)} / Camera corner Dir {GetCornerNormalized(corner[2])}" +
-                $"\n Target : x : {TargetDot.x} / Target : y : {TargetDot.y}");
-            //=========== XX 
-            // Normalized는 항상 길이가 1이 되므로 구형태 기반
-
-            CameraViewAngle = new Vector2
-                (
-                    Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect) * 0.5f,
-                    camera.fieldOfView * 0.5f
-                );
-            isVisible = (TargetDot.x <= CameraViewAngle.x) && (TargetDot.y <= CameraViewAngle.y);
-
-            Debug.Log($"vertical : {CameraViewAngle.x} / Horizon : {CameraViewAngle.y}" +
-                $"\n Visible : {isVisible} , x : {TargetDot.x / CameraViewAngle.x} / y : {TargetDot.y / CameraViewAngle.y}");
-            // 이걸로 해야됨*/
-            }//Disable
-
-            Debug.Log($"Result : {IsRenderable(camera, Target.transform.position)} / Rate : {IsRenderableRate(camera, Target.transform.position)}");
+                Debug.Log($"Yaw : {TargetPlaceYaw <= Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect) * 0.5f}" +
+                    $" , Pitch : {TargetPlacePitch <= camera.fieldOfView * 0.5f}" +
+                    $"\n Yaw : {TargetPlaceYaw}  | {TargetPlaceYaw / (Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect) * 0.5f)}%" +
+                    $"  / Pitch : {TargetPlaceYaw} | {TargetPlacePitch / (camera.fieldOfView * 0.5f)}%");
+                
+            }
+            
         }
     }
 
+    #region regacy
     Vector3 GetResize(Vector3 origin, Vector3 vaule)
     {
         return origin + (vaule - origin).normalized;
@@ -144,5 +147,75 @@ public class CameraRenderPlace : MonoBehaviour
     public static float2 IsRenderableRate(Camera camera, Vector3 targetPos)
     {
         return IsRenderableRate(camera.transform.position, camera.transform.forward, camera.fieldOfView, camera.aspect, targetPos);
+    }
+    #endregion
+
+    public float GetCameraConeAngle(Quaternion cameraRot, float fov, float horizonFov)
+    {
+        return Math.Dot(cameraRot * Vector3.forward,
+            (
+                cameraRot * Vector3.forward
+                + cameraRot * Vector3.up * math.tan(math.radians(fov * 0.5f))
+                + cameraRot * Vector3.right * math.tan(math.radians(horizonFov * 0.5f))
+            ).normalized);
+    }
+    public float GetCameraConeAngle(Camera camera)
+    {
+        return GetCameraConeAngle(camera.transform.rotation, camera.fieldOfView, Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect));
+    }
+
+    public Vector2 GetRenderAreaAngle(Vector3 cameraPos, Quaternion cameraRot, Vector3 target)
+    {
+        return new Vector2
+        {
+            x = Math.Dot((cameraRot * Vector3.forward), Vector3.ProjectOnPlane(target - cameraPos, cameraRot * Vector3.up)),
+            y = Math.Dot((cameraRot * Vector3.forward), Vector3.ProjectOnPlane(target - cameraPos, cameraRot * Vector3.right))
+        };
+    }
+    public Vector2 GetRenderAreaAngle(Camera camera, Vector3 target)
+    {
+        return GetRenderAreaAngle(camera.transform.position, camera.transform.rotation, target);
+    }
+
+    public bool IsRenderArea(Vector3 cameraPos, Quaternion cameraRot, float fov, float horizonFov, Vector3 target)
+    {
+        var angles = GetRenderAreaAngle(cameraPos, cameraRot, target);
+        return (angles.x <= horizonFov * 0.5f) && (angles.y <= fov * 0.5f);
+    }
+    public bool IsRenderArea(Camera camera, Vector3 target)
+    {
+        return IsRenderArea(camera.transform.position, camera.transform.rotation, camera.fieldOfView,
+            Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect), target);
+    }
+
+    public bool IsRenderAreaLite(Vector3 cameraPos, Quaternion cameraRot, float CameraConeAngle, float horizonFov, Vector3 target)
+    {
+        if (Math.Dot(cameraRot * Vector3.forward, (target - cameraPos).normalized) > CameraConeAngle)
+        {
+            return false;
+        }else
+        {
+            return (horizonFov * 0.5 <= (Math.Dot((cameraRot * Vector3.forward), Vector3.ProjectOnPlane(target - cameraPos, cameraRot * Vector3.right))));
+        }
+    }
+    public bool IsRenderAreaLite(Camera camera, Vector3 target)
+    {
+        return IsRenderAreaLite(camera.transform.position, camera.transform.rotation, camera.fieldOfView,
+            Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect), target);
+    }
+
+    public Vector2 IsRenderAreaRate(Vector3 cameraPos, Quaternion cameraRot, float fov, float horizonFov, Vector3 target)
+    {
+        var angles = GetRenderAreaAngle(cameraPos, cameraRot, target);
+        return new Vector2
+        {
+            x = angles.x / horizonFov,
+            y = angles.y / fov
+        };
+    }
+    public Vector2 IsRenderAreaRate(Camera camera, Vector3 target)
+    {
+        return IsRenderAreaRate(camera.transform.position, camera.transform.rotation, camera.fieldOfView,
+            Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect), target);
     }
 }
