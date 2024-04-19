@@ -1,8 +1,9 @@
-using System;
+
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
+using Custom;
 
 [ExecuteInEditMode]
 public class CameraRenderPlace : MonoBehaviour
@@ -43,7 +44,7 @@ public class CameraRenderPlace : MonoBehaviour
             {
                 
                 float coneAngle = Math.Dot((corner[0] - camera.transform.position).normalized, camera.transform.forward);
-                Debug.Log($"Cone Angle : {coneAngle} | {GetCameraConeAngle(camera.transform.rotation, camera.fieldOfView, camera.aspect)} || {math.tan(math.radians(30))}");
+                Debug.Log($"Cone Angle : {coneAngle} |  || {math.tan(math.radians(30))}");
 
 
 
@@ -150,72 +151,5 @@ public class CameraRenderPlace : MonoBehaviour
     }
     #endregion
 
-    public float GetCameraConeAngle(Quaternion cameraRot, float fov, float horizonFov)
-    {
-        return Math.Dot(cameraRot * Vector3.forward,
-            (
-                cameraRot * Vector3.forward
-                + cameraRot * Vector3.up * math.tan(math.radians(fov * 0.5f))
-                + cameraRot * Vector3.right * math.tan(math.radians(horizonFov * 0.5f))
-            ).normalized);
-    }
-    public float GetCameraConeAngle(Camera camera)
-    {
-        return GetCameraConeAngle(camera.transform.rotation, camera.fieldOfView, Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect));
-    }
 
-    public Vector2 GetRenderAreaAngle(Vector3 cameraPos, Quaternion cameraRot, Vector3 target)
-    {
-        return new Vector2
-        {
-            x = Math.Dot((cameraRot * Vector3.forward), Vector3.ProjectOnPlane(target - cameraPos, cameraRot * Vector3.up)),
-            y = Math.Dot((cameraRot * Vector3.forward), Vector3.ProjectOnPlane(target - cameraPos, cameraRot * Vector3.right))
-        };
-    }
-    public Vector2 GetRenderAreaAngle(Camera camera, Vector3 target)
-    {
-        return GetRenderAreaAngle(camera.transform.position, camera.transform.rotation, target);
-    }
-
-    public bool IsRenderArea(Vector3 cameraPos, Quaternion cameraRot, float fov, float horizonFov, Vector3 target)
-    {
-        var angles = GetRenderAreaAngle(cameraPos, cameraRot, target);
-        return (angles.x <= horizonFov * 0.5f) && (angles.y <= fov * 0.5f);
-    }
-    public bool IsRenderArea(Camera camera, Vector3 target)
-    {
-        return IsRenderArea(camera.transform.position, camera.transform.rotation, camera.fieldOfView,
-            Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect), target);
-    }
-
-    public bool IsRenderAreaLite(Vector3 cameraPos, Quaternion cameraRot, float CameraConeAngle, float horizonFov, Vector3 target)
-    {
-        if (Math.Dot(cameraRot * Vector3.forward, (target - cameraPos).normalized) > CameraConeAngle)
-        {
-            return false;
-        }else
-        {
-            return (horizonFov * 0.5 <= (Math.Dot((cameraRot * Vector3.forward), Vector3.ProjectOnPlane(target - cameraPos, cameraRot * Vector3.right))));
-        }
-    }
-    public bool IsRenderAreaLite(Camera camera, Vector3 target)
-    {
-        return IsRenderAreaLite(camera.transform.position, camera.transform.rotation, camera.fieldOfView,
-            Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect), target);
-    }
-
-    public Vector2 IsRenderAreaRate(Vector3 cameraPos, Quaternion cameraRot, float fov, float horizonFov, Vector3 target)
-    {
-        var angles = GetRenderAreaAngle(cameraPos, cameraRot, target);
-        return new Vector2
-        {
-            x = angles.x / horizonFov,
-            y = angles.y / fov
-        };
-    }
-    public Vector2 IsRenderAreaRate(Camera camera, Vector3 target)
-    {
-        return IsRenderAreaRate(camera.transform.position, camera.transform.rotation, camera.fieldOfView,
-            Camera.VerticalToHorizontalFieldOfView(camera.fieldOfView, camera.aspect), target);
-    }
 }
