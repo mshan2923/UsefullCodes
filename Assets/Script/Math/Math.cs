@@ -464,7 +464,7 @@ namespace Custom
         /// 두백터의 충돌 반사각
         /// </summary>
         /// <returns></returns>
-        public static Vector3 GetCollisionReflect(Quaternion Target, Quaternion Other, float TargetMass, float OtherMass)
+        [System.Obsolete] public static Vector3 GetCollisionReflect(Quaternion Target, Quaternion Other, float TargetMass, float OtherMass)
         {
             var AddVecForward = (Target * Vector3.forward * TargetMass + Other * Vector3.forward * OtherMass).normalized;
             var AddVecUp = (Target * Vector3.up * TargetMass + Other * Vector3.up * OtherMass).normalized;
@@ -473,7 +473,7 @@ namespace Custom
 
             return Quaternion.LookRotation(Vector3.Reflect(Target * Vector3.forward, AddVecRot * Vector3.right)) * Vector3.forward * (TargetMass / (TargetMass + OtherMass));
         }// 충돌을 했을때 기준 방향
-        public static Vector3 GetCollisionReflect(Vector3 TargetDir, Vector3 OtherDir, float TargetMass, float OtherMass)
+        [System.Obsolete] public static Vector3 GetCollisionReflect(Vector3 TargetDir, Vector3 OtherDir, float TargetMass, float OtherMass)
         {
             var AddVecForward = (TargetDir.normalized * TargetMass + OtherDir.normalized * OtherMass).normalized;
             var AddVecRot = Quaternion.LookRotation(AddVecForward);
@@ -502,6 +502,53 @@ namespace Custom
 
             Normal = RotationAxis * Quaternion.AngleAxis(CollisionRad * Mathf.Rad2Deg * -1, Vector3.right);
             return true;
+        }
+
+        /// <summary>
+        /// 구체 반사각
+        /// </summary>
+        /// <param name="v0">Direction * Speed</param>
+        /// <param name="v1">Direction * Speed</param>
+        public static void CollisionSphereReflect(Vector3 v0, Vector3 v1, float mass0, float mass1, out Vector3 vec0, out Vector3 vec1)
+        {
+            var normal = Vector3.Normalize(v0 + v1);
+
+            var postV0 = (mass1 * v1 + mass0 * v0) / (mass0 + mass1) - v1;
+            var postV1 = (mass1 * v1 + mass0 * v0) / (mass0 + mass1) - v0;
+            var v0r = postV0 - v0;
+            var v1r = postV1 - v1;
+
+            var dot0 = Vector3.Dot(v0r, normal);
+            var dot1 = Vector3.Dot(v1r, normal);
+
+            v0r -= 2 * dot0 * normal;
+            v1r -= 2 * dot1 * normal;
+
+            vec0 = v0r.normalized * postV0.magnitude;
+            vec1 = v1r.normalized * postV1.magnitude;
+        }
+        /// <summary>
+        /// 구체 반사각 , Equal Mass
+        /// </summary>
+        /// <param name="v0">Direction * Speed</param>
+        /// <param name="v1">Direction * Speed</param>
+        public static void CollisionSphereReflect(Vector3 v0, Vector3 v1, out Vector3 vec0, out Vector3 vec1)
+        {
+            var normal = Vector3.Normalize(v0 + v1);
+
+            var postV0 = (v0 + v1) * 0.5f - v1;
+            var postV1 = (v0 + v1) * 0.5f - v0;
+            var v0r = postV0 - v0;
+            var v1r = postV1 - v1;
+
+            var dot0 = Vector3.Dot(v0r, normal);
+            var dot1 = Vector3.Dot(v1r, normal);
+
+            v0r -= 2 * dot0 * normal;
+            v1r -= 2 * dot1 * normal;
+
+            vec0 = v0r.normalized * postV0.magnitude;
+            vec1 = v1r.normalized * postV1.magnitude;
         }
 
         public static float GetCurveEvaluate(float t, Keyframe keyframe0, Keyframe keyframe1)
