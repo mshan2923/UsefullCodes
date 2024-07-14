@@ -5,22 +5,22 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638497679519369387
-    m_Hash: 2334689753
+      ticks: 638565504717307940
+    m_Hash: 1380406041
   m_LockFileStatus:
     m_FilePath: C:/Git/UsefullCodes/Packages/packages-lock.json
     m_PathExists: 1
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638497679644591295
-    m_Hash: 375500549
+      ticks: 638565504758103537
+    m_Hash: 755892649
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
 m_LocalPackages:
   m_LocalFileStatus: []
 m_ProjectPath: C:/Git/UsefullCodes/Packages
-m_EditorVersion: 2022.3.26f1 (ec6cd8118806)
+m_EditorVersion: 2022.3.37f1 (340ba89e4c23)
 m_ResolvedPackages:
 - packageId: com.unity.ai.navigation@1.1.5
   testable: 0
@@ -93,12 +93,13 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
-- packageId: com.unity.collab-proxy@2.3.1
+  fingerprint: 
+- packageId: com.unity.collab-proxy@2.4.3
   testable: 0
   isDirectDependency: 1
-  version: 2.3.1
+  version: 2.4.3
   source: 1
-  resolvedPath: C:\Git\UsefullCodes\Library\PackageCache\com.unity.collab-proxy@2.3.1
+  resolvedPath: C:\Git\UsefullCodes\Library\PackageCache\com.unity.collab-proxy@2.4.3
   assetPath: Packages/com.unity.collab-proxy
   name: com.unity.collab-proxy
   displayName: Version Control
@@ -186,9 +187,10 @@ m_ResolvedPackages:
     - 2.1.0
     - 2.2.0
     - 2.3.1
+    - 2.4.3
     compatible:
-    - 2.3.1
-    recommended: 2.3.1
+    - 2.4.3
+    recommended: 2.4.3
     deprecated: []
   dependencies: []
   resolvedDependencies: []
@@ -217,22 +219,23 @@ m_ResolvedPackages:
     configSource: 0
   hideInEditor: 1
   isAssetStorePackage: 0
-  datePublishedTicks: 638448201880000000
-  documentationUrl: https://docs.unity3d.com/Packages/com.unity.collab-proxy@2.3/manual/index.html
+  datePublishedTicks: 638549067850000000
+  documentationUrl: https://docs.unity3d.com/Packages/com.unity.collab-proxy@2.4/manual/index.html
   hasRepository: 1
   repository:
     type: git
     url: https://github.cds.internal.unity3d.com/unity/com.unity.cloud.collaborate.git
-    revision: 613362ccb4468f55ee42e0a35809fb9a61f3f8f1
+    revision: d4c8fa70dd9679b33019945dc0a483c8c7e8038f
     path: 
   unityLifecycle:
-    version: 2.3.1
+    version: 2.4.3
     nextVersion: 
     recommendedVersion: 
     isDeprecated: 0
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.entities@1.0.16
   testable: 0
   isDirectDependency: 1
@@ -324,6 +327,9 @@ m_ResolvedPackages:
     - 1.2.0-pre.6
     - 1.2.0-pre.12
     - 1.2.0
+    - 1.2.1
+    - 1.2.3
+    - 1.3.0-exp.1
     compatible:
     - 0.0.12-preview.2
     - 0.0.12-preview.4
@@ -395,7 +401,10 @@ m_ResolvedPackages:
     - 1.2.0-pre.6
     - 1.2.0-pre.12
     - 1.2.0
-    recommended: 1.0.16
+    - 1.2.1
+    - 1.2.3
+    - 1.3.0-exp.1
+    recommended: 1.2.3
     deprecated: []
   dependencies:
   - name: com.unity.burst
@@ -422,7 +431,7 @@ m_ResolvedPackages:
     version: 1.0.2
   resolvedDependencies:
   - name: com.unity.burst
-    version: 1.8.13
+    version: 1.8.16
   - name: com.unity.mathematics
     version: 1.2.6
   - name: com.unity.modules.jsonserialize
@@ -450,7 +459,7 @@ m_ResolvedPackages:
   - name: com.unity.modules.imgui
     version: 1.0.0
   - name: com.unity.scriptablebuildpipeline
-    version: 1.21.21
+    version: 1.21.23
   - name: com.unity.profiling.core
     version: 1.0.2
   keywords:
@@ -478,11 +487,12 @@ m_ResolvedPackages:
   unityLifecycle:
     version: 
     nextVersion: 
-    recommendedVersion: 1.0.9
+    recommendedVersion: 1.2.0
     isDeprecated: 0
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.entities.graphics@1.0.16
   testable: 0
   isDirectDependency: 1
@@ -522,6 +532,9 @@ m_ResolvedPackages:
     - 1.2.0-pre.6
     - 1.2.0-pre.12
     - 1.2.0
+    - 1.2.1
+    - 1.2.3
+    - 1.3.0-exp.1
     compatible:
     - 1.0.0-exp.8
     - 1.0.0-exp.14
@@ -540,7 +553,10 @@ m_ResolvedPackages:
     - 1.2.0-pre.6
     - 1.2.0-pre.12
     - 1.2.0
-    recommended: 1.0.16
+    - 1.2.1
+    - 1.2.3
+    - 1.3.0-exp.1
+    recommended: 1.2.3
     deprecated: []
   dependencies:
   - name: com.unity.entities
@@ -553,7 +569,7 @@ m_ResolvedPackages:
   - name: com.unity.entities
     version: 1.0.16
   - name: com.unity.burst
-    version: 1.8.13
+    version: 1.8.16
   - name: com.unity.mathematics
     version: 1.2.6
   - name: com.unity.modules.jsonserialize
@@ -581,7 +597,7 @@ m_ResolvedPackages:
   - name: com.unity.modules.imgui
     version: 1.0.0
   - name: com.unity.scriptablebuildpipeline
-    version: 1.21.21
+    version: 1.21.23
   - name: com.unity.profiling.core
     version: 1.0.2
   - name: com.unity.modules.particlesystem
@@ -622,11 +638,12 @@ m_ResolvedPackages:
   unityLifecycle:
     version: 
     nextVersion: 
-    recommendedVersion: 1.0.9
+    recommendedVersion: 1.2.0
     isDeprecated: 0
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.ide.rider@3.0.28
   testable: 0
   isDirectDependency: 1
@@ -691,9 +708,11 @@ m_ResolvedPackages:
     - 3.0.26
     - 3.0.27
     - 3.0.28
+    - 3.0.31
     compatible:
     - 3.0.28
-    recommended: 3.0.28
+    - 3.0.31
+    recommended: 3.0.31
     deprecated: []
   dependencies:
   - name: com.unity.ext.nunit
@@ -728,6 +747,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.ide.visualstudio@2.0.22
   testable: 0
   isDirectDependency: 1
@@ -817,6 +837,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.ide.vscode@1.2.5
   testable: 0
   isDirectDependency: 1
@@ -885,6 +906,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.physics@1.0.16
   testable: 0
   isDirectDependency: 1
@@ -950,6 +972,9 @@ m_ResolvedPackages:
     - 1.2.0-pre.6
     - 1.2.0-pre.12
     - 1.2.0
+    - 1.2.1
+    - 1.2.3
+    - 1.3.0-exp.1
     compatible:
     - 0.0.1-preview.1
     - 0.0.2-preview.1
@@ -989,7 +1014,10 @@ m_ResolvedPackages:
     - 1.2.0-pre.6
     - 1.2.0-pre.12
     - 1.2.0
-    recommended: 1.0.16
+    - 1.2.1
+    - 1.2.3
+    - 1.3.0-exp.1
+    recommended: 1.2.3
     deprecated: []
   dependencies:
   - name: com.unity.burst
@@ -1006,7 +1034,7 @@ m_ResolvedPackages:
     version: 1.0.0
   resolvedDependencies:
   - name: com.unity.burst
-    version: 1.8.13
+    version: 1.8.16
   - name: com.unity.mathematics
     version: 1.2.6
   - name: com.unity.modules.jsonserialize
@@ -1036,7 +1064,7 @@ m_ResolvedPackages:
   - name: com.unity.modules.imgui
     version: 1.0.0
   - name: com.unity.scriptablebuildpipeline
-    version: 1.21.21
+    version: 1.21.23
   - name: com.unity.profiling.core
     version: 1.0.2
   keywords:
@@ -1063,11 +1091,12 @@ m_ResolvedPackages:
   unityLifecycle:
     version: 
     nextVersion: 
-    recommendedVersion: 1.0.9
+    recommendedVersion: 1.2.0
     isDeprecated: 0
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.render-pipelines.universal@14.0.11
   testable: 0
   isDirectDependency: 1
@@ -1156,7 +1185,7 @@ m_ResolvedPackages:
   - name: com.unity.mathematics
     version: 1.2.6
   - name: com.unity.burst
-    version: 1.8.13
+    version: 1.8.16
   - name: com.unity.modules.jsonserialize
     version: 1.0.0
   - name: com.unity.render-pipelines.core
@@ -1210,6 +1239,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.test-framework@1.1.33
   testable: 0
   isDirectDependency: 1
@@ -1347,6 +1377,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.textmeshpro@3.0.6
   testable: 0
   isDirectDependency: 1
@@ -1468,6 +1499,7 @@ m_ResolvedPackages:
     - 3.0.6
     - 3.0.7
     - 3.0.8
+    - 3.0.9
     - 3.2.0-pre.1
     - 3.2.0-pre.2
     - 3.2.0-pre.3
@@ -1477,12 +1509,14 @@ m_ResolvedPackages:
     - 3.2.0-pre.7
     - 3.2.0-pre.8
     - 3.2.0-pre.9
+    - 3.2.0-pre.10
     - 4.0.0-pre.1
     - 4.0.0-pre.2
     compatible:
     - 3.0.6
     - 3.0.7
     - 3.0.8
+    - 3.0.9
     - 3.2.0-pre.1
     - 3.2.0-pre.2
     - 3.2.0-pre.3
@@ -1492,9 +1526,10 @@ m_ResolvedPackages:
     - 3.2.0-pre.7
     - 3.2.0-pre.8
     - 3.2.0-pre.9
+    - 3.2.0-pre.10
     - 4.0.0-pre.1
     - 4.0.0-pre.2
-    recommended: 3.0.8
+    recommended: 3.0.9
     deprecated: []
   dependencies:
   - name: com.unity.ugui
@@ -1538,6 +1573,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.timeline@1.7.6
   testable: 0
   isDirectDependency: 1
@@ -1644,6 +1680,7 @@ m_ResolvedPackages:
     - 1.8.4
     - 1.8.5
     - 1.8.6
+    - 1.8.7
     compatible:
     - 1.7.6
     - 1.8.0
@@ -1653,6 +1690,7 @@ m_ResolvedPackages:
     - 1.8.4
     - 1.8.5
     - 1.8.6
+    - 1.8.7
     recommended: 1.7.6
     deprecated: []
   dependencies:
@@ -1705,6 +1743,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.ugui@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -1777,6 +1816,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.ai@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -1832,6 +1872,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.androidjni@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -1886,6 +1927,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.animation@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -1941,6 +1983,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.assetbundle@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -1996,6 +2039,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.audio@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2051,6 +2095,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.cloth@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2110,6 +2155,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.director@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2173,6 +2219,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.imageconversion@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2229,6 +2276,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.imgui@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2284,6 +2332,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.jsonserialize@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2339,6 +2388,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.particlesystem@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2394,6 +2444,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.physics@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2449,6 +2500,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.physics2d@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2504,6 +2556,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.screencapture@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2563,6 +2616,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.terrain@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2618,6 +2672,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.terrainphysics@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2681,6 +2736,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.tilemap@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2739,6 +2795,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.ui@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2794,6 +2851,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.uielements@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2861,6 +2919,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.umbra@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2916,6 +2975,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.unityanalytics@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -2979,6 +3039,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.unitywebrequest@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -3034,6 +3095,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.unitywebrequestassetbundle@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -3097,6 +3159,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.unitywebrequestaudio@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -3160,6 +3223,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.unitywebrequesttexture@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -3223,6 +3287,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.unitywebrequestwww@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -3302,6 +3367,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.vehicles@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -3361,6 +3427,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.video@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -3428,6 +3495,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.vr@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -3497,6 +3565,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.wind@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -3552,6 +3621,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.xr@1.0.0
   testable: 0
   isDirectDependency: 1
@@ -3619,6 +3689,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.modules.subsystems@1.0.0
   testable: 0
   isDirectDependency: 0
@@ -3678,6 +3749,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.ext.nunit@1.0.6
   testable: 0
   isDirectDependency: 0
@@ -3749,6 +3821,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.mathematics@1.2.6
   testable: 0
   isDirectDependency: 0
@@ -3825,12 +3898,13 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
-- packageId: com.unity.burst@1.8.13
+  fingerprint: 
+- packageId: com.unity.burst@1.8.16
   testable: 0
   isDirectDependency: 0
-  version: 1.8.13
+  version: 1.8.16
   source: 1
-  resolvedPath: C:\Git\UsefullCodes\Library\PackageCache\com.unity.burst@1.8.13
+  resolvedPath: C:\Git\UsefullCodes\Library\PackageCache\com.unity.burst@1.8.16
   assetPath: Packages/com.unity.burst
   name: com.unity.burst
   displayName: Burst
@@ -3975,10 +4049,11 @@ m_ResolvedPackages:
     - 1.8.12
     - 1.8.13
     - 1.8.14
+    - 1.8.15
+    - 1.8.16
     compatible:
-    - 1.8.13
-    - 1.8.14
-    recommended: 1.8.14
+    - 1.8.16
+    recommended: 1.8.16
     deprecated: []
   dependencies:
   - name: com.unity.mathematics
@@ -4001,22 +4076,23 @@ m_ResolvedPackages:
     configSource: 0
   hideInEditor: 1
   isAssetStorePackage: 0
-  datePublishedTicks: 638459163600000000
+  datePublishedTicks: 638538904590000000
   documentationUrl: https://docs.unity3d.com/Packages/com.unity.burst@1.8/manual/index.html
   hasRepository: 1
   repository:
     type: git
-    url: git@github.cds.internal.unity3d.com:unity/burst
-    revision: 018c84715a0efcfda7f76841a1b0b0366e55f407
+    url: https://github.cds.internal.unity3d.com/unity/burst.git
+    revision: c26d24707e3090f86fd59f265b377ec2fe17f690
     path: 
   unityLifecycle:
-    version: 1.8.13
+    version: 1.8.16
     nextVersion: 
     recommendedVersion: 
     isDeprecated: 0
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.render-pipelines.core@14.0.11
   testable: 0
   isDirectDependency: 0
@@ -4195,6 +4271,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.shadergraph@14.0.11
   testable: 0
   isDirectDependency: 0
@@ -4370,6 +4447,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.render-pipelines.universal-config@14.0.10
   testable: 0
   isDirectDependency: 0
@@ -4440,6 +4518,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.collections@2.1.4
   testable: 0
   isDirectDependency: 0
@@ -4525,6 +4604,9 @@ m_ResolvedPackages:
     - 2.4.0-pre.2
     - 2.4.0-pre.5
     - 2.4.0
+    - 2.4.1
+    - 2.4.2
+    - 2.5.0-exp.1
     compatible:
     - 1.2.4
     - 1.3.1
@@ -4545,7 +4627,10 @@ m_ResolvedPackages:
     - 2.4.0-pre.2
     - 2.4.0-pre.5
     - 2.4.0
-    recommended: 2.1.4
+    - 2.4.1
+    - 2.4.2
+    - 2.5.0-exp.1
+    recommended: 2.4.2
     deprecated: []
   dependencies:
   - name: com.unity.burst
@@ -4556,7 +4641,7 @@ m_ResolvedPackages:
     version: 1.11.4
   resolvedDependencies:
   - name: com.unity.burst
-    version: 1.8.13
+    version: 1.8.16
   - name: com.unity.mathematics
     version: 1.2.6
   - name: com.unity.modules.jsonserialize
@@ -4592,11 +4677,12 @@ m_ResolvedPackages:
   unityLifecycle:
     version: 1.2.4
     nextVersion: 
-    recommendedVersion: 2.1.4
+    recommendedVersion: 2.4.0
     isDeprecated: 0
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.serialization@3.1.1
   testable: 0
   isDirectDependency: 0
@@ -4678,7 +4764,7 @@ m_ResolvedPackages:
   - name: com.unity.collections
     version: 2.1.4
   - name: com.unity.burst
-    version: 1.8.13
+    version: 1.8.16
   - name: com.unity.mathematics
     version: 1.2.6
   - name: com.unity.modules.jsonserialize
@@ -4720,6 +4806,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.test-framework.performance@3.0.2
   testable: 0
   isDirectDependency: 0
@@ -4860,6 +4947,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.nuget.mono-cecil@1.11.4
   testable: 0
   isDirectDependency: 0
@@ -4928,12 +5016,13 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
-- packageId: com.unity.scriptablebuildpipeline@1.21.21
+  fingerprint: 
+- packageId: com.unity.scriptablebuildpipeline@1.21.23
   testable: 0
   isDirectDependency: 0
-  version: 1.21.21
+  version: 1.21.23
   source: 1
-  resolvedPath: C:\Git\UsefullCodes\Library\PackageCache\com.unity.scriptablebuildpipeline@1.21.21
+  resolvedPath: C:\Git\UsefullCodes\Library\PackageCache\com.unity.scriptablebuildpipeline@1.21.23
   assetPath: Packages/com.unity.scriptablebuildpipeline
   name: com.unity.scriptablebuildpipeline
   displayName: Scriptable Build Pipeline
@@ -5013,20 +5102,24 @@ m_ResolvedPackages:
     - 1.21.20
     - 1.21.21
     - 1.21.22
+    - 1.21.23
+    - 1.21.24
     - 2.0.1
     - 2.0.2
     - 2.1.0
     - 2.1.2
     - 2.1.3
+    - 2.1.4
     compatible:
-    - 1.21.21
-    - 1.21.22
+    - 1.21.23
+    - 1.21.24
     - 2.0.1
     - 2.0.2
     - 2.1.0
     - 2.1.2
     - 2.1.3
-    recommended: 1.21.22
+    - 2.1.4
+    recommended: 1.21.24
     deprecated: []
   dependencies: []
   resolvedDependencies: []
@@ -5047,22 +5140,23 @@ m_ResolvedPackages:
     configSource: 0
   hideInEditor: 1
   isAssetStorePackage: 0
-  datePublishedTicks: 638342531640000000
+  datePublishedTicks: 638513848730000000
   documentationUrl: https://docs.unity3d.com/Packages/com.unity.scriptablebuildpipeline@1.21/manual/index.html
   hasRepository: 1
   repository:
     type: git
     url: https://github.cds.internal.unity3d.com/unity/Addressables.git
-    revision: a981d4bc6c5de7a6a62ec3f63f3bdfc87ece371a
+    revision: 74ca1aaeb603da7437db95664f9bb92252223dab
     path: 
   unityLifecycle:
-    version: 1.21.21
+    version: 1.21.23
     nextVersion: 
     recommendedVersion: 
     isDeprecated: 0
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.profiling.core@1.0.2
   testable: 0
   isDirectDependency: 0
@@ -5126,6 +5220,7 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
 - packageId: com.unity.searcher@4.9.2
   testable: 0
   isDirectDependency: 0
@@ -5198,3 +5293,5 @@ m_ResolvedPackages:
     deprecationMessage: 
   isDeprecated: 0
   deprecationMessage: 
+  fingerprint: 
+m_BuiltInPackagesHash: 4cb4cee98364a430a85e2e4e48100e562db8ef30
