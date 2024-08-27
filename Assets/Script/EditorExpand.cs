@@ -197,7 +197,7 @@ namespace Expand
             var paths = property.propertyPath.Split('.');
 
             {
-                
+
                 //if (property.serializedObject.targetObject.GetType().GetField(paths[0]) == null)
                 //{
                 //    if (property.serializedObject.targetObject.GetType().GetField(paths[0], BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance) != null)
@@ -205,7 +205,7 @@ namespace Expand
                 //        Debug.LogWarning("pravate \n" + property.serializedObject.targetObject.name + " == " + property.propertyPath);
                 //    }
                 //}
-                
+
             }//Acess Even Pravate - Disable
 
             object LChildObj = property.serializedObject.targetObject.GetType().GetField(paths[0], BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
@@ -300,7 +300,7 @@ namespace Expand
             //Debug.Log(EditorExpand.PropertyTypeToType(property.type).FullName);
         }
 
-        public static SerializedProperty FindProperty(SerializedProperty property , params string[] RelativePath)
+        public static SerializedProperty FindProperty(SerializedProperty property, params string[] RelativePath)
         {
             SerializedProperty LPath = property;
             for (int i = 0; i < RelativePath.Length; i++)
@@ -414,7 +414,7 @@ namespace Expand
             int lastlayer = 31;
             for (int i = 31; i >= 0; i--)
             {
-                if (! string.IsNullOrEmpty(UnityEditorInternal.InternalEditorUtility.GetLayerName(i)))
+                if (!string.IsNullOrEmpty(UnityEditorInternal.InternalEditorUtility.GetLayerName(i)))
                 {
                     lastlayer = i;
                     break;

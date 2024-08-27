@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.VisualScripting;
+
 
 
 #if UNITY_EDITOR
@@ -898,6 +900,9 @@ public class MapEditor_KV : PropertyDrawer
                 //elementHeight = EditorGUIUtility.singleLineHeight,
                 elementHeightCallback = (int index) =>
                 {
+                    if (Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Vaule").IsUnityNull())
+                        return EditorGUI.GetPropertyHeight(Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Key"), true);
+
                     return Mathf.Max(EditorGUI.GetPropertyHeight(Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Key"), true),
                         EditorGUI.GetPropertyHeight(Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Vaule"), true));
                 },
@@ -910,9 +915,16 @@ public class MapEditor_KV : PropertyDrawer
                     EditorGUI.PropertyField(new Rect(rect.x, rect.y, rect.width * AreaSlider, rect.height),
                         Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Key"), GUIContent.none, true);
 
-                    EditorGUIUtility.labelWidth = 75;
-                    EditorGUI.PropertyField(new Rect((rect.x + rect.width * AreaSlider), rect.y, rect.width * (1 - AreaSlider), rect.height),
-                        Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Vaule"), GUIContent.none, true);
+                    try
+                    {
+                        EditorGUIUtility.labelWidth = 75;
+                        EditorGUI.PropertyField(new Rect((rect.x + rect.width * AreaSlider), rect.y, rect.width * (1 - AreaSlider), rect.height),
+                            Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Vaule"), GUIContent.none, true);
+                    }catch
+                    {
+                        if (Slot.GetArrayElementAtIndex(index).FindPropertyRelative("Vaule").IsUnityNull())
+                            Debug.LogWarning($"Not Vaild Vaule , if Vaule is Array try add 'Serializable' attribute");
+                    }
                 }
             };
         }
